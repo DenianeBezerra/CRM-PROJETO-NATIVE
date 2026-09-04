@@ -30,6 +30,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isValid, isLoading } = useAuth()
+
+  if (isLoading) return null
+  if (!isValid) return <Navigate to="/" replace />
+  if (user?.role !== 'admin') return <Navigate to="/home" replace />
+  return <>{children}</>
+}
+
 const App = () => (
   <BrowserRouter>
     <AuthProvider>
@@ -45,6 +54,14 @@ const App = () => (
                 <ProtectedRoute>
                   <Home />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <Home adminOnly />
+                </AdminRoute>
               }
             />
           </Route>

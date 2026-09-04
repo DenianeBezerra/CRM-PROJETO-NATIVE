@@ -14,7 +14,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 
-export default function Home() {
+export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
   const { user, isValid, isLoading, logout } = useAuth()
   const { toast } = useToast()
@@ -105,7 +105,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F5F1] border border-[#C9A227]/30 text-xs font-semibold text-[#A8862B] mb-4">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A227]" />
-              Sessão corporativa ativa
+              {adminOnly ? 'Área administrativa protegida' : 'Sessão corporativa ativa'}
             </div>
 
             <h1 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0A0A0A] tracking-tight">
@@ -116,7 +116,9 @@ export default function Home() {
             <div className="h-1 w-20 bg-gradient-to-r from-[#C9A227] to-[#E8C766] rounded-full mt-3 mb-4" />
 
             <p className="font-inter text-base sm:text-lg text-[#6B7280] leading-relaxed">
-              Seu CRM está pronto. Em breve, seus clientes aparecerão aqui.
+              {adminOnly
+                ? `Acesso administrativo confirmado para o perfil ${user?.role || 'admin'}.`
+                : 'Seu CRM está pronto. Em breve, seus clientes aparecerão aqui.'}
             </p>
           </div>
 

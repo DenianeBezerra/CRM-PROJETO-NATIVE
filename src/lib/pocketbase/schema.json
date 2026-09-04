@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T13:31:28.862Z",
+  "generatedAt": "2026-09-04T19:40:30.661Z",
   "collections": [
     {
       "name": "users",
@@ -29,14 +29,29 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        },
+        {
+          "name": "role",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "admin",
+            "operator"
+          ]
         }
       ],
       "indexes": [

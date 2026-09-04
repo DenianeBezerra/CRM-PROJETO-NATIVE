@@ -2,10 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { AuthRecord } from 'pocketbase'
 import pb from '@/lib/pocketbase/client'
 
+export type UserRole = 'admin' | 'operator'
+
 export interface AuthUser {
   id: string
   email: string
   name: string
+  role: UserRole
   avatar?: string
   created?: string
   updated?: string
@@ -31,6 +34,7 @@ function mapAuthRecord(record: AuthRecord | null): AuthUser | null {
     id: record.id,
     email: record.email || '',
     name: record.name || (record.email ? record.email.split('@')[0] : 'Usuário'),
+    role: record.role === 'operator' ? 'operator' : 'admin',
     avatar: record.avatar,
     created: record.created,
     updated: record.updated,
