@@ -31,11 +31,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 }
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isValid, isLoading } = useAuth()
+  const { isValid, isLoading } = useAuth()
 
   if (isLoading) return null
   if (!isValid) return <Navigate to="/" replace />
-  if (user?.role !== 'admin') return <Navigate to="/home" replace />
   return <>{children}</>
 }
 

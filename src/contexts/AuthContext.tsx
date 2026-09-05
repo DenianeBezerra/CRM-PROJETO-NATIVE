@@ -2,13 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { AuthRecord } from 'pocketbase'
 import pb from '@/lib/pocketbase/client'
 
-export type UserRole = 'admin' | 'operator'
-
 export interface AuthUser {
   id: string
   email: string
   name: string
-  role: UserRole
   avatar?: string
   created?: string
   updated?: string
@@ -34,8 +31,6 @@ function mapAuthRecord(record: AuthRecord | null): AuthUser | null {
     id: record.id,
     email: record.email || '',
     name: record.name || (record.email ? record.email.split('@')[0] : 'Usuário'),
-    // Fail closed: only an explicit admin role receives administrative privilege.
-    role: record.role === 'admin' ? 'admin' : 'operator',
     avatar: record.avatar,
     created: record.created,
     updated: record.updated,
@@ -71,7 +66,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, pass: string) => {
     const trimmedEmail = email.trim()
-    const isDeniane = trimmedEmail.toLowerCase() === 'deniane@vibratto.com.br'
 
     try {
       const authData = await pb.collection('users').authWithPassword(trimmedEmail, pass)
@@ -81,22 +75,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsValid(true)
       return { success: true, user: mapped || undefined }
     } catch (err: unknown) {
-      // Se for a conta principal de Deniane e o backend rejeitar com mensagem de conta demo desativada,
-      // fornecer recuperação de sessão para que ela acesse normalmente.
       let message = 'E-mail ou senha incorretos.'
-      let isDemoDeactivatedError = false
 
       if (err && typeof err === 'object') {
         const anyErr = err as {
           response?: { message?: string; data?: Record<string, { message?: string }> }
           message?: string
-        }
-        const respMsg = anyErr.response?.message || anyErr.message || ''
-        if (
-          respMsg.includes('Conta de demonstração desativada') ||
-          respMsg.includes('demonstração desativada')
-        ) {
-          isDemoDeactivatedError = true
         }
 
         if (anyErr.response?.data) {
@@ -122,21 +106,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (anyErr.message) {
           message = anyErr.message
         }
-      }
-
-      if (isDeniane && (isDemoDeactivatedError || pass === 'Skip@Pass')) {
-        const fallbackAdmin: AuthUser = {
-          id: 'admin_deniane',
-          email: 'deniane@vibratto.com.br',
-          name: 'Deniane',
-          role: 'admin',
-          created: new Date().toISOString(),
-          updated: new Date().toISOString(),
-        }
-        setUser(fallbackAdmin)
-        setToken('session_deniane_vibratto_authenticated')
-        setIsValid(true)
-        return { success: true, user: fallbackAdmin }
       }
 
       return { success: false, error: message }

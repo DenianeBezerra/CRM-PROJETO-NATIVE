@@ -13,7 +13,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
-import pb from '@/lib/pocketbase/client'
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
@@ -25,31 +24,6 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
       navigate('/', { replace: true })
     }
   }, [isValid, isLoading, navigate])
-
-  const handleDeactivateDemo = async () => {
-    if (!user || user.role !== 'admin') return
-    try {
-      const fixture = await pb
-        .collection('users')
-        .getFirstListItem('email = "operador.demo@vibratto.com.br"')
-        .catch(() => null)
-
-      if (fixture) {
-        await pb
-          .send(`/backend/v1/demo/deactivate-fixture/${fixture.id}`, { method: 'POST' })
-          .catch(() => null)
-      }
-      toast({
-        title: 'Fixture desativada',
-        description: 'A ação foi registrada na trilha de auditoria.',
-      })
-    } catch {
-      toast({
-        title: 'Fixture desativada',
-        description: 'Estado de demonstração atualizado.',
-      })
-    }
-  }
 
   const handleLogout = () => {
     logout()
@@ -103,14 +77,6 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
 
           <div className="h-6 w-[1px] bg-[#C9A227]/30 hidden sm:block" />
 
-          {adminOnly && user?.role === 'admin' && (
-            <button
-              onClick={handleDeactivateDemo}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#B91C1C]/40 bg-white text-[#B91C1C] font-medium text-xs sm:text-sm"
-            >
-              Desativar fixture
-            </button>
-          )}
           <button
             onClick={handleLogout}
             className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#C9A227]/40 bg-[#141414] hover:bg-[#C9A227] text-white hover:text-[#0A0A0A] font-inter font-medium text-xs sm:text-sm transition-all duration-200 shadow-sm cursor-pointer"
@@ -139,7 +105,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F5F1] border border-[#C9A227]/30 text-xs font-semibold text-[#A8862B] mb-4">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A227]" />
-              {adminOnly ? 'Área administrativa protegida' : 'Sessão corporativa ativa'}
+              {adminOnly ? 'Área protegida' : 'Sessão corporativa ativa'}
             </div>
 
             <h1 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0A0A0A] tracking-tight">
@@ -150,9 +116,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             <div className="h-1 w-20 bg-gradient-to-r from-[#C9A227] to-[#E8C766] rounded-full mt-3 mb-4" />
 
             <p className="font-inter text-base sm:text-lg text-[#6B7280] leading-relaxed">
-              {adminOnly
-                ? `Acesso administrativo confirmado para o perfil ${user?.role || 'admin'}.`
-                : 'Seu CRM está pronto. Em breve, seus clientes aparecerão aqui.'}
+              Seu CRM está pronto. Em breve, seus clientes aparecerão aqui.
             </p>
           </div>
 

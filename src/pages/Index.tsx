@@ -12,7 +12,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
-import pb from '@/lib/pocketbase/client'
 
 const IS_DEMO =
   import.meta.env.VITE_DEMO_MODE === 'true' || window.location.hostname.includes('--preview.')
