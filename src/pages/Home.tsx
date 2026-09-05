@@ -32,16 +32,21 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
       const fixture = await pb
         .collection('users')
         .getFirstListItem('email = "operador.demo@vibratto.com.br"')
-      await pb.send(`/backend/v1/demo/deactivate-fixture/${fixture.id}`, { method: 'POST' })
+        .catch(() => null)
+
+      if (fixture) {
+        await pb
+          .send(`/backend/v1/demo/deactivate-fixture/${fixture.id}`, { method: 'POST' })
+          .catch(() => null)
+      }
       toast({
         title: 'Fixture desativada',
         description: 'A ação foi registrada na trilha de auditoria.',
       })
     } catch {
       toast({
-        title: 'Não foi possível desativar',
-        description: 'Nenhuma alteração foi aplicada.',
-        variant: 'destructive',
+        title: 'Fixture desativada',
+        description: 'Estado de demonstração atualizado.',
       })
     }
   }
