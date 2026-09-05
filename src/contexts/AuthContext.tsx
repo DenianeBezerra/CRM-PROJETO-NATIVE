@@ -34,7 +34,8 @@ function mapAuthRecord(record: AuthRecord | null): AuthUser | null {
     id: record.id,
     email: record.email || '',
     name: record.name || (record.email ? record.email.split('@')[0] : 'Usuário'),
-    role: record.role === 'operator' ? 'operator' : 'admin',
+    // Fail closed: only an explicit admin role receives administrative privilege.
+    role: record.role === 'admin' ? 'admin' : 'operator',
     avatar: record.avatar,
     created: record.created,
     updated: record.updated,
