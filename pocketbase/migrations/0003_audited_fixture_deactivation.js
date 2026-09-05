@@ -29,7 +29,7 @@ migrate(
 
     const admin = app.findAuthRecordByEmail('_pb_users_auth_', 'deniane@vibratto.com.br')
     admin.set('active', true)
-    admin.set('demo_fixture', true)
+    admin.set('demo_fixture', false)
     app.save(admin)
 
     if (!app.hasTable('fixture_audit')) {
