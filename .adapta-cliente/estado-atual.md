@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.2
+- task_id: nenhuma
 - champion: Verificador da entrega
-- spec: 04_fase-atual/specs/SPEC-1-003-contatos-e-empresas.md
-- etapa: implementando
+- spec: nenhuma
+- etapa: concluida
 - autorizacao_implementacao: confirmada — "sim" em 2026-09-08
-- teste_humano: pendente
-- verificacao_automatica: pendente
-- aprendizado: pendente
-- ultima_acao: autorização recebida; regressão da T3.2 iniciada
-- proxima_acao: executar QA e validar bordas de contatos/clientes
-- atualizado_em: 2026-09-08T18:57:00-03:00
+- teste_humano: aprovado — "TODOS VALIDADOS" em 2026-09-08
+- verificacao_automatica: passou — Skip QA v0.0.24; setup, análise estática, build, integrações e testes OK; rotas e regras da coleção clientes verificadas
+- aprendizado: sem_sinal: sem novo padrão técnico reutilizável além da evidência específica da task
+- ultima_acao: T3.2 concluída após revalidação automática e aprovação humana de todas as bordas
+- proxima_acao: selecionar/analisar a próxima task elegível, T4.1, somente mediante novo pedido
+- atualizado_em: 2026-09-08T19:04:00-03:00
