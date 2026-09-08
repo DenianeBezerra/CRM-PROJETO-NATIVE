@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Pencil, Plus, Search, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
 
@@ -15,10 +15,15 @@ type Oportunidade = {
   data_fechamento_previsto?: string
   observacoes?: string
 }
-
 type Cliente = { id: string; nome: string }
-
-const stages = ['novo', 'contato_feito', 'proposta', 'fechado_ganho', 'fechado_perdido']
+type Etapa = { chave: string; nome: string; ordem: number; ativa: boolean }
+const fallbackStages = [
+  { chave: 'novo', nome: 'Novo', ordem: 10, ativa: true },
+  { chave: 'contato_feito', nome: 'Contato feito', ordem: 20, ativa: true },
+  { chave: 'proposta', nome: 'Proposta', ordem: 30, ativa: true },
+  { chave: 'fechado_ganho', nome: 'Fechado ganho', ordem: 40, ativa: true },
+  { chave: 'fechado_perdido', nome: 'Fechado perdido', ordem: 50, ativa: true },
+]
 const emptyForm = {
   titulo: '',
   cliente: '',
@@ -34,13 +39,13 @@ export default function Opportunities() {
   const { toast } = useToast()
   const [items, setItems] = useState<Oportunidade[]>([])
   const [clients, setClients] = useState<Cliente[]>([])
+  const [stages, setStages] = useState<Etapa[]>(fallbackStages)
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
-
   const load = async () => {
     setLoading(true)
     try {
@@ -58,24 +63,29 @@ export default function Opportunities() {
         })),
       )
       setClients(contacts)
+      try {
+        const configured = await pb
+          .collection('etapas_negocio')
+          .getFullList<Etapa>({ filter: 'ativa = true', sort: 'ordem' })
+        if (configured.length) setStages(configured)
+      } catch {
+        /* compatibilidade enquanto migration não aplicada */
+      }
     } catch {
       setError('Não foi possível carregar as oportunidades.')
     } finally {
       setLoading(false)
     }
   }
-
   useEffect(() => {
     void load()
   }, [])
-
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
     return items.filter(
       (x) => !q || `${x.titulo} ${x.cliente_nome || ''}`.toLowerCase().includes(q),
     )
   }, [items, search])
-
   const update = (key: keyof typeof form, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
   const reset = () => {
@@ -97,7 +107,6 @@ export default function Opportunities() {
     })
     setShowForm(true)
   }
-
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError('')
@@ -109,8 +118,8 @@ export default function Opportunities() {
       return setError('Informe um valor válido.')
     if (!Number.isFinite(probability) || probability < 0 || probability > 100)
       return setError('A probabilidade deve estar entre 0 e 100.')
-    const payload = { ...form, valor: value, probabilidade: probability }
     try {
+      const payload = { ...form, valor: value, probabilidade: probability }
       if (editing) await pb.collection('negocios').update(editing, payload)
       else await pb.collection('negocios').create(payload)
       toast({ title: editing ? 'Oportunidade atualizada' : 'Oportunidade cadastrada' })
@@ -120,7 +129,6 @@ export default function Opportunities() {
       setError('Não foi possível salvar. Verifique os campos e tente novamente.')
     }
   }
-
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -175,7 +183,7 @@ export default function Opportunities() {
                     </p>
                   </div>
                   <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-1 h-fit">
-                    {item.estagio}
+                    {stages.find((stage) => stage.chave === item.estagio)?.nome || item.estagio}
                   </span>
                 </div>
                 <p className="text-sm mt-4">
@@ -266,8 +274,8 @@ export default function Opportunities() {
                   className="mt-1 w-full border rounded-lg px-3 py-2"
                 >
                   {stages.map((stage) => (
-                    <option key={stage} value={stage}>
-                      {stage}
+                    <option key={stage.chave} value={stage.chave}>
+                      {stage.nome}
                     </option>
                   ))}
                 </select>

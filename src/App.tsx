@@ -7,6 +7,7 @@ import Index from './pages/Index'
 import Home from './pages/Home'
 import Contacts from './pages/Contacts'
 import Opportunities from './pages/Opportunities'
+import Stages from './pages/Stages'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -68,6 +69,14 @@ const App = () => (
               element={
                 <AdminRoute>
                   <Home adminOnly />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/etapas"
+              element={
+                <AdminRoute>
+                  <Stages />
                 </AdminRoute>
               }
             />

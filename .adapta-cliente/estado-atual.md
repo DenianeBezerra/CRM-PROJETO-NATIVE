@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
-- champion: Verificador da entrega
-- spec: nenhuma
-- etapa: concluida
+- task_id: T6.1
+- champion: Executor de software/dados
+- spec: 04-fase-atual/specs/SPEC-1-006-seed-editor-etapas.md (derivada, autorizada em 2026-09-08; SPEC original não localizada)
+- etapa: implementando
 - autorizacao_implementacao: confirmada — "sim" em 2026-09-08
-- teste_humano: aprovado — "todos passaram" em 2026-09-08
-- verificacao_automatica: passou — Skip QA v0.0.31; setup, análise estática, build, integrações e testes OK; rota e regras da coleção negocios verificadas
-- aprendizado: sem_sinal: sem novo padrão técnico reutilizável além da evidência específica da task
-- ultima_acao: T4.2 concluída após QA final e aprovação humana de todas as bordas
-- proxima_acao: selecionar/analisar a próxima task elegível, T6.1, somente mediante novo pedido
-- atualizado_em: 2026-09-08T19:34:00-03:00
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: autorização recebida para implementar a T6.1 conforme SPEC derivada
+- proxima_acao: criar migration idempotente, editor administrativo e integração das etapas
+- atualizado_em: 2026-09-08T19:42:00-03:00
