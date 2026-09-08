@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import Index from './pages/Index'
 import Home from './pages/Home'
+import Contacts from './pages/Contacts'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -53,6 +54,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/contatos"
+              element={
+                <ProtectedRoute>
+                  <Contacts />
                 </ProtectedRoute>
               }
             />
