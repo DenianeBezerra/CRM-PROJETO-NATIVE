@@ -23,15 +23,23 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const handleDeactivateDemoFixture = async () => {
     try {
       const fixture = await pb.collection('demo_fixtures').getFirstListItem("status = 'active'")
-      await pb.send(`/backend/v1/demo-fixtures/${fixture.id}/deactivate`, { method: 'POST' })
-      toast({ title: 'Fixture desativada', description: 'A ação foi registrada na auditoria.' })
+      const result = await pb.send(`/backend/v1/demo-fixtures/${fixture.id}/deactivate`, {
+        method: 'POST',
+      })
+      toast({
+        title: 'Fixture desativada',
+        description: `Auditoria registrada: ${result.action || 'deactivated'}.`,
+      })
     } catch (err: unknown) {
-      const detail =
+      const response =
         err && typeof err === 'object' && 'response' in err
-          ? JSON.stringify((err as { response?: unknown }).response)
-          : err instanceof Error
-            ? err.message
-            : 'Nenhuma alteração foi aplicada.'
+          ? (err as { response?: { status?: number; message?: string } }).response
+          : undefined
+      const detail =
+        response?.status === 404
+          ? 'Nenhuma fixture ativa foi encontrada no catálogo.'
+          : response?.message ||
+            (err instanceof Error ? err.message : 'Nenhuma alteração foi aplicada.')
       toast({ title: 'Desativação não realizada', description: detail })
     }
   }
