@@ -3,11 +3,11 @@
 - task_id: T12.1
 - champion: Executor de software/dados
 - spec: 04-fase-atual/specs/SPEC-1-012-DERIVADA-exportacao-aceite.md
-- etapa: implementando
+- etapa: bloqueada
 - autorizacao_implementacao: confirmada — "sim" em 2026-09-08, após análise e SPEC derivada
-- teste_humano: pendente
-- verificacao_automatica: pendente
+- teste_humano: aprovado — "validado" em 2026-09-08
+- verificacao_automatica: passou — versão 0.0.59; setup, análise estática, build, integrações e testes OK
 - aprendizado: pendente
-- ultima_acao: implementação autorizada; revisão dos padrões iniciada
-- proxima_acao: implementar exportação CSV e aceite rastreável, executar QA e parar para teste humano
-- atualizado_em: 2026-09-08T20:50:00-03:00
+- ultima_acao: validação humana recebida; fechamento formal interrompido porque os arquivos canônicos fase.md, STATUS.md, changelog.md e o checklist do verificador não estão disponíveis no projeto
+- proxima_acao: restaurar os arquivos canônicos de governança/evidência e então revalidar e concluir T12.1
+- atualizado_em: 2026-09-08T20:58:00-03:00
