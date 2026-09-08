@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
-- champion: Executor de software/dados
-- spec: nenhuma
-- etapa: concluida
-- autorizacao_implementacao: confirmada — "vocÊ pode corrigir e seguir com a conclusao da t4.1" em 2026-09-08
-- teste_humano: aprovado — "testes realizados e resultados esperados. Prossiga" em 2026-09-08
-- verificacao_automatica: passou — Skip QA v0.0.28; setup, análise estática, build, integrações e testes OK
-- aprendizado: sem_sinal: sem novo padrão técnico reutilizável além da evidência específica da task
-- ultima_acao: T4.1 concluída após QA final e aprovação humana do caminho principal
-- proxima_acao: selecionar/analisar a próxima task elegível, T4.2, somente mediante novo pedido
-- atualizado_em: 2026-09-08T19:24:00-03:00
+- task_id: T4.2
+- champion: Verificador da entrega
+- spec: 04-fase-atual/specs/SPEC-1-004-oportunidades.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — "sim" em 2026-09-08
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: autorização recebida para executar o plano de regressão da T4.2
+- proxima_acao: rodar QA e validar as bordas de oportunidades
+- atualizado_em: 2026-09-08T19:28:00-03:00
