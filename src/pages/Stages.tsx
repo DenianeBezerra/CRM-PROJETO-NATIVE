@@ -22,8 +22,17 @@ export default function Stages() {
   const [editing, setEditing] = useState<string | null>(null)
   const [show, setShow] = useState(false)
   const [error, setError] = useState('')
-  const load = async () =>
-    setItems(await pb.collection('etapas_negocio').getFullList<Etapa>({ sort: 'ordem' }))
+  const [loading, setLoading] = useState(true)
+  const load = async () => {
+    setLoading(true)
+    try {
+      setItems(await pb.collection('etapas_negocio').getFullList<Etapa>({ sort: 'ordem' }))
+    } catch {
+      setError('Não foi possível carregar as etapas.')
+    } finally {
+      setLoading(false)
+    }
+  }
   useEffect(() => {
     void load()
   }, [])
@@ -60,24 +69,29 @@ export default function Stages() {
       reset()
       await load()
     } catch {
-      setError('Não foi possível salvar a etapa.')
+      setError('Não foi possível salvar a etapa. Nenhuma alteração foi confirmada.')
     }
   }
   const toggle = async (item: Etapa) => {
-    if (item.ativa) {
-      const used = await pb
-        .collection('negocios')
-        .getList(1, 1, { filter: `estagio = '${item.chave}'` })
-      if (used.totalItems > 0) {
-        setError(
-          `A etapa ${item.nome} está em uso e precisa de migração explícita antes de ser inativada.`,
-        )
-        return
+    setError('')
+    try {
+      if (item.ativa) {
+        const used = await pb
+          .collection('negocios')
+          .getList(1, 1, { filter: `estagio = '${item.chave}'` })
+        if (used.totalItems > 0) {
+          setError(
+            `A etapa ${item.nome} está em uso e precisa de migração explícita antes de ser inativada.`,
+          )
+          return
+        }
       }
+      await pb.collection('etapas_negocio').update(item.id, { ativa: !item.ativa })
+      await load()
+      toast({ title: item.ativa ? 'Etapa inativada' : 'Etapa reativada' })
+    } catch {
+      setError('Não foi possível alterar o status da etapa. Nenhuma alteração foi confirmada.')
     }
-    await pb.collection('etapas_negocio').update(item.id, { ativa: !item.ativa })
-    await load()
-    toast({ title: item.ativa ? 'Etapa inativada' : 'Etapa reativada' })
   }
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
@@ -91,6 +105,7 @@ export default function Stages() {
         <button
           onClick={() => {
             setForm(empty)
+            setError('')
             setShow(true)
           }}
           className="flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 font-semibold"
@@ -111,55 +126,60 @@ export default function Stages() {
             {error}
           </p>
         )}
-        <div className="space-y-3">
-          {ordered.map((item) => (
-            <article
-              key={item.id}
-              className="bg-white border rounded-xl p-4 flex items-center justify-between gap-4"
-            >
-              <div>
-                <p className="font-semibold">
-                  {item.ordem}. {item.nome}
-                </p>
-                <p className="text-xs text-[#6B7280]">
-                  {item.chave} · {item.sistema ? 'sistema' : 'personalizada'} ·{' '}
-                  {item.ativa ? 'ativa' : 'inativa'}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setEditing(item.id)
-                    setForm({
-                      chave: item.chave,
-                      nome: item.nome,
-                      ordem: String(item.ordem),
-                      ativa: item.ativa,
-                    })
-                    setShow(true)
-                  }}
-                  className="text-xs border rounded px-2 py-1"
-                >
-                  <Pencil className="w-3 h-3 inline mr-1" />
-                  Editar
-                </button>
-                <button
-                  onClick={() => void toggle(item)}
-                  className="text-xs border rounded px-2 py-1"
-                >
-                  {item.ativa ? (
-                    'Inativar'
-                  ) : (
-                    <>
-                      <RotateCcw className="w-3 h-3 inline mr-1" />
-                      Reativar
-                    </>
-                  )}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+        {loading ? (
+          <p>Carregando etapas...</p>
+        ) : (
+          <div className="space-y-3">
+            {ordered.map((item) => (
+              <article
+                key={item.id}
+                className="bg-white border rounded-xl p-4 flex items-center justify-between gap-4"
+              >
+                <div>
+                  <p className="font-semibold">
+                    {item.ordem}. {item.nome}
+                  </p>
+                  <p className="text-xs text-[#6B7280]">
+                    {item.chave} · {item.sistema ? 'sistema' : 'personalizada'} ·{' '}
+                    {item.ativa ? 'ativa' : 'inativa'}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditing(item.id)
+                      setForm({
+                        chave: item.chave,
+                        nome: item.nome,
+                        ordem: String(item.ordem),
+                        ativa: item.ativa,
+                      })
+                      setError('')
+                      setShow(true)
+                    }}
+                    className="text-xs border rounded px-2 py-1"
+                  >
+                    <Pencil className="w-3 h-3 inline mr-1" />
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => void toggle(item)}
+                    className="text-xs border rounded px-2 py-1"
+                  >
+                    {item.ativa ? (
+                      'Inativar'
+                    ) : (
+                      <>
+                        <RotateCcw className="w-3 h-3 inline mr-1" />
+                        Reativar
+                      </>
+                    )}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </main>
       {show && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
