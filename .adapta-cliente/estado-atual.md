@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T7.1
+- task_id: nenhuma
 - champion: Executor de software/dados
-- spec: 04-fase-atual/specs/SPEC-1-007-kanban.md (derivada; SPEC original não localizada)
-- etapa: aguardando_teste_humano
+- spec: nenhuma
+- etapa: concluida
 - autorizacao_implementacao: confirmada — "corrija os erros encontrados e prossiga" em 2026-09-08
-- teste_humano: pendente
-- verificacao_automatica: passou — Skip QA v0.0.39; setup, análise estática, build, integrações e testes OK
-- aprendizado: pendente
-- ultima_acao: rota kanban, colunas, busca e movimentação acessível implementadas; QA verde
-- proxima_acao: executar teste humano da T7.1 no preview
-- atualizado_em: 2026-09-08T20:08:00-03:00
+- teste_humano: aprovado — "validados" em 2026-09-08
+- verificacao_automatica: passou — Skip QA v0.0.40; setup, análise estática, build, integrações e testes OK
+- aprendizado: sem_sinal: sem novo padrão técnico reutilizável além da evidência específica da task
+- ultima_acao: T7.1 concluída após QA final e aprovação humana
+- proxima_acao: selecionar/analisar a próxima task elegível, T7.2, somente mediante novo pedido
+- atualizado_em: 2026-09-08T20:00:00-03:00
