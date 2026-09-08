@@ -1,7 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, ExternalLink, RotateCcw, Search } from 'lucide-react'
+import { ArrowLeft, Download, ExternalLink, RotateCcw, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
+import { useAuth } from '@/contexts/AuthContext'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { useToast } from '@/hooks/use-toast'
 
 type Contact = {
   id: string
@@ -9,6 +20,8 @@ type Contact = {
   empresa?: string
   email?: string
   telefone?: string
+  cidade?: string
+  origem?: string
   status?: string
 }
 type Opportunity = {
@@ -19,8 +32,11 @@ type Opportunity = {
   estagio?: string
   valor?: number
   probabilidade?: number
+  data_fechamento_previsto?: string
 }
 type Stage = { chave: string; nome: string; ativa: boolean; ordem: number }
+type ExportEntity = 'clientes' | 'negocios'
+const EXPORT_PURPOSE = 'Uso interno na gestão comercial.'
 const fallbackStages: Stage[] = [
   { chave: 'novo', nome: 'Novo', ativa: true, ordem: 10 },
   { chave: 'contato_feito', nome: 'Contato feito', ativa: true, ordem: 20 },
@@ -29,8 +45,23 @@ const fallbackStages: Stage[] = [
   { chave: 'fechado_perdido', nome: 'Fechado perdido', ativa: true, ordem: 50 },
 ]
 
+function csvCell(value: unknown) {
+  return `"${String(value ?? '').replaceAll('"', '""')}"`
+}
+function downloadCsv(filename: string, headers: string[], rows: unknown[][]) {
+  const csv = '\ufeff' + [headers, ...rows].map((row) => row.map(csvCell).join(';')).join('\r\n')
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function SearchPage() {
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const { user } = useAuth()
   const [q, setQ] = useState('')
   const [entity, setEntity] = useState('todos')
   const [status, setStatus] = useState('todos')
@@ -40,6 +71,9 @@ export default function SearchPage() {
   const [stages, setStages] = useState<Stage[]>(fallbackStages)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [exportEntity, setExportEntity] = useState<ExportEntity | null>(null)
+  const [accepted, setAccepted] = useState(false)
+  const [exporting, setExporting] = useState(false)
   useEffect(() => {
     const load = async () => {
       try {
@@ -93,6 +127,75 @@ export default function SearchPage() {
     setEntity('todos')
     setStatus('todos')
     setStage('todos')
+  }
+  const visibleCount =
+    exportEntity === 'clientes' ? filteredContacts.length : filteredOpportunities.length
+  const openExport = (target: ExportEntity) => {
+    setExportEntity(target)
+    setAccepted(false)
+  }
+  const confirmExport = async () => {
+    if (!exportEntity || !accepted || !user) return
+    setExporting(true)
+    const filters = {
+      q: q.trim(),
+      entity,
+      status: exportEntity === 'clientes' ? status : 'todos',
+      stage: exportEntity === 'negocios' ? stage : 'todos',
+    }
+    try {
+      await pb
+        .collection('aceites_exportacao')
+        .create({
+          usuario: user.id,
+          entidade: exportEntity,
+          filtros: JSON.stringify(filters),
+          quantidade: visibleCount,
+          finalidade: EXPORT_PURPOSE,
+          aceito_em: new Date().toISOString(),
+          versao_termo: 'v1',
+        })
+      if (exportEntity === 'clientes')
+        downloadCsv(
+          `contatos-${new Date().toISOString().slice(0, 10)}.csv`,
+          ['Nome', 'Empresa', 'E-mail', 'Telefone', 'Cidade', 'Origem', 'Status'],
+          filteredContacts.map((x) => [
+            x.nome,
+            x.empresa,
+            x.email,
+            x.telefone,
+            x.cidade,
+            x.origem,
+            x.status,
+          ]),
+        )
+      else
+        downloadCsv(
+          `oportunidades-${new Date().toISOString().slice(0, 10)}.csv`,
+          ['Título', 'Contato', 'Valor', 'Estágio', 'Probabilidade', 'Fechamento previsto'],
+          filteredOpportunities.map((x) => [
+            x.titulo,
+            x.cliente_nome,
+            x.valor,
+            x.estagio,
+            x.probabilidade,
+            x.data_fechamento_previsto,
+          ]),
+        )
+      setExportEntity(null)
+      toast({
+        title: 'Exportação concluída',
+        description: `${visibleCount} registro(s) exportado(s).`,
+      })
+    } catch {
+      toast({
+        title: 'Exportação não realizada',
+        description: 'Não foi possível registrar o aceite. Nenhum arquivo foi baixado.',
+        variant: 'destructive',
+      })
+    } finally {
+      setExporting(false)
+    }
   }
   const empty =
     !loading &&
@@ -191,9 +294,18 @@ export default function SearchPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {(entity === 'todos' || entity === 'clientes') && (
               <section>
-                <h2 className="font-playfair text-2xl font-bold mb-3">
-                  Contatos ({filteredContacts.length})
-                </h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-playfair text-2xl font-bold">
+                    Contatos ({filteredContacts.length})
+                  </h2>
+                  <button
+                    disabled={!filteredContacts.length}
+                    onClick={() => openExport('clientes')}
+                    className="text-xs border rounded px-2 py-1 disabled:opacity-50"
+                  >
+                    <Download className="w-3 h-3 inline mr-1" /> Exportar
+                  </button>
+                </div>
                 <div className="space-y-3">
                   {filteredContacts.map((item) => (
                     <article key={item.id} className="bg-white border rounded-xl p-4">
@@ -225,9 +337,18 @@ export default function SearchPage() {
             )}
             {(entity === 'todos' || entity === 'negocios') && (
               <section>
-                <h2 className="font-playfair text-2xl font-bold mb-3">
-                  Oportunidades ({filteredOpportunities.length})
-                </h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-playfair text-2xl font-bold">
+                    Oportunidades ({filteredOpportunities.length})
+                  </h2>
+                  <button
+                    disabled={!filteredOpportunities.length}
+                    onClick={() => openExport('negocios')}
+                    className="text-xs border rounded px-2 py-1 disabled:opacity-50"
+                  >
+                    <Download className="w-3 h-3 inline mr-1" /> Exportar
+                  </button>
+                </div>
                 <div className="space-y-3">
                   {filteredOpportunities.map((item) => (
                     <article key={item.id} className="bg-white border rounded-xl p-4">
@@ -263,6 +384,44 @@ export default function SearchPage() {
           </div>
         )}
       </main>
+      <Dialog
+        open={exportEntity !== null}
+        onOpenChange={(open) => !open && !exporting && setExportEntity(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar exportação</DialogTitle>
+            <DialogDescription>
+              Você está exportando {visibleCount} registro(s) de{' '}
+              {exportEntity === 'clientes' ? 'contatos' : 'oportunidades'} para uso interno na
+              gestão comercial.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg bg-[#F7F5F1] p-3 text-sm">
+            Trate o arquivo como informação confidencial e observe a LGPD.
+          </div>
+          <label className="flex gap-3 items-start text-sm">
+            <Checkbox checked={accepted} onCheckedChange={(value) => setAccepted(value === true)} />
+            <span>Confirmo que esta exportação será usada apenas para a finalidade informada.</span>
+          </label>
+          <DialogFooter>
+            <button
+              disabled={exporting}
+              onClick={() => setExportEntity(null)}
+              className="border rounded-lg px-4 py-2"
+            >
+              Cancelar
+            </button>
+            <button
+              disabled={!accepted || exporting || visibleCount === 0}
+              onClick={() => void confirmExport()}
+              className="bg-[#C9A227] rounded-lg px-4 py-2 font-semibold disabled:opacity-50"
+            >
+              {exporting ? 'Registrando...' : 'Aceitar e exportar'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
