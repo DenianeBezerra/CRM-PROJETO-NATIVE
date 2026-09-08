@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-08T19:33:41.563Z",
+  "generatedAt": "2026-09-08T20:08:30.215Z",
   "collections": [
     {
       "name": "users",
@@ -29,21 +29,29 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         },
         {
           "name": "role",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["admin", "operator"]
+          "selectValues": [
+            "admin",
+            "operator"
+          ]
         },
         {
           "name": "active",
@@ -103,7 +111,13 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["site", "indicacao", "redes_sociais", "evento", "outro"]
+          "selectValues": [
+            "site",
+            "indicacao",
+            "redes_sociais",
+            "evento",
+            "outro"
+          ]
         },
         {
           "name": "observacoes",
@@ -116,21 +130,30 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["ativo", "inativo", "prospect"]
+          "selectValues": [
+            "ativo",
+            "inativo",
+            "prospect"
+          ]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -173,7 +196,13 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["novo", "contato_feito", "proposta", "fechado_ganho", "fechado_perdido"]
+          "selectValues": [
+            "novo",
+            "contato_feito",
+            "proposta",
+            "fechado_ganho",
+            "fechado_perdido"
+          ]
         },
         {
           "name": "probabilidade",
@@ -205,14 +234,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -250,7 +284,13 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["ligacao", "email", "reuniao", "whatsapp", "outro"]
+          "selectValues": [
+            "ligacao",
+            "email",
+            "reuniao",
+            "whatsapp",
+            "outro"
+          ]
         },
         {
           "name": "resumo",
@@ -276,20 +316,172 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
         "CREATE INDEX idx_interacoes_cliente ON interacoes (cliente)",
         "CREATE INDEX idx_interacoes_data ON interacoes (data)"
       ]
+    },
+    {
+      "name": "demo_fixtures",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "fixture_key",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "label",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "active",
+            "deactivated"
+          ]
+        },
+        {
+          "name": "environment",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "demo"
+          ]
+        },
+        {
+          "name": "deactivated_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "deactivated_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_demo_fixtures_key ON demo_fixtures (fixture_key)"
+      ]
+    },
+    {
+      "name": "fixture_audit",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "fixture_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "demo_fixtures"
+        },
+        {
+          "name": "action",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "deactivated"
+          ]
+        },
+        {
+          "name": "actor_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "occurred_at",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": []
     }
   ]
 }

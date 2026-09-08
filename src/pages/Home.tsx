@@ -13,11 +13,22 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
+import pb from '@/lib/pocketbase/client'
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
   const { user, isValid, isLoading, logout } = useAuth()
   const { toast } = useToast()
+
+  const handleDeactivateDemoFixture = async () => {
+    try {
+      const fixture = await pb.collection('demo_fixtures').getFirstListItem('status = "active"')
+      await pb.send(`/backend/v1/demo-fixtures/${fixture.id}/deactivate`, { method: 'POST' })
+      toast({ title: 'Fixture desativada', description: 'A ação foi registrada na auditoria.' })
+    } catch {
+      toast({ title: 'Desativação não realizada', description: 'Nenhuma alteração foi aplicada.' })
+    }
+  }
 
   useEffect(() => {
     if (!isLoading && !isValid) {
@@ -77,6 +88,14 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
 
           <div className="h-6 w-[1px] bg-[#C9A227]/30 hidden sm:block" />
 
+          {adminOnly && user?.role === 'admin' && (
+            <button
+              onClick={handleDeactivateDemoFixture}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#B91C1C]/40 bg-white text-[#B91C1C] font-medium text-xs sm:text-sm"
+            >
+              Desativar fixture
+            </button>
+          )}
           <button
             onClick={handleLogout}
             className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#C9A227]/40 bg-[#141414] hover:bg-[#C9A227] text-white hover:text-[#0A0A0A] font-inter font-medium text-xs sm:text-sm transition-all duration-200 shadow-sm cursor-pointer"
