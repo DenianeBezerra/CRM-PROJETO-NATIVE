@@ -22,11 +22,17 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
 
   const handleDeactivateDemoFixture = async () => {
     try {
-      const fixture = await pb.collection('demo_fixtures').getFirstListItem('status = "active"')
+      const fixture = await pb.collection('demo_fixtures').getFirstListItem("status = 'active'")
       await pb.send(`/backend/v1/demo-fixtures/${fixture.id}/deactivate`, { method: 'POST' })
       toast({ title: 'Fixture desativada', description: 'A ação foi registrada na auditoria.' })
-    } catch {
-      toast({ title: 'Desativação não realizada', description: 'Nenhuma alteração foi aplicada.' })
+    } catch (err: unknown) {
+      const detail =
+        err && typeof err === 'object' && 'response' in err
+          ? JSON.stringify((err as { response?: unknown }).response)
+          : err instanceof Error
+            ? err.message
+            : 'Nenhuma alteração foi aplicada.'
+      toast({ title: 'Desativação não realizada', description: detail })
     }
   }
 
