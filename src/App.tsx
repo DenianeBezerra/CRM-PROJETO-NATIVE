@@ -9,9 +9,9 @@ import Contacts from './pages/Contacts'
 import Opportunities from './pages/Opportunities'
 import Stages from './pages/Stages'
 import Kanban from './pages/Kanban'
+import SearchPage from './pages/SearchPage'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
-
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isValid, isLoading } = useAuth()
   if (isLoading)
@@ -68,6 +68,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Kanban />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/busca"
+              element={
+                <ProtectedRoute>
+                  <SearchPage />
                 </ProtectedRoute>
               }
             />
