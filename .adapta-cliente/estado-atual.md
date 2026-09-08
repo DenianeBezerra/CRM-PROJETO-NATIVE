@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T4.2
+- task_id: nenhuma
 - champion: Verificador da entrega
-- spec: 04-fase-atual/specs/SPEC-1-004-oportunidades.md
-- etapa: aguardando_teste_humano
+- spec: nenhuma
+- etapa: concluida
 - autorizacao_implementacao: confirmada — "sim" em 2026-09-08
-- teste_humano: pendente
-- verificacao_automatica: passou — Skip QA v0.0.30; setup, análise estática, build, integrações e testes OK; rota sem sessão redirecionou para login; regras de `negocios` confirmadas no schema
-- aprendizado: pendente
-- ultima_acao: regressão automática executada e evidência T4.2 registrada
-- proxima_acao: executar roteiro humano das bordas de oportunidades
-- atualizado_em: 2026-09-08T19:31:00-03:00
+- teste_humano: aprovado — "todos passaram" em 2026-09-08
+- verificacao_automatica: passou — Skip QA v0.0.31; setup, análise estática, build, integrações e testes OK; rota e regras da coleção negocios verificadas
+- aprendizado: sem_sinal: sem novo padrão técnico reutilizável além da evidência específica da task
+- ultima_acao: T4.2 concluída após QA final e aprovação humana de todas as bordas
+- proxima_acao: selecionar/analisar a próxima task elegível, T6.1, somente mediante novo pedido
+- atualizado_em: 2026-09-08T19:34:00-03:00
