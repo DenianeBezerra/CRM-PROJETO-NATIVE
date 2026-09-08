@@ -1,13 +1,12 @@
 // Protege o aceite operacional: usuário, finalidade, versão, data e filtros são controlados.
-const EXPORT_PURPOSE = 'Uso interno na gestão comercial.'
-
 onRecordCreateRequest((e) => {
   const actor = e.auth
+  const exportPurpose = 'Uso interno na gestão comercial.'
   if (!actor) throw new Error('Autenticação necessária para registrar o aceite.')
 
   const requestedUser = e.record.get('usuario')
   if (requestedUser !== actor.id) throw new Error('O aceite deve pertencer ao usuário autenticado.')
-  if (e.record.get('finalidade') !== EXPORT_PURPOSE)
+  if (e.record.get('finalidade') !== exportPurpose)
     throw new Error('Finalidade de exportação inválida.')
   if (e.record.get('versao_termo') !== 'v1') throw new Error('Versão do termo inválida.')
 

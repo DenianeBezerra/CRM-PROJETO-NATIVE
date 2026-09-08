@@ -144,17 +144,15 @@ export default function SearchPage() {
       stage: exportEntity === 'negocios' ? stage : 'todos',
     }
     try {
-      await pb
-        .collection('aceites_exportacao')
-        .create({
-          usuario: user.id,
-          entidade: exportEntity,
-          filtros: JSON.stringify(filters),
-          quantidade: visibleCount,
-          finalidade: EXPORT_PURPOSE,
-          aceito_em: new Date().toISOString(),
-          versao_termo: 'v1',
-        })
+      await pb.collection('aceites_exportacao').create({
+        usuario: user.id,
+        entidade: exportEntity,
+        filtros: JSON.stringify(filters),
+        quantidade: visibleCount,
+        finalidade: EXPORT_PURPOSE,
+        aceito_em: new Date().toISOString(),
+        versao_termo: 'v1',
+      })
       if (exportEntity === 'clientes')
         downloadCsv(
           `contatos-${new Date().toISOString().slice(0, 10)}.csv`,
