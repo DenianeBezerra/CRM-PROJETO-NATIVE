@@ -6,34 +6,24 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import Index from './pages/Index'
 import Home from './pages/Home'
 import Contacts from './pages/Contacts'
+import Opportunities from './pages/Opportunities'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
-// Protected Route Component to ensure unauthenticated users are redirected to /
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isValid, isLoading } = useAuth()
-
-  if (isLoading) {
+  if (isLoading)
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0A0A] text-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-[#C9A227] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-medium text-[#E8C766]">Verificando credenciais...</p>
-        </div>
+        <p className="text-sm font-medium text-[#E8C766]">Verificando credenciais...</p>
       </div>
     )
-  }
-
-  if (!isValid) {
-    return <Navigate to="/" replace />
-  }
-
+  if (!isValid) return <Navigate to="/" replace />
   return <>{children}</>
 }
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isValid, isLoading } = useAuth()
-
   if (isLoading) return null
   if (!isValid) return <Navigate to="/" replace />
   if (user?.role !== 'admin') return <Navigate to="/home" replace />
@@ -62,6 +52,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Contacts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/oportunidades"
+              element={
+                <ProtectedRoute>
+                  <Opportunities />
                 </ProtectedRoute>
               }
             />

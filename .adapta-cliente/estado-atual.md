@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
-- champion: Verificador da entrega
-- spec: nenhuma
-- etapa: concluida
-- autorizacao_implementacao: confirmada — "sim" em 2026-09-08
-- teste_humano: aprovado — "TODOS VALIDADOS" em 2026-09-08
-- verificacao_automatica: passou — Skip QA v0.0.24; setup, análise estática, build, integrações e testes OK; rotas e regras da coleção clientes verificadas
-- aprendizado: sem_sinal: sem novo padrão técnico reutilizável além da evidência específica da task
-- ultima_acao: T3.2 concluída após revalidação automática e aprovação humana de todas as bordas
-- proxima_acao: selecionar/analisar a próxima task elegível, T4.1, somente mediante novo pedido
-- atualizado_em: 2026-09-08T19:04:00-03:00
+- task_id: T4.1
+- champion: Executor de software/dados
+- spec: 04-fase-atual/specs/SPEC-1-004-oportunidades.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — "vocÊ pode corrigir e seguir com a conclusao da t4.1" em 2026-09-08
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: SPEC ausente confirmada; recorte derivado do schema negocios e implementação iniciada
+- proxima_acao: implementar tela e rota de oportunidades
+- atualizado_em: 2026-09-08T19:12:00-03:00
