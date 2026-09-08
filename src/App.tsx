@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import Contacts from './pages/Contacts'
 import Opportunities from './pages/Opportunities'
 import Stages from './pages/Stages'
+import Kanban from './pages/Kanban'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -22,7 +23,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (!isValid) return <Navigate to="/" replace />
   return <>{children}</>
 }
-
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isValid, isLoading } = useAuth()
   if (isLoading) return null
@@ -30,7 +30,6 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   if (user?.role !== 'admin') return <Navigate to="/home" replace />
   return <>{children}</>
 }
-
 const App = () => (
   <BrowserRouter>
     <AuthProvider>
@@ -65,6 +64,14 @@ const App = () => (
               }
             />
             <Route
+              path="/kanban"
+              element={
+                <ProtectedRoute>
+                  <Kanban />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin"
               element={
                 <AdminRoute>
@@ -87,5 +94,4 @@ const App = () => (
     </AuthProvider>
   </BrowserRouter>
 )
-
 export default App
