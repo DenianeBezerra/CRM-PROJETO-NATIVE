@@ -58,7 +58,7 @@ migrate(
         deleteRule: "@request.auth.role = 'admin'",
         fields: [
           { name: 'chave', type: 'text', required: true, max: 120 },
-          { name: 'valor_numero', type: 'number', required: true, min: 0 },
+          { name: 'valor_numero', type: 'number', min: 0 },
           { name: 'descricao', type: 'text', max: 500 },
           {
             name: 'updated_by',
