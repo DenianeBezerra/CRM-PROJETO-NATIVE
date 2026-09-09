@@ -33,6 +33,8 @@ type Opportunity = {
   valor?: number
   probabilidade?: number
   data_fechamento_previsto?: string
+  motivo_perda?: string
+  motivo_perda_detalhe?: string
 }
 type Stage = { chave: string; nome: string; ativa: boolean; ordem: number }
 type ExportEntity = 'clientes' | 'negocios'
@@ -170,7 +172,16 @@ export default function SearchPage() {
       else
         downloadCsv(
           `oportunidades-${new Date().toISOString().slice(0, 10)}.csv`,
-          ['Título', 'Contato', 'Valor', 'Estágio', 'Probabilidade', 'Fechamento previsto'],
+          [
+            'Título',
+            'Contato',
+            'Valor',
+            'Estágio',
+            'Probabilidade',
+            'Fechamento previsto',
+            'Motivo da perda',
+            'Detalhe da perda',
+          ],
           filteredOpportunities.map((x) => [
             x.titulo,
             x.cliente_nome,
@@ -178,6 +189,8 @@ export default function SearchPage() {
             x.estagio,
             x.probabilidade,
             x.data_fechamento_previsto,
+            x.motivo_perda,
+            x.motivo_perda_detalhe,
           ]),
         )
       setExportEntity(null)

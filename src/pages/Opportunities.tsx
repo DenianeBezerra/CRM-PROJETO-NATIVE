@@ -14,6 +14,11 @@ type Oportunidade = {
   probabilidade?: number
   data_fechamento_previsto?: string
   observacoes?: string
+  motivo_perda?: string
+  motivo_perda_detalhe?: string
+  data_ganho?: string
+  observacao_ganho?: string
+  justificativa_reabertura?: string
 }
 type Cliente = { id: string; nome: string }
 type Etapa = { chave: string; nome: string; ordem: number; ativa: boolean }
@@ -32,6 +37,11 @@ const emptyForm = {
   probabilidade: '0',
   data_fechamento_previsto: '',
   observacoes: '',
+  motivo_perda: '',
+  motivo_perda_detalhe: '',
+  data_ganho: '',
+  observacao_ganho: '',
+  justificativa_reabertura: '',
 }
 
 export default function Opportunities() {
@@ -42,6 +52,7 @@ export default function Opportunities() {
   const [stages, setStages] = useState<Etapa[]>(fallbackStages)
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState<string | null>(null)
+  const [originalStage, setOriginalStage] = useState('')
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [error, setError] = useState('')
@@ -90,12 +101,14 @@ export default function Opportunities() {
     setForm((prev) => ({ ...prev, [key]: value }))
   const reset = () => {
     setEditing(null)
+    setOriginalStage('')
     setForm(emptyForm)
     setShowForm(false)
     setError('')
   }
   const openEdit = (item: Oportunidade) => {
     setEditing(item.id)
+    setOriginalStage(item.estagio || '')
     setForm({
       titulo: item.titulo || '',
       cliente: item.cliente || '',
@@ -104,6 +117,11 @@ export default function Opportunities() {
       probabilidade: item.probabilidade?.toString() || '0',
       data_fechamento_previsto: item.data_fechamento_previsto?.slice(0, 10) || '',
       observacoes: item.observacoes || '',
+      motivo_perda: item.motivo_perda || '',
+      motivo_perda_detalhe: item.motivo_perda_detalhe || '',
+      data_ganho: item.data_ganho?.slice(0, 10) || '',
+      observacao_ganho: item.observacao_ganho || '',
+      justificativa_reabertura: '',
     })
     setShowForm(true)
   }
@@ -118,6 +136,21 @@ export default function Opportunities() {
       return setError('Informe um valor válido.')
     if (!Number.isFinite(probability) || probability < 0 || probability > 100)
       return setError('A probabilidade deve estar entre 0 e 100.')
+    if (form.estagio === 'fechado_perdido' && !form.motivo_perda)
+      return setError('Perda exige um motivo estruturado.')
+    if (
+      form.estagio === 'fechado_perdido' &&
+      form.motivo_perda === 'outro' &&
+      !form.motivo_perda_detalhe.trim()
+    )
+      return setError('Informe o detalhe do motivo de perda.')
+    if (
+      editing &&
+      (originalStage === 'fechado_ganho' || originalStage === 'fechado_perdido') &&
+      !form.estagio.startsWith('fechado_') &&
+      !form.justificativa_reabertura.trim()
+    )
+      return setError('Reabertura exige uma justificativa.')
     try {
       const payload = { ...form, valor: value, probabilidade: probability }
       if (editing) await pb.collection('negocios').update(editing, payload)
@@ -142,6 +175,7 @@ export default function Opportunities() {
           onClick={() => {
             setForm(emptyForm)
             setEditing(null)
+            setOriginalStage('')
             setShowForm(true)
           }}
           className="flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 font-semibold"
@@ -290,6 +324,61 @@ export default function Opportunities() {
                 />
               </label>
             </div>
+            {form.estagio === 'fechado_perdido' && (
+              <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                <label className="text-sm font-medium">
+                  Motivo da perda *
+                  <select
+                    value={form.motivo_perda}
+                    onChange={(e) => update('motivo_perda', e.target.value)}
+                    className="mt-1 w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Selecione</option>
+                    <option value="preco">Preço</option>
+                    <option value="concorrencia">Concorrência</option>
+                    <option value="sem_orcamento">Sem orçamento</option>
+                    <option value="timing">Timing</option>
+                    <option value="sem_retorno">Sem retorno</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </label>
+                {form.motivo_perda === 'outro' && (
+                  <label className="text-sm font-medium">
+                    Detalhe do motivo *
+                    <input
+                      value={form.motivo_perda_detalhe}
+                      onChange={(e) => update('motivo_perda_detalhe', e.target.value)}
+                      className="mt-1 w-full border rounded-lg px-3 py-2"
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+            {form.estagio === 'fechado_ganho' && (
+              <label className="block text-sm font-medium mt-4">
+                Observação do ganho
+                <textarea
+                  value={form.observacao_ganho}
+                  onChange={(e) => update('observacao_ganho', e.target.value)}
+                  maxLength={1000}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  rows={2}
+                />
+              </label>
+            )}
+            {editing && (
+              <label className="block text-sm font-medium mt-4">
+                Justificativa de reabertura
+                <textarea
+                  value={form.justificativa_reabertura}
+                  onChange={(e) => update('justificativa_reabertura', e.target.value)}
+                  maxLength={1000}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                  rows={2}
+                  placeholder="Obrigatória ao reabrir uma oportunidade ganha ou perdida"
+                />
+              </label>
+            )}
             <label className="block text-sm font-medium mt-4">
               Observações
               <textarea

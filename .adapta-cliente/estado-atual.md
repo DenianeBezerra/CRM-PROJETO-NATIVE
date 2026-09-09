@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T12.2
-- champion: Verificador da entrega
-- spec: 04-fase-atual/specs/SPEC-1-012-T12.2-DERIVADA-regressao.md
-- etapa: aguardando_teste_humano
-- autorizacao_implementacao: confirmada — "SIM, EXECUTE" em 2026-09-08, após análise e SPEC derivada
+- task_id: T5.1
+- champion: Executor de software/dados
+- spec: 04-fase-atual/specs/SPEC-1-005-ganho-perda-e-reabertura.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — "pode implementar" em 2026-09-08, após análise da SPEC e definição mínima aprovada
 - teste_humano: pendente
-- verificacao_automatica: passou — versão 0.0.61; setup, análise estática, build, integrações e testes OK. Nenhuma correção funcional adicional foi necessária na revisão automatizada.
+- verificacao_automatica: pendente
 - aprendizado: pendente
-- ultima_acao: T12.2 validada automaticamente; migration, hook e tela revisados para isolamento, append-only, filtros, cancelamento, privacidade e falha antes do download
-- proxima_acao: teste humano da regressão da exportação e do aceite
-- atualizado_em: 2026-09-08T21:03:00-03:00
+- ultima_acao: implementação autorizada; revisão dos padrões iniciada
+- proxima_acao: implementar ganho, perda e reabertura, executar QA e parar para teste humano
+- atualizado_em: 2026-09-08T21:10:00-03:00
