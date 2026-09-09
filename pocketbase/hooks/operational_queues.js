@@ -78,8 +78,23 @@ routerAdd(
     const etapas = activeStages.map((stage) => ({
       etapa: stage.getString('chave'),
       nome: stage.getString('nome'),
+      ativa: true,
       segundos: totals[stage.getString('chave')] || 0,
     }))
+    // Etapas inativas com tempo apurado também aparecem, para não omitir histórico.
+    const listed = new Set(etapas.map((s) => s.etapa))
+    const allStages = $app.findRecordsByFilter(stages, '', 'ordem', 500, 0)
+    for (const stage of allStages) {
+      const key = stage.getString('chave')
+      if (listed.has(key)) continue
+      if (!totals[key]) continue
+      etapas.push({
+        etapa: key,
+        nome: stage.getString('nome'),
+        ativa: false,
+        segundos: totals[key],
+      })
+    }
     return e.json(200, { etapas: etapas, estado_invalido: estadoInvalido })
   },
   $apis.requireAuth(),
