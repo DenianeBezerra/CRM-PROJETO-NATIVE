@@ -2,7 +2,7 @@
 
 ## 2026-09-09
 
-- 2026-09-09 · Deni.Ai · Task T9.1 implementada (aguarda teste humano): contadores de oportunidades ativas, tempo acumulado por etapa, fila de próximas ações vencidas e fila de oportunidades paradas com limite configurável (10 dias padrão). Inclui coleção append-only `permanencias_negocio` com histórico criado/fechado atomicamente nas transições, coleção `configuracoes_operacionais`, campos de próxima ação e arquivado em `negocios`, painel operacional em `/operacional` e campos no formulário de oportunidades. Correção de deadlock (model hooks em vez de `e.next()` em `runInTransaction`) e tratamento de date zero value do goja. QA v0.0.73–v0.0.78 verde. Evidência em `evidencias/spec-1-009/t9.1-green.md`.
+- 2026-09-09 · Deni.Ai · Task T9.1 concluída: contadores de oportunidades ativas, tempo acumulado por etapa, filas de ações vencidas e paradas com limite configurável, histórico append-only de permanências com atomicidade nas transições, painel operacional `/operacional` e campos de próxima ação/arquivado em oportunidades; correção de deadlock (model hooks) e de date zero value do goja; QA v0.0.73–v0.0.79 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-009/t9.1-green.md`.
 
 ## 2026-09-08
 
