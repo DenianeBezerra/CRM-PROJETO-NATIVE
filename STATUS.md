@@ -1,26 +1,23 @@
 # Status
 
-**Status:** Fase 1 em execução — 17 de 24 tasks concluídas (70,83%)
+**Status:** Fase 1 em execução — 18 de 24 tasks concluídas (75,00%)
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T12.1 — exportação segura e aceite integrado
-**Próxima task elegível:** T12.2 — validação de bordas, segurança, reversão e evidências
+**Última task concluída:** T12.2 — regressão da exportação e aceite integrado
+**Próxima task elegível:** nenhuma imediatamente — T5.1, T8.1 e T9.1 permanecem planejadas e dependem de suas respectivas SPECs/pré-condições
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
+## Evidência da T12.2
+
+- Regressão validou rota, autenticação, isolamento de aceites, append-only, adulteração, confirmação, cancelamento, correspondência entre filtros e CSV, falha antes do download, privacidade, estados vazios e acessibilidade básica.
+- Skip QA v0.0.61: setup, análise estática, build, integrações e testes passaram.
+- Teste humano aprovado pela cliente em 2026-09-08: “Tudo certo”.
+- Evidência detalhada: `evidencias/spec-1-012/t12.2-regressao.md`.
+
 ## Evidência da T12.1
 
-- Exportação CSV UTF-8 com BOM de contatos e oportunidades, respeitando os filtros da tela de busca.
-- Confirmação explícita com finalidade, aviso de confidencialidade/LGPD e checkbox obrigatório.
-- Aceite append-only registrado com usuário, entidade, filtros permitidos, quantidade, finalidade, data/hora e versão do termo.
-- Bloqueios de update/delete, usuário divergente, campos proibidos e falha de registro sem download.
-- Skip QA v0.0.59: setup, análise estática, build, integrações e testes passaram.
-- Teste humano aprovado pela cliente em 2026-09-08: “validado”.
-- Evidência detalhada: `evidencias/spec-1-012/t12.1-green.md`.
-
-## Evidência anterior
-
-T11.2 validou proteção de rota, buscas, filtros, recuperação de inativos, estado vazio, links, privacidade e somente leitura; QA v0.0.56 verde e teste humano aprovado.
+- Exportação CSV e aceite operacional implementados e aprovados; evidência em `evidencias/spec-1-012/t12.1-green.md`.
 
 ## Limitações
 
