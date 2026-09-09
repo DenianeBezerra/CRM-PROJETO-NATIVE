@@ -2,6 +2,7 @@
 
 ## 2026-09-08
 
+- 2026-09-08 · Deni.Ai · Task T8.2 concluída: regressão da proteção e migração atômica validou destinos inválidos, exclusão de estados finais, migração em lote, cancelamento, rollback transacional, auditoria, RBAC e regressão; QA v0.0.71 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-008/t8.2-regressao.md`.
 - 2026-09-08 · Deni.Ai · Task T8.1 concluída: proteção de etapa em uso com destino ativo, migração completa, cancelamento sem estado parcial e auditoria transacional; QA v0.0.68 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-008/t8.1-green.md`.
 - 2026-09-08 · Deni.Ai · Task T5.2 concluída: regressão de ganho, perda e reabertura validou perda sem motivo, detalhe obrigatório para “Outro”, ganho sem motivo de perda, reabertura com justificativa e etapa ativa, preservação do histórico e regressão do kanban, busca e exportação; QA v0.0.65 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-005/t5.2-regressao.md`.
 - 2026-09-08 · Deni.Ai · Task T5.1 concluída: ganho, perda e reabertura implementados com motivo estruturado de perda, data de ganho automática, justificativa obrigatória de reabertura com etapa ativa e exportação incluindo motivo da perda; QA v0.0.63 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-005/t5.1-green.md`.

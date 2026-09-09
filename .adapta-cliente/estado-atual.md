@@ -6,8 +6,8 @@
 - etapa: aguardando_teste_humano
 - autorizacao_implementacao: confirmada — "executar o plano" em 2026-09-08, após análise da regressão
 - teste_humano: pendente
-- verificacao_automatica: passou — versão 0.0.70; setup, análise estática, build, integrações e testes OK
+- verificacao_automatica: passou — versão 0.0.71; setup, análise estática, build, integrações e testes OK
 - aprendizado: pendente
-- ultima_acao: T8.2 executada; regressão automatizada da migração, destinos, rollback, auditoria e RBAC concluída
-- proxima_acao: teste humano dos cenários de borda, segurança e rollback
-- atualizado_em: 2026-09-08T21:34:00-03:00
+- ultima_acao: falha de destino final detectada no teste humano e corrigida em duas camadas; QA v0.0.71 verde
+- proxima_acao: teste humano revalidando modal sem estados finais e rollback
+- atualizado_em: 2026-09-08T21:36:00-03:00

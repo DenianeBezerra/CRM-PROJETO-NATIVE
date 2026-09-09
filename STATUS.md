@@ -1,12 +1,18 @@
 # Status
 
-**Status:** Fase 1 em execução — 21 de 24 tasks concluídas (87,50%)
+**Status:** Fase 1 em execução — 22 de 24 tasks concluídas (91,67%)
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T8.1 — proteção de etapa em uso e migração atômica
-**Próxima task elegível:** T8.2 — validação de bordas, segurança, reversão e evidências
+**Última task concluída:** T8.2 — regressão da proteção e migração atômica
+**Próxima task elegível:** T9.1 — contadores, tempo por etapa e filas operacionais
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
+
+## Evidência da T8.2
+
+- Regressão validou destinos inválidos, estados finais como destino, múltiplas oportunidades, cancelamento, rollback transacional, auditoria, RBAC e regressão.
+- QA v0.0.71 verde e teste humano aprovado pela cliente.
+- Evidência detalhada: `evidencias/spec-1-008/t8.2-regressao.md`.
 
 ## Evidência da T8.1
 
