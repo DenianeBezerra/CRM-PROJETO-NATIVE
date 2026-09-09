@@ -1,4 +1,7 @@
 // Migração de oportunidades ao inativar etapa, em transação única.
+// Nota: o histórico de permanência acompanha automaticamente — o save de cada
+// negócio via txApp dispara o model hook onRecordUpdate (stage_dwell_history.js),
+// que roda dentro da mesma transação.
 onRecordUpdateRequest((e) => {
   const before = e.record.original()
   const wasActive = before.get('ativa') === true
@@ -28,32 +31,6 @@ onRecordUpdateRequest((e) => {
         throw new Error('Migração não pode usar um estado final como destino.')
       }
       for (const deal of affected) {
-        // Histórico de permanência acompanha a migração na mesma transação.
-        const permCollection = txApp.findCollectionByNameOrId('permanencias_negocio')
-        const open = txApp.findRecordsByFilter(
-          permCollection,
-          'negocio = {:negocio} && saiu_em = ""',
-          '-created',
-          2,
-          0,
-          { negocio: deal.id },
-        )
-        const now = new Date().toISOString()
-        if (open.length === 1) {
-          const entry = open[0]
-          const entered = new Date(entry.get('entrou_em'))
-          const duration = Math.max(0, Math.floor((Date.now() - entered.getTime()) / 1000))
-          entry.set('saiu_em', now)
-          entry.set('duracao_segundos', duration)
-          txApp.save(entry)
-        }
-        const entry = new Record(permCollection)
-        entry.set('negocio', deal.id)
-        entry.set('etapa', targetKey)
-        entry.set('entrou_em', now)
-        entry.set('criado_por', e.auth ? e.auth.id : null)
-        txApp.save(entry)
-
         deal.set('estagio', targetKey)
         txApp.save(deal)
       }
