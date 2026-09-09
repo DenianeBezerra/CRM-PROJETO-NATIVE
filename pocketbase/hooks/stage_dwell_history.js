@@ -26,7 +26,7 @@ onRecordUpdate((e) => {
   const permCollection = db.findCollectionByNameOrId('permanencias_negocio')
   const open = db.findRecordsByFilter(
     permCollection,
-    'negocio = {:negocio} && saiu_em = ""',
+    'negocio = {:negocio} && (saiu_em = "" || saiu_em ~ "0001-01-01")',
     '-created',
     2,
     0,

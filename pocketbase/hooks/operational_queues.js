@@ -58,9 +58,12 @@ routerAdd(
       const dealId = row.getString('negocio')
       const stage = row.getString('etapa')
       const entered = new Date(row.get('entrou_em')).getTime()
-      const left = row.get('saiu_em') ? new Date(row.get('saiu_em')).getTime() : null
+      // Date vazio no goja vem como "0001-01-01..." (truthy) — tratar como aberto.
+      const saiuRaw = String(row.get('saiu_em') || '')
+      const isClosed = saiuRaw !== '' && !saiuRaw.startsWith('0001-01-01')
+      const left = isClosed ? new Date(saiuRaw).getTime() : null
       let seconds = 0
-      if (left != null) {
+      if (left != null && Number.isFinite(left)) {
         seconds = Math.max(0, Math.floor((left - entered) / 1000))
       } else {
         openByDeal[dealId] = (openByDeal[dealId] || 0) + 1
@@ -175,13 +178,12 @@ routerAdd(
       if (FINAL_STAGES.includes(stage)) continue
       const open = $app.findRecordsByFilter(
         perms,
-        'negocio = {:negocio} && saiu_em = ""',
+        'negocio = {:negocio} && (saiu_em = "" || saiu_em ~ "0001-01-01")',
         '-created',
         2,
         0,
         { negocio: deal.id },
-      )
-      if (open.length !== 1) continue // sem permanência aberta ou estado inválido
+      )      if (open.length !== 1) continue // sem permanência aberta ou estado inválido
       const entered = new Date(open[0].get('entrou_em')).getTime()
       const seconds = Math.max(0, Math.floor((now - entered) / 1000))
       if (seconds > limitSeconds) {
