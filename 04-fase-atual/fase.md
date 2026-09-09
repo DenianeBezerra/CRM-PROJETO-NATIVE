@@ -13,32 +13,32 @@ Integrações externas, qualificação avançada, proposta, SLA, dashboard execu
 
 ## Tasks
 
-| ID    | Task                                                            | Dono                       | SPEC                      | Status                    |
-| ----- | --------------------------------------------------------------- | -------------------------- | ------------------------- | ------------------------- |
-| T1.1  | Acesso, sessão e perfis — caminho principal                     | Executor de software/dados | SPEC-1-001                | ✅ Concluída — 2026-09-04 |
-| T1.2  | Acesso, sessão e perfis — bordas e regressão                    | Verificador da entrega     | SPEC-1-001                | ✅ Concluída — 2026-09-05 |
-| T2.1  | Modo demonstração, credenciais e gate G4 — caminho principal    | Executor de software/dados | SPEC-1-002                | ✅ Concluída — 2026-09-05 |
-| T2.2  | Modo demonstração — bordas e regressão                          | Verificador da entrega     | SPEC-1-002                | ✅ Concluída — 2026-09-08 |
-| T3.1  | Contatos e empresas — caminho principal                         | Executor de software/dados | SPEC-1-003                | ✅ Concluída — 2026-09-08 |
-| T3.2  | Contatos e empresas — bordas e regressão                        | Verificador da entrega     | SPEC-1-003                | ✅ Concluída — 2026-09-08 |
-| T4.1  | Oportunidades e campos comerciais — caminho principal           | Executor de software/dados | SPEC-1-004                | ✅ Concluída — 2026-09-08 |
-| T4.2  | Oportunidades — bordas e regressão                              | Verificador da entrega     | SPEC-1-004                | ✅ Concluída — 2026-09-08 |
-| T5.1  | Ganho, perda e reabertura — caminho principal                   | Executor de software/dados | SPEC-1-005                | ✅ Concluída — 2026-09-08 |
-| T5.2  | Ganho, perda e reabertura — bordas e regressão                  | Verificador da entrega     | SPEC-1-005                | ✅ Concluída — 2026-09-08 |
-| T6.1  | Seed e editor administrativo de etapas — caminho principal      | Executor de software/dados | SPEC-1-006                | ✅ Concluída — 2026-09-08 |
-| T6.2  | Editor de etapas — bordas e regressão                           | Verificador da entrega     | SPEC-1-006                | ✅ Concluída — 2026-09-08 |
-| T7.1  | Kanban e movimentação acessível — caminho principal             | Executor de software/dados | SPEC-1-007                | ✅ Concluída — 2026-09-08 |
-| T7.2  | Kanban — bordas e regressão                                     | Verificador da entrega     | SPEC-1-007                | ✅ Concluída — 2026-09-08 |
-| T8.1  | Proteção de etapa em uso e migração atômica — caminho principal | Executor de software/dados | SPEC-1-008                | ✅ Concluída — 2026-09-08 |
-| T8.2  | Proteção de etapa — bordas e regressão                          | Verificador da entrega     | SPEC-1-008                | ✅ Concluída — 2026-09-08 |
-| T9.1  | Contadores, tempo por etapa e filas — caminho principal         | Executor de software/dados | SPEC-1-009                | ☐ Planejada               |
-| T9.2  | Contadores e filas — bordas e regressão                         | Verificador da entrega     | SPEC-1-009                | ☐ Planejada               |
-| T10.1 | Trilha de auditoria append-only — caminho principal             | Executor de software/dados | SPEC-1-010                | ✅ Concluída — 2026-09-08 |
-| T10.2 | Trilha de auditoria — bordas e regressão                        | Verificador da entrega     | SPEC-1-010                | ✅ Concluída — 2026-09-08 |
-| T11.1 | Busca, filtros e recuperação — caminho principal                | Executor de software/dados | SPEC-1-011                | ✅ Concluída — 2026-09-08 |
-| T11.2 | Busca, filtros e recuperação — bordas e regressão               | Verificador da entrega     | SPEC-1-011                | ✅ Concluída — 2026-09-08 |
-| T12.1 | Exportação segura e aceite — caminho principal                  | Executor de software/dados | SPEC-1-012-DERIVADA       | ✅ Concluída — 2026-09-08 |
-| T12.2 | Exportação e aceite — bordas e regressão                        | Verificador da entrega     | SPEC-1-012-T12.2-DERIVADA | ✅ Concluída — 2026-09-08 |
+| ID    | Task                                                            | Dono                       | SPEC                      | Status                                 |
+| ----- | --------------------------------------------------------------- | -------------------------- | ------------------------- | -------------------------------------- |
+| T1.1  | Acesso, sessão e perfis — caminho principal                     | Executor de software/dados | SPEC-1-001                | ✅ Concluída — 2026-09-04              |
+| T1.2  | Acesso, sessão e perfis — bordas e regressão                    | Verificador da entrega     | SPEC-1-001                | ✅ Concluída — 2026-09-05              |
+| T2.1  | Modo demonstração, credenciais e gate G4 — caminho principal    | Executor de software/dados | SPEC-1-002                | ✅ Concluída — 2026-09-05              |
+| T2.2  | Modo demonstração — bordas e regressão                          | Verificador da entrega     | SPEC-1-002                | ✅ Concluída — 2026-09-08              |
+| T3.1  | Contatos e empresas — caminho principal                         | Executor de software/dados | SPEC-1-003                | ✅ Concluída — 2026-09-08              |
+| T3.2  | Contatos e empresas — bordas e regressão                        | Verificador da entrega     | SPEC-1-003                | ✅ Concluída — 2026-09-08              |
+| T4.1  | Oportunidades e campos comerciais — caminho principal           | Executor de software/dados | SPEC-1-004                | ✅ Concluída — 2026-09-08              |
+| T4.2  | Oportunidades — bordas e regressão                              | Verificador da entrega     | SPEC-1-004                | ✅ Concluída — 2026-09-08              |
+| T5.1  | Ganho, perda e reabertura — caminho principal                   | Executor de software/dados | SPEC-1-005                | ✅ Concluída — 2026-09-08              |
+| T5.2  | Ganho, perda e reabertura — bordas e regressão                  | Verificador da entrega     | SPEC-1-005                | ✅ Concluída — 2026-09-08              |
+| T6.1  | Seed e editor administrativo de etapas — caminho principal      | Executor de software/dados | SPEC-1-006                | ✅ Concluída — 2026-09-08              |
+| T6.2  | Editor de etapas — bordas e regressão                           | Verificador da entrega     | SPEC-1-006                | ✅ Concluída — 2026-09-08              |
+| T7.1  | Kanban e movimentação acessível — caminho principal             | Executor de software/dados | SPEC-1-007                | ✅ Concluída — 2026-09-08              |
+| T7.2  | Kanban — bordas e regressão                                     | Verificador da entrega     | SPEC-1-007                | ✅ Concluída — 2026-09-08              |
+| T8.1  | Proteção de etapa em uso e migração atômica — caminho principal | Executor de software/dados | SPEC-1-008                | ✅ Concluída — 2026-09-08              |
+| T8.2  | Proteção de etapa — bordas e regressão                          | Verificador da entrega     | SPEC-1-008                | ✅ Concluída — 2026-09-08              |
+| T9.1  | Contadores, tempo por etapa e filas — caminho principal         | Executor de software/dados | SPEC-1-009                | 🔄 Implementada — aguarda teste humano |
+| T9.2  | Contadores e filas — bordas e regressão                         | Verificador da entrega     | SPEC-1-009                | ☐ Planejada                            |
+| T10.1 | Trilha de auditoria append-only — caminho principal             | Executor de software/dados | SPEC-1-010                | ✅ Concluída — 2026-09-08              |
+| T10.2 | Trilha de auditoria — bordas e regressão                        | Verificador da entrega     | SPEC-1-010                | ✅ Concluída — 2026-09-08              |
+| T11.1 | Busca, filtros e recuperação — caminho principal                | Executor de software/dados | SPEC-1-011                | ✅ Concluída — 2026-09-08              |
+| T11.2 | Busca, filtros e recuperação — bordas e regressão               | Verificador da entrega     | SPEC-1-011                | ✅ Concluída — 2026-09-08              |
+| T12.1 | Exportação segura e aceite — caminho principal                  | Executor de software/dados | SPEC-1-012-DERIVADA       | ✅ Concluída — 2026-09-08              |
+| T12.2 | Exportação e aceite — bordas e regressão                        | Verificador da entrega     | SPEC-1-012-T12.2-DERIVADA | ✅ Concluída — 2026-09-08              |
 
 **Contagem:** 22 de 24 tasks concluídas (91,67%).
 

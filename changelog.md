@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-09
+
+- 2026-09-09 · Deni.Ai · Task T9.1 implementada (aguarda teste humano): contadores de oportunidades ativas, tempo acumulado por etapa, fila de próximas ações vencidas e fila de oportunidades paradas com limite configurável (10 dias padrão). Inclui coleção append-only `permanencias_negocio` com histórico criado/fechado atomicamente nas transições, coleção `configuracoes_operacionais`, campos de próxima ação e arquivado em `negocios`, painel operacional em `/operacional` e campos no formulário de oportunidades. Correção de deadlock (model hooks em vez de `e.next()` em `runInTransaction`) e tratamento de date zero value do goja. QA v0.0.73–v0.0.78 verde. Evidência em `evidencias/spec-1-009/t9.1-green.md`.
+
 ## 2026-09-08
 
 - 2026-09-08 · Deni.Ai · Task T8.2 concluída: regressão da proteção e migração atômica validou destinos inválidos, exclusão de estados finais, migração em lote, cancelamento, rollback transacional, auditoria, RBAC e regressão; QA v0.0.71 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-008/t8.2-regressao.md`.
