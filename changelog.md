@@ -2,6 +2,7 @@
 
 ## 2026-09-08
 
+- 2026-09-08 · Deni.Ai · Task T5.1 concluída: ganho, perda e reabertura implementados com motivo estruturado de perda, data de ganho automática, justificativa obrigatória de reabertura com etapa ativa e exportação incluindo motivo da perda; QA v0.0.63 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-005/t5.1-green.md`.
 - 2026-09-08 · Deni.Ai · Task T12.2 concluída: regressão da exportação e aceite validou rota, autenticação, isolamento, append-only, adulteração, confirmação, cancelamento, filtros, privacidade, estados vazios e acessibilidade; QA v0.0.61 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-012/t12.2-regressao.md`.
 - 2026-09-08 · Deni.Ai · Task T12.1 concluída: exportação segura de contatos e oportunidades em CSV, confirmação explícita, aceite append-only, proteção de privacidade e tratamento de falhas; QA v0.0.59 verde e teste humano aprovado pela cliente. Evidência em `evidencias/spec-1-012/t12.1-green.md`.
 - 2026-09-08 · Deni.Ai · Task T11.2 concluída: regressão da busca validou proteção de rota, buscas, filtros, recuperação de inativos, estado vazio, links, privacidade e somente leitura; QA v0.0.56 verde e teste humano aprovado.
