@@ -213,12 +213,10 @@ export default function Stages() {
                 disabled={!migration.target}
                 onClick={async () => {
                   try {
-                    await pb
-                      .collection('etapas_negocio')
-                      .update(migration.item.id, {
-                        ativa: false,
-                        migracao_destino: migration.target,
-                      })
+                    await pb.collection('etapas_negocio').update(migration.item.id, {
+                      ativa: false,
+                      migracao_destino: migration.target,
+                    })
                     setMigration(null)
                     await load()
                     toast({ title: 'Etapa migrada e inativada' })
