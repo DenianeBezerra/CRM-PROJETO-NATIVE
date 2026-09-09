@@ -1,12 +1,19 @@
 # Status
 
-**Status:** Fase 1 em execução — 19 de 24 tasks concluídas (79,17%)
+**Status:** Fase 1 em execução — 20 de 24 tasks concluídas (83,33%)
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T5.1 — ganho, perda e reabertura
-**Próxima task elegível:** T5.2 — validação de bordas, segurança, reversão e evidências
+**Última task concluída:** T5.2 — regressão de ganho, perda e reabertura
+**Próxima task elegível:** nenhuma imediatamente — T8.1 e T9.1 permanecem planejadas e dependem de suas respectivas SPECs/pré-condições
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
+
+## Evidência da T5.2
+
+- Regressão confirmou perda sem motivo bloqueada, detalhe obrigatório para “Outro”, ganho sem motivo de perda, reabertura com justificativa e etapa ativa, preservação do histórico e regressão do kanban, busca e exportação.
+- Skip QA v0.0.65: setup, análise estática, build, integrações e testes passaram.
+- Teste humano aprovado pela cliente em 2026-09-08: “confirmo as etapas, todas passaram”.
+- Evidência detalhada: `evidencias/spec-1-005/t5.2-regressao.md`.
 
 ## Evidência da T5.1
 

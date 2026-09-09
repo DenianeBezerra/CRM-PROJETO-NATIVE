@@ -24,7 +24,7 @@ Integrações externas, qualificação avançada, proposta, SLA, dashboard execu
 | T4.1  | Oportunidades e campos comerciais — caminho principal           | Executor de software/dados | SPEC-1-004                | ✅ Concluída — 2026-09-08 |
 | T4.2  | Oportunidades — bordas e regressão                              | Verificador da entrega     | SPEC-1-004                | ✅ Concluída — 2026-09-08 |
 | T5.1  | Ganho, perda e reabertura — caminho principal                   | Executor de software/dados | SPEC-1-005                | ✅ Concluída — 2026-09-08 |
-| T5.2  | Ganho, perda e reabertura — bordas e regressão                  | Verificador da entrega     | SPEC-1-005                | ☐ Planejada               |
+| T5.2  | Ganho, perda e reabertura — bordas e regressão                  | Verificador da entrega     | SPEC-1-005                | ✅ Concluída — 2026-09-08 |
 | T6.1  | Seed e editor administrativo de etapas — caminho principal      | Executor de software/dados | SPEC-1-006                | ✅ Concluída — 2026-09-08 |
 | T6.2  | Editor de etapas — bordas e regressão                           | Verificador da entrega     | SPEC-1-006                | ✅ Concluída — 2026-09-08 |
 | T7.1  | Kanban e movimentação acessível — caminho principal             | Executor de software/dados | SPEC-1-007                | ✅ Concluída — 2026-09-08 |
@@ -40,7 +40,7 @@ Integrações externas, qualificação avançada, proposta, SLA, dashboard execu
 | T12.1 | Exportação segura e aceite — caminho principal                  | Executor de software/dados | SPEC-1-012-DERIVADA       | ✅ Concluída — 2026-09-08 |
 | T12.2 | Exportação e aceite — bordas e regressão                        | Verificador da entrega     | SPEC-1-012-T12.2-DERIVADA | ✅ Concluída — 2026-09-08 |
 
-**Contagem:** 19 de 24 tasks concluídas (79,17%).
+**Contagem:** 20 de 24 tasks concluídas (83,33%).
 
 ## Ordem de liberação
 
