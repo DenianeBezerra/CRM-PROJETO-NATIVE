@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T5.2
-- champion: Verificador da entrega
-- spec: 04-fase-atual/specs/SPEC-1-005-ganho-perda-e-reabertura.md
-- etapa: aguardando_teste_humano
-- autorizacao_implementacao: confirmada — "sim, executar o plano" em 2026-09-08, após análise da regressão
+- task_id: T8.1
+- champion: Executor de software/dados
+- spec: 04_fase-atual/specs/SPEC-1-008-protecao-de-etapa-em-uso-e-migracao-atomica.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — "sim" em 2026-09-08 às 21:17, após análise da SPEC e plano aprovado
 - teste_humano: pendente
-- verificacao_automatica: passou — versão 0.0.65; setup, análise estática, build, integrações e testes OK
+- verificacao_automatica: pendente
 - aprendizado: pendente
-- ultima_acao: baseline de regressão executado; nenhuma correção adicional necessária; evidência provisória em evidencias/spec-1-005/t5.2-regressao.md
-- proxima_acao: teste humano das bordas, segurança, reversão e regressão de ganho, perda e reabertura
-- atualizado_em: 2026-09-08T21:14:00-03:00
+- ultima_acao: implementação autorizada; criação do fluxo de migração atômica iniciada
+- proxima_acao: implementar, executar QA e parar para teste humano
+- atualizado_em: 2026-09-08T21:17:00-03:00

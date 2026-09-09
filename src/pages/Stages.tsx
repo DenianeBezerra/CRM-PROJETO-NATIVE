@@ -23,6 +23,7 @@ export default function Stages() {
   const [show, setShow] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [migration, setMigration] = useState<{ item: Etapa; target: string } | null>(null)
   const load = async () => {
     setLoading(true)
     try {
@@ -80,9 +81,7 @@ export default function Stages() {
           .collection('negocios')
           .getList(1, 1, { filter: `estagio = '${item.chave}'` })
         if (used.totalItems > 0) {
-          setError(
-            `A etapa ${item.nome} está em uso e precisa de migração explícita antes de ser inativada.`,
-          )
+          setMigration({ item, target: '' })
           return
         }
       }
@@ -181,6 +180,61 @@ export default function Stages() {
           </div>
         )}
       </main>
+      {migration && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg">
+            <h2 className="font-playfair text-2xl font-bold">Migrar oportunidades</h2>
+            <p className="text-sm text-[#6B7280] mt-2">
+              A etapa {migration.item.nome} está em uso. Escolha um destino ativo antes de
+              inativá-la.
+            </p>
+            <label className="block text-sm font-medium mt-4">
+              Destino ativo
+              <select
+                value={migration.target}
+                onChange={(e) => setMigration({ ...migration, target: e.target.value })}
+                className="mt-1 w-full border rounded-lg px-3 py-2"
+              >
+                <option value="">Selecione</option>
+                {ordered
+                  .filter((stage) => stage.ativa && stage.id !== migration.item.id)
+                  .map((stage) => (
+                    <option key={stage.id} value={stage.chave}>
+                      {stage.nome}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <div className="flex justify-end gap-3 mt-5">
+              <button onClick={() => setMigration(null)} className="border rounded-lg px-4 py-2">
+                Cancelar
+              </button>
+              <button
+                disabled={!migration.target}
+                onClick={async () => {
+                  try {
+                    await pb
+                      .collection('etapas_negocio')
+                      .update(migration.item.id, {
+                        ativa: false,
+                        migracao_destino: migration.target,
+                      })
+                    setMigration(null)
+                    await load()
+                    toast({ title: 'Etapa migrada e inativada' })
+                  } catch {
+                    setError('Migração não concluída. Nenhuma alteração confirmada.')
+                    setMigration(null)
+                  }
+                }}
+                className="bg-[#C9A227] rounded-lg px-4 py-2 font-semibold disabled:opacity-50"
+              >
+                Migrar e inativar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {show && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
           <form onSubmit={submit} className="bg-white rounded-2xl p-6 w-full max-w-lg">
