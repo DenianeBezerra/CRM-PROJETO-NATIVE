@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T5.1
-- champion: Executor de software/dados
+- task_id: T5.2
+- champion: Verificador da entrega
 - spec: 04-fase-atual/specs/SPEC-1-005-ganho-perda-e-reabertura.md
-- etapa: concluida
-- autorizacao_implementacao: confirmada — "pode implementar" em 2026-09-08, após análise da SPEC e definição mínima aprovada
-- teste_humano: aprovado — "funcionou" em 2026-09-08, com captura do formulário de resultado
-- verificacao_automatica: passou — versão 0.0.63; setup, análise estática, build, integrações e testes OK
+- etapa: implementando
+- autorizacao_implementacao: confirmada — "sim, executar o plano" em 2026-09-08, após análise da regressão
+- teste_humano: pendente
+- verificacao_automatica: pendente
 - aprendizado: pendente
-- ultima_acao: T5.1 concluída formalmente; evidência em evidencias/spec-1-005/t5.1-green.md
-- proxima_acao: selecionar/analisar próxima task elegível, somente mediante novo pedido
-- atualizado_em: 2026-09-08T21:12:00-03:00
+- ultima_acao: execução autorizada; baseline de regressão será refeito
+- proxima_acao: executar QA e validar bordas de ganho, perda e reabertura
+- atualizado_em: 2026-09-08T21:13:00-03:00
