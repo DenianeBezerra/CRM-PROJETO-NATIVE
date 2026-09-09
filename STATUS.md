@@ -1,12 +1,22 @@
 # Status
 
-**Status:** Fase 1 em execução — 23 de 24 tasks concluídas (95,83%)
+**Status:** Fase 1 concluída — 24 de 24 tasks (100%)
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T9.1 — contadores, tempo por etapa e filas operacionais
-**Próxima task elegível:** T9.2 — bordas e regressão de contadores e filas
+**Última task concluída:** T9.2 — bordas e regressão de contadores e filas
+**Próxima task elegível:** nenhuma — Fase 1 completa; fase só fecha oficialmente após validação do consultor
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
+
+## Evidência da T9.2
+
+- RBAC completo (CA-1-12F): operator não altera `configuracoes_operacionais` (negado por ocultação — 404/400 do PocketBase); consulta → 200; admin altera → 200.
+- Estado inválido: duplicata de permanência aberta sinalizada em `estado_invalido` sem dobrar o cálculo; transição bloqueada (400); base restaurada após o teste.
+- Borda de 10 dias exatos: não entra na fila de paradas (regra "acima do limite"); descrição 500 chars aceita, 501 rejeitada.
+- Regressão: kanban, clientes, auditoria, interações e 4 rotas operacionais — todos consistentes; etapa "proposta" reativada.
+- Fixture permanente: `operator@vibratto.com.br` (senha provisória `Operator@2026` — trocar no primeiro acesso).
+- QA v0.0.81–v0.0.83 verde; teste humano aprovado pela cliente em 2026-09-09.
+- Evidência detalhada: `evidencias/spec-1-009/t9.2-regressao.md`.
 
 ## Evidência da T9.1
 

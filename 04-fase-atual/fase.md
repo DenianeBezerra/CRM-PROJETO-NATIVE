@@ -32,7 +32,7 @@ Integrações externas, qualificação avançada, proposta, SLA, dashboard execu
 | T8.1  | Proteção de etapa em uso e migração atômica — caminho principal | Executor de software/dados | SPEC-1-008                | ✅ Concluída — 2026-09-08 |
 | T8.2  | Proteção de etapa — bordas e regressão                          | Verificador da entrega     | SPEC-1-008                | ✅ Concluída — 2026-09-08 |
 | T9.1  | Contadores, tempo por etapa e filas — caminho principal         | Executor de software/dados | SPEC-1-009                | ✅ Concluída — 2026-09-09 |
-| T9.2  | Contadores e filas — bordas e regressão                         | Verificador da entrega     | SPEC-1-009                | ☐ Planejada               |
+| T9.2  | Contadores e filas — bordas e regressão                         | Verificador da entrega     | SPEC-1-009                | ✅ Concluída — 2026-09-09 |
 | T10.1 | Trilha de auditoria append-only — caminho principal             | Executor de software/dados | SPEC-1-010                | ✅ Concluída — 2026-09-08 |
 | T10.2 | Trilha de auditoria — bordas e regressão                        | Verificador da entrega     | SPEC-1-010                | ✅ Concluída — 2026-09-08 |
 | T11.1 | Busca, filtros e recuperação — caminho principal                | Executor de software/dados | SPEC-1-011                | ✅ Concluída — 2026-09-08 |

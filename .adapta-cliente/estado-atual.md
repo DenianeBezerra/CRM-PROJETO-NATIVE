@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T9.2
+- task_id: nenhuma
 - champion: Verificador da entrega
-- spec: 04-fase-atual/specs/SPEC-1-009-DERIVADA-contadores-tempo-filas.md
-- etapa: implementando
+- spec: nenhuma
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 09/09/2026 15:55, owner respondeu "pode implementar" ao portão da T9.2
-- teste_humano: pendente
-- verificacao_automatica: baseline v0.0.80 — QA verde; pendências herdadas da T9.1 mapeadas na análise
-- aprendizado: pendente
-- ultima_acao: T9.2 analisada (bordas e regressão de contadores e filas); plano e matriz critério→prova preparados
-- proxima_acao: aguardar autorização da owner para implementar a T9.2
-- atualizado_em: 2026-09-09T16:00:00-03:00
+- teste_humano: aprovado — 09/09/2026 15:57, owner: "corrija e conclua a task" após validação por API real (RBAC operator, estado inválido, bordas, regressão)
+- verificacao_automatica: passou — QA v0.0.81 a v0.0.83 verde; bateria completa por API (RBAC, estado inválido, borda 10 dias, descrição 500/501, append-only, 401, regressão de 6 coleções/fluxos)
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-09-1900-deadlock-model-hooks-date-zero.md
+- ultima_acao: T9.2 concluída — Fase 1 completa (24/24, 100%); fase/STATUS/changelog/estado atualizados
+- proxima_acao: nenhuma task pendente na Fase 1 — fechamento oficial da fase depende de validação do consultor
+- atualizado_em: 2026-09-09T16:05:00-03:00
