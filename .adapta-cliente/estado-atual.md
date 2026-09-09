@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T8.2
-- champion: Verificador da entrega
-- spec: 04-fase-atual/specs/SPEC-1-008-protecao-de-etapa-em-uso-e-migracao-atomica.md
-- etapa: aguardando_teste_humano
-- autorizacao_implementacao: confirmada — "executar o plano" em 2026-09-08, após análise da regressão
+- task_id: T9.1
+- champion: Executor de software/dados
+- spec: 04-fase-atual/specs/SPEC-1-009-DERIVADA-contadores-tempo-filas.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — 09/09/2026, owner respondeu "sim" ao portão "Posso implementar este plano?" (T9.1)
 - teste_humano: pendente
-- verificacao_automatica: passou — versão 0.0.71; setup, análise estática, build, integrações e testes OK
+- verificacao_automatica: baseline existente — versão 0.0.72 com setup, análise estática, build, integrações e testes OK
 - aprendizado: pendente
-- ultima_acao: falha de destino final detectada no teste humano e corrigida em duas camadas; QA v0.0.71 verde
-- proxima_acao: teste humano revalidando modal sem estados finais e rollback
-- atualizado_em: 2026-09-08T21:36:00-03:00
+- ultima_acao: trava de suporte liberada pela owner; plano da T9.1 reapresentado para portão de autorização
+- proxima_acao: aguardar "posso implementar" da owner; só então executar T9.1 conforme micro-SPEC
+- atualizado_em: 2026-09-09T14:57:00-03:00

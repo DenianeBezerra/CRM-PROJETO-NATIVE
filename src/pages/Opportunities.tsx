@@ -19,6 +19,9 @@ type Oportunidade = {
   data_ganho?: string
   observacao_ganho?: string
   justificativa_reabertura?: string
+  proxima_acao_em?: string
+  proxima_acao_descricao?: string
+  arquivado?: boolean
 }
 type Cliente = { id: string; nome: string }
 type Etapa = { chave: string; nome: string; ordem: number; ativa: boolean }
@@ -42,6 +45,9 @@ const emptyForm = {
   data_ganho: '',
   observacao_ganho: '',
   justificativa_reabertura: '',
+  proxima_acao_em: '',
+  proxima_acao_descricao: '',
+  arquivado: 'false',
 }
 
 export default function Opportunities() {
@@ -122,6 +128,9 @@ export default function Opportunities() {
       data_ganho: item.data_ganho?.slice(0, 10) || '',
       observacao_ganho: item.observacao_ganho || '',
       justificativa_reabertura: '',
+      proxima_acao_em: item.proxima_acao_em ? item.proxima_acao_em.slice(0, 10) : '',
+      proxima_acao_descricao: item.proxima_acao_descricao || '',
+      arquivado: item.arquivado ? 'true' : 'false',
     })
     setShowForm(true)
   }
@@ -152,7 +161,14 @@ export default function Opportunities() {
     )
       return setError('Reabertura exige uma justificativa.')
     try {
-      const payload = { ...form, valor: value, probabilidade: probability }
+      const payload = {
+        ...form,
+        valor: value,
+        probabilidade: probability,
+        proxima_acao_em: form.proxima_acao_em || null,
+        proxima_acao_descricao: form.proxima_acao_descricao || '',
+        arquivado: form.arquivado === 'true',
+      }
       if (editing) await pb.collection('negocios').update(editing, payload)
       else await pb.collection('negocios').create(payload)
       toast({ title: editing ? 'Oportunidade atualizada' : 'Oportunidade cadastrada' })
@@ -219,6 +235,11 @@ export default function Opportunities() {
                   <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-1 h-fit">
                     {stages.find((stage) => stage.chave === item.estagio)?.nome || item.estagio}
                   </span>
+                  {item.arquivado && (
+                    <span className="text-xs rounded-full bg-neutral-200 px-2 py-1 h-fit">
+                      Arquivada
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm mt-4">
                   Valor:{' '}
@@ -322,6 +343,36 @@ export default function Opportunities() {
                   onChange={(e) => update('data_fechamento_previsto', e.target.value)}
                   className="mt-1 w-full border rounded-lg px-3 py-2"
                 />
+              </label>
+              <label className="text-sm font-medium">
+                Próxima ação (data)
+                <input
+                  type="date"
+                  value={form.proxima_acao_em}
+                  onChange={(e) => update('proxima_acao_em', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium sm:col-span-2">
+                Próxima ação (descrição)
+                <input
+                  value={form.proxima_acao_descricao}
+                  onChange={(e) => update('proxima_acao_descricao', e.target.value)}
+                  maxLength={500}
+                  placeholder="Ex.: enviar proposta revisada"
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
+                Arquivado
+                <select
+                  value={form.arquivado}
+                  onChange={(e) => update('arquivado', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="false">Não</option>
+                  <option value="true">Sim</option>
+                </select>
               </label>
             </div>
             {form.estagio === 'fechado_perdido' && (

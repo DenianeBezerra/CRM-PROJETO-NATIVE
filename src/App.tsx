@@ -10,6 +10,7 @@ import Opportunities from './pages/Opportunities'
 import Stages from './pages/Stages'
 import Kanban from './pages/Kanban'
 import SearchPage from './pages/SearchPage'
+import Operacional from './pages/Operacional'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -76,6 +77,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SearchPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/operacional"
+              element={
+                <ProtectedRoute>
+                  <Operacional />
                 </ProtectedRoute>
               }
             />

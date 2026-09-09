@@ -151,12 +151,21 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             <p className="font-inter text-base sm:text-lg text-[#6B7280] leading-relaxed">
               <span>Seu CRM está pronto. Em breve, seus clientes aparecerão aqui. </span>
               {!adminOnly && (
-                <button
-                  onClick={() => navigate('/contatos')}
-                  className="font-semibold text-[#A8862B] underline"
-                >
-                  Abrir contatos
-                </button>
+                <>
+                  <button
+                    onClick={() => navigate('/contatos')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Abrir contatos
+                  </button>{' '}
+                  ·{' '}
+                  <button
+                    onClick={() => navigate('/operacional')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Painel operacional
+                  </button>
+                </>
               )}
             </p>
           </div>
