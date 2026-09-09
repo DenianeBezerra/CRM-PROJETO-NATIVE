@@ -197,7 +197,13 @@ export default function Stages() {
               >
                 <option value="">Selecione</option>
                 {ordered
-                  .filter((stage) => stage.ativa && stage.id !== migration.item.id)
+                  .filter(
+                    (stage) =>
+                      stage.ativa &&
+                      stage.id !== migration.item.id &&
+                      stage.chave !== 'fechado_ganho' &&
+                      stage.chave !== 'fechado_perdido',
+                  )
                   .map((stage) => (
                     <option key={stage.id} value={stage.chave}>
                       {stage.nome}

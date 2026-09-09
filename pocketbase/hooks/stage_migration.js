@@ -24,6 +24,9 @@ onRecordUpdateRequest((e) => {
       if (!targetKey || targetKey === stageKey || !target || target.length === 0) {
         throw new Error('Etapa em uso exige um destino ativo diferente para migração.')
       }
+      if (targetKey === 'fechado_ganho' || targetKey === 'fechado_perdido') {
+        throw new Error('Migração não pode usar um estado final como destino.')
+      }
       for (const deal of affected) {
         deal.set('estagio', targetKey)
         txApp.save(deal)
