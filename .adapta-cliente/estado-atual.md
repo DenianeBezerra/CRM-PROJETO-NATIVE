@@ -3,11 +3,11 @@
 - task_id: T8.1
 - champion: Executor de software/dados
 - spec: 04-fase-atual/specs/SPEC-1-008-protecao-de-etapa-em-uso-e-migracao-atomica.md
-- etapa: em_correcao
+- etapa: aguardando_teste_humano
 - autorizacao_implementacao: confirmada — "corrigir a migração para garantir atomicidade real..." em 2026-09-08 às 21:23
-- teste_humano: aprovado parcialmente — fluxo visual validado; falha de atomicidade pendente
-- verificacao_automatica: passou — versão 0.0.67; atomicidade real ainda não comprovada
+- teste_humano: pendente — fluxo visual anterior aprovado; falta confirmar falha/rollback após correção transacional
+- verificacao_automatica: passou — versão 0.0.68; setup, análise estática, build, integrações e testes OK
 - aprendizado: pendente
-- ultima_acao: debug iniciado; sintoma: hook salva oportunidades antes da confirmação final da etapa e não usa transação comprovada
-- proxima_acao: confirmar API transacional suportada, corrigir hook e repetir QA
-- atualizado_em: 2026-09-08T21:23:00-03:00
+- ultima_acao: debug concluído; hook corrigido para `$app.runInTransaction` com `txApp`; debug summary em 06_notas/debug/debug-2026-09-08-t8-1-atomicidade.md
+- proxima_acao: teste humano específico de falha/rollback da migração
+- atualizado_em: 2026-09-08T21:30:00-03:00

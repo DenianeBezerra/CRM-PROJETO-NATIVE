@@ -1,12 +1,19 @@
 # Status
 
-**Status:** Fase 1 em execução — 20 de 24 tasks concluídas (83,33%)
+**Status:** Fase 1 em execução — 21 de 24 tasks concluídas (87,50%)
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T5.2 — regressão de ganho, perda e reabertura
-**Próxima task elegível:** nenhuma imediatamente — T8.1 e T9.1 permanecem planejadas e dependem de suas respectivas SPECs/pré-condições
+**Última task concluída:** T8.1 — proteção de etapa em uso e migração atômica
+**Próxima task elegível:** T8.2 — validação de bordas, segurança, reversão e evidências
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
+
+## Evidência da T8.1
+
+- Etapa em uso exige destino ativo; migração completa, cancelamento sem estado parcial e auditoria implementados.
+- Correção de atomicidade com `$app.runInTransaction` e `txApp`.
+- Skip QA v0.0.68 verde e teste humano aprovado pela cliente.
+- Evidência detalhada: `evidencias/spec-1-008/t8.1-green.md`.
 
 ## Evidência da T5.2
 

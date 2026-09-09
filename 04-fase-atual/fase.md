@@ -29,7 +29,7 @@ Integrações externas, qualificação avançada, proposta, SLA, dashboard execu
 | T6.2  | Editor de etapas — bordas e regressão                           | Verificador da entrega     | SPEC-1-006                | ✅ Concluída — 2026-09-08 |
 | T7.1  | Kanban e movimentação acessível — caminho principal             | Executor de software/dados | SPEC-1-007                | ✅ Concluída — 2026-09-08 |
 | T7.2  | Kanban — bordas e regressão                                     | Verificador da entrega     | SPEC-1-007                | ✅ Concluída — 2026-09-08 |
-| T8.1  | Proteção de etapa em uso e migração atômica — caminho principal | Executor de software/dados | SPEC-1-008                | ☐ Planejada               |
+| T8.1  | Proteção de etapa em uso e migração atômica — caminho principal | Executor de software/dados | SPEC-1-008                | ✅ Concluída — 2026-09-08 |
 | T8.2  | Proteção de etapa — bordas e regressão                          | Verificador da entrega     | SPEC-1-008                | ☐ Planejada               |
 | T9.1  | Contadores, tempo por etapa e filas — caminho principal         | Executor de software/dados | SPEC-1-009                | ☐ Planejada               |
 | T9.2  | Contadores e filas — bordas e regressão                         | Verificador da entrega     | SPEC-1-009                | ☐ Planejada               |
@@ -40,7 +40,7 @@ Integrações externas, qualificação avançada, proposta, SLA, dashboard execu
 | T12.1 | Exportação segura e aceite — caminho principal                  | Executor de software/dados | SPEC-1-012-DERIVADA       | ✅ Concluída — 2026-09-08 |
 | T12.2 | Exportação e aceite — bordas e regressão                        | Verificador da entrega     | SPEC-1-012-T12.2-DERIVADA | ✅ Concluída — 2026-09-08 |
 
-**Contagem:** 20 de 24 tasks concluídas (83,33%).
+**Contagem:** 21 de 24 tasks concluídas (87,50%).
 
 ## Ordem de liberação
 
