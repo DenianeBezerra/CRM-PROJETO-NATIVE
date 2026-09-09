@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
-- champion: Executor de software/dados
-- spec: nenhuma
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 09/09/2026, owner respondeu "sim" ao portão "Posso implementar este plano?" (T9.1)
-- teste_humano: aprovado — 09/09/2026 15:52, owner: "confirmados, pode concluir" após teste no preview (kanban, painel operacional, fila de vencidas)
-- verificacao_automatica: passou — QA v0.0.73 a v0.0.79 verde; revalidação independente no fechamento: 4 rotas 200/401, append-only 403, seed 10, transições com histórico correto
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-09-1900-deadlock-model-hooks-date-zero.md
-- ultima_acao: T9.1 concluída — fase 23/24 (95,83%), STATUS/changelog/fase/estado atualizados, revalidação independente executada
-- proxima_acao: T9.2 (bordas e regressão de contadores e filas) é a próxima elegível — aguardar pedido da owner
-- atualizado_em: 2026-09-09T19:05:00-03:00
+- task_id: T9.2
+- champion: Verificador da entrega
+- spec: 04-fase-atual/specs/SPEC-1-009-DERIVADA-contadores-tempo-filas.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — 09/09/2026 15:55, owner respondeu "pode implementar" ao portão da T9.2
+- teste_humano: pendente
+- verificacao_automatica: baseline v0.0.80 — QA verde; pendências herdadas da T9.1 mapeadas na análise
+- aprendizado: pendente
+- ultima_acao: T9.2 analisada (bordas e regressão de contadores e filas); plano e matriz critério→prova preparados
+- proxima_acao: aguardar autorização da owner para implementar a T9.2
+- atualizado_em: 2026-09-09T16:00:00-03:00
