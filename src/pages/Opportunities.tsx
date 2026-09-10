@@ -22,8 +22,18 @@ type Oportunidade = {
   proxima_acao_em?: string
   proxima_acao_descricao?: string
   arquivado?: boolean
+  origem?: string
+  tags?: string
+  responsavel?: string
+  responsavel_nome?: string
+  prioridade?: string
+  score?: number
+  servico?: string
+  status?: string
+  data_entrada?: string
 }
 type Cliente = { id: string; nome: string }
+type Usuario = { id: string; name: string }
 type Etapa = { chave: string; nome: string; ordem: number; ativa: boolean }
 const fallbackStages = [
   { chave: 'novo', nome: 'Novo', ordem: 10, ativa: true },
@@ -31,6 +41,31 @@ const fallbackStages = [
   { chave: 'proposta', nome: 'Proposta', ordem: 30, ativa: true },
   { chave: 'fechado_ganho', nome: 'Fechado ganho', ordem: 40, ativa: true },
   { chave: 'fechado_perdido', nome: 'Fechado perdido', ordem: 50, ativa: true },
+]
+const origemOptions = [
+  { value: 'indicacao', label: 'Indicação' },
+  { value: 'site', label: 'Site' },
+  { value: 'redes_sociais', label: 'Redes sociais' },
+  { value: 'evento', label: 'Evento' },
+  { value: 'outro', label: 'Outro' },
+]
+const prioridadeOptions = [
+  { value: 'baixa', label: 'Baixa' },
+  { value: 'media', label: 'Média' },
+  { value: 'alta', label: 'Alta' },
+]
+const servicoOptions = [
+  { value: 'bpo_financeiro', label: 'BPO Financeiro' },
+  { value: 'controladoria', label: 'Controladoria' },
+  { value: 'cfo_as_a_service', label: 'CFO as a Service' },
+  { value: 'outro', label: 'Outro' },
+]
+const statusOptions = [
+  { value: 'em_aberto', label: 'Em aberto' },
+  { value: 'em_negociacao', label: 'Em negociação' },
+  { value: 'pausado', label: 'Pausado' },
+  { value: 'ganho', label: 'Ganho' },
+  { value: 'perdido', label: 'Perdido' },
 ]
 const emptyForm = {
   titulo: '',
@@ -48,6 +83,13 @@ const emptyForm = {
   proxima_acao_em: '',
   proxima_acao_descricao: '',
   arquivado: 'false',
+  origem: '',
+  tags: '',
+  responsavel: '',
+  prioridade: '',
+  score: '',
+  servico: '',
+  status: '',
 }
 
 export default function Opportunities() {
@@ -55,6 +97,7 @@ export default function Opportunities() {
   const { toast } = useToast()
   const [items, setItems] = useState<Oportunidade[]>([])
   const [clients, setClients] = useState<Cliente[]>([])
+  const [users, setUsers] = useState<Usuario[]>([])
   const [stages, setStages] = useState<Etapa[]>(fallbackStages)
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState<string | null>(null)
@@ -69,7 +112,7 @@ export default function Opportunities() {
       const [records, contacts] = await Promise.all([
         pb
           .collection('negocios')
-          .getFullList<Oportunidade>({ sort: '-created', expand: 'cliente' }),
+          .getFullList<Oportunidade>({ sort: '-created', expand: 'cliente,responsavel' }),
         pb.collection('clientes').getFullList<Cliente>({ sort: 'nome' }),
       ])
       setItems(
@@ -77,9 +120,16 @@ export default function Opportunities() {
           ...item,
           cliente_nome: (item as Oportunidade & { expand?: { cliente?: Cliente } }).expand?.cliente
             ?.nome,
+          responsavel_nome: (item as Oportunidade & { expand?: { responsavel?: Usuario } }).expand
+            ?.responsavel?.name,
         })),
       )
       setClients(contacts)
+      try {
+        setUsers(await pb.collection('users').getFullList<Usuario>({ sort: 'name' }))
+      } catch {
+        /* lista de usuários indisponível para o perfil atual */
+      }
       try {
         const configured = await pb
           .collection('etapas_negocio')
@@ -131,6 +181,13 @@ export default function Opportunities() {
       proxima_acao_em: item.proxima_acao_em ? item.proxima_acao_em.slice(0, 10) : '',
       proxima_acao_descricao: item.proxima_acao_descricao || '',
       arquivado: item.arquivado ? 'true' : 'false',
+      origem: item.origem || '',
+      tags: item.tags || '',
+      responsavel: item.responsavel || '',
+      prioridade: item.prioridade || '',
+      score: item.score?.toString() || '',
+      servico: item.servico || '',
+      status: item.status || '',
     })
     setShowForm(true)
   }
@@ -141,10 +198,13 @@ export default function Opportunities() {
     if (!form.cliente) return setError('Selecione um contato.')
     const value = form.valor === '' ? undefined : Number(form.valor)
     const probability = Number(form.probabilidade)
+    const score = form.score === '' ? undefined : Number(form.score)
     if (value !== undefined && (!Number.isFinite(value) || value < 0))
       return setError('Informe um valor válido.')
     if (!Number.isFinite(probability) || probability < 0 || probability > 100)
       return setError('A probabilidade deve estar entre 0 e 100.')
+    if (score !== undefined && (!Number.isFinite(score) || score < 0 || score > 100))
+      return setError('O score deve estar entre 0 e 100.')
     if (form.estagio === 'fechado_perdido' && !form.motivo_perda)
       return setError('Perda exige um motivo estruturado.')
     if (
@@ -154,6 +214,17 @@ export default function Opportunities() {
     )
       return setError('Informe o detalhe do motivo de perda.')
     if (
+      (form.estagio === 'fechado_ganho' && form.status && form.status !== 'ganho') ||
+      (form.estagio === 'fechado_perdido' && form.status && form.status !== 'perdido')
+    )
+      return setError('Status divergente da etapa final.')
+    if (
+      form.estagio !== 'fechado_ganho' &&
+      form.estagio !== 'fechado_perdido' &&
+      (form.status === 'ganho' || form.status === 'perdido')
+    )
+      return setError('Status "ganho"/"perdido" só valem em etapas finais.')
+    if (
       editing &&
       (originalStage === 'fechado_ganho' || originalStage === 'fechado_perdido') &&
       !form.estagio.startsWith('fechado_') &&
@@ -161,13 +232,29 @@ export default function Opportunities() {
     )
       return setError('Reabertura exige uma justificativa.')
     try {
-      const payload = {
-        ...form,
+      const payload: Record<string, unknown> = {
+        titulo: form.titulo,
+        cliente: form.cliente,
         valor: value,
+        estagio: form.estagio,
         probabilidade: probability,
+        data_fechamento_previsto: form.data_fechamento_previsto || null,
+        observacoes: form.observacoes,
+        motivo_perda: form.motivo_perda || null,
+        motivo_perda_detalhe: form.motivo_perda_detalhe,
+        data_ganho: form.data_ganho || null,
+        observacao_ganho: form.observacao_ganho,
+        justificativa_reabertura: form.justificativa_reabertura,
         proxima_acao_em: form.proxima_acao_em || null,
-        proxima_acao_descricao: form.proxima_acao_descricao || '',
+        proxima_acao_descricao: form.proxima_acao_descricao,
         arquivado: form.arquivado === 'true',
+        origem: form.origem || null,
+        tags: form.tags,
+        responsavel: form.responsavel || null,
+        prioridade: form.prioridade || null,
+        score: score ?? null,
+        servico: form.servico || null,
+        status: form.status || null,
       }
       if (editing) await pb.collection('negocios').update(editing, payload)
       else await pb.collection('negocios').create(payload)
@@ -178,6 +265,8 @@ export default function Opportunities() {
       setError('Não foi possível salvar. Verifique os campos e tente novamente.')
     }
   }
+  const label = (options: { value: string; label: string }[], value?: string) =>
+    options.find((option) => option.value === value)?.label || value || ''
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -247,6 +336,20 @@ export default function Opportunities() {
                     ? 'não informado'
                     : `R$ ${item.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}{' '}
                   · Probabilidade: {item.probabilidade ?? 0}%
+                </p>
+                <p className="text-xs text-[#6B7280] mt-2">
+                  Origem: {label(origemOptions, item.origem) || 'não informada'} · Prioridade:{' '}
+                  {label(prioridadeOptions, item.prioridade) || 'não informada'} · Status:{' '}
+                  {label(statusOptions, item.status) || 'não informado'} · Score:{' '}
+                  {item.score ?? '—'}
+                </p>
+                <p className="text-xs text-[#6B7280] mt-1">
+                  Serviço: {label(servicoOptions, item.servico) || 'não informado'} · Responsável:{' '}
+                  {item.responsavel_nome || 'não atribuído'} · Entrada:{' '}
+                  {item.data_entrada
+                    ? new Date(item.data_entrada).toLocaleDateString('pt-BR')
+                    : '—'}
+                  {item.tags ? ` · Tags: ${item.tags}` : ''}
                 </p>
                 <button
                   onClick={() => openEdit(item)}
@@ -342,6 +445,112 @@ export default function Opportunities() {
                   value={form.data_fechamento_previsto}
                   onChange={(e) => update('data_fechamento_previsto', e.target.value)}
                   className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
+                Origem
+                <select
+                  value={form.origem}
+                  onChange={(e) => update('origem', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {origemOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium">
+                Tags
+                <input
+                  value={form.tags}
+                  onChange={(e) => update('tags', e.target.value)}
+                  maxLength={500}
+                  placeholder="Ex.: estratégico, renovação"
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
+                Responsável
+                <select
+                  value={form.responsavel}
+                  onChange={(e) => update('responsavel', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium">
+                Prioridade
+                <select
+                  value={form.prioridade}
+                  onChange={(e) => update('prioridade', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {prioridadeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium">
+                Score (0–100)
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={form.score}
+                  onChange={(e) => update('score', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
+                Serviço
+                <select
+                  value={form.servico}
+                  onChange={(e) => update('servico', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {servicoOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium">
+                Status
+                <select
+                  value={form.status}
+                  onChange={(e) => update('status', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {statusOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium">
+                Data de entrada
+                <input
+                  type="date"
+                  value={form.data_entrada}
+                  disabled
+                  className="mt-1 w-full border rounded-lg px-3 py-2 bg-[#F7F5F1] text-[#6B7280]"
                 />
               </label>
               <label className="text-sm font-medium">

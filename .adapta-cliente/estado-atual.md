@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
-- champion: Verificador da entrega
-- spec: nenhuma
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 09/09/2026 15:55, owner respondeu "pode implementar" ao portão da T9.2
-- teste_humano: aprovado — 09/09/2026 15:57, owner: "corrija e conclua a task" após validação por API real (RBAC operator, estado inválido, bordas, regressão)
-- verificacao_automatica: passou — QA v0.0.81 a v0.0.83 verde; bateria completa por API (RBAC, estado inválido, borda 10 dias, descrição 500/501, append-only, 401, regressão de 6 coleções/fluxos)
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-09-1900-deadlock-model-hooks-date-zero.md
-- ultima_acao: T9.2 concluída — Fase 1 completa (24/24, 100%); fase/STATUS/changelog/estado atualizados
-- proxima_acao: nenhuma task pendente na Fase 1 — fechamento oficial da fase depende de validação do consultor
-- atualizado_em: 2026-09-09T16:05:00-03:00
+- task_id: T2.01
+- champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
+- spec: 04_fase-atual/specs/SPEC-2-000-remediacao-debitos-fase-1.md
+- etapa: implementando — PAUSADA pelo owner em 2026-09-10 16:58 ("pause")
+- autorizacao_implementacao: confirmada — 2026-09-10 16:58, owner respondeu "Pode implementar o plano da T2.01" ao portão da análise
+- teste_humano: pendente
+- verificacao_automatica: pendente — RED não iniciado; nenhuma alteração de produto feita (apenas leitura de baseline)
+- aprendizado: pendente
+- ultima_acao: pausa solicitada pelo owner antes do RED; zero mudanças de código
+- proxima_acao: retomar RED quando o owner pedir ("continue")
+- atualizado_em: 2026-09-10T16:58:00-03:00
