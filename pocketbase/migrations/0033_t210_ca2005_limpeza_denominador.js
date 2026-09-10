@@ -50,9 +50,18 @@ migrate(
         // coleção pode não existir em instalação limpa
       }
       try {
-        const interacoes = app.findRecordsByFilter('interacoes', 'negocio = {:n}', '', 100, 0, {
-          n: negocios[i].id,
-        })
+        // O campo de relação em interacoes pode ser 'negocio' ou 'oportunidade'
+        // (nomenclatura variou entre SPECs) — tentar ambos.
+        let interacoes = []
+        try {
+          interacoes = app.findRecordsByFilter('interacoes', 'negocio = {:n}', '', 100, 0, {
+            n: negocios[i].id,
+          })
+        } catch (_) {
+          interacoes = app.findRecordsByFilter('interacoes', 'oportunidade = {:n}', '', 100, 0, {
+            n: negocios[i].id,
+          })
+        }
         for (let k = 0; k < interacoes.length; k++) app.delete(interacoes[k])
       } catch (_) {
         // coleção pode não existir em instalação limpa
