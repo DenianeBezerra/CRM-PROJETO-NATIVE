@@ -52,13 +52,13 @@ const fallbackStages: Stage[] = [
 
 // T2.03/CA-2-038: neutraliza CSV injection — célula iniciada por =, +, - ou @
 // recebe prefixo de escape (padrão OWASP) além do escape de aspas.
+// (Mantida como fallback; a exportação principal é server-side — T2.04/CA-2-039.)
 function csvCell(value: unknown) {
   let text = String(value ?? '')
   if (/^[=+\-@]/.test(text)) text = `'` + text
   return `"${text.replaceAll('"', '""')}"`
 }
-function downloadCsv(filename: string, headers: string[], rows: unknown[][]) {
-  const csv = '\ufeff' + [headers, ...rows].map((row) => row.map(csvCell).join(';')).join('\r\n')
+function downloadCsv(filename: string, csv: string) {
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
   const link = document.createElement('a')
   link.href = url
@@ -185,12 +185,14 @@ export default function SearchPage() {
     setExportEntity(null)
     setAccepted(false)
   }
+  // T2.04/CA-2-039: exportação via endpoint server-side autorizado.
+  // O servidor recalcula filtros e quantidade, valida o aceite (1 uso) e registra trilha.
   const confirmExport = async () => {
     if (!exportEntity || !accepted || !user) return
     setExporting(true)
-    const filters = currentFilters(exportEntity)
     try {
-      await pb.collection('aceites_exportacao').create({
+      const filters = currentFilters(exportEntity)
+      const aceite = await pb.collection('aceites_exportacao').create({
         usuario: user.id,
         entidade: exportEntity,
         filtros: JSON.stringify(filters),
@@ -199,61 +201,35 @@ export default function SearchPage() {
         aceito_em: new Date().toISOString(),
         versao_termo: 'v1',
       })
-      if (exportEntity === 'clientes')
-        downloadCsv(
-          `contatos-${new Date().toISOString().slice(0, 10)}.csv`,
-          ['Nome', 'Empresa', 'E-mail', 'Telefone', 'Cidade', 'Origem', 'Status'],
-          filteredContacts.map((x) => [
-            x.nome,
-            x.empresa_nome,
-            x.email,
-            x.telefone,
-            x.cidade,
-            x.origem,
-            x.status,
-          ]),
-        )
-      else
-        downloadCsv(
-          `oportunidades-${new Date().toISOString().slice(0, 10)}.csv`,
-          [
-            'Título',
-            'Contato',
-            'Valor',
-            'Estágio',
-            'Probabilidade',
-            'Fechamento previsto',
-            'Motivo da perda',
-            'Detalhe da perda',
-          ],
-          filteredOpportunities.map((x) => [
-            x.titulo,
-            x.cliente_nome,
-            x.valor,
-            x.estagio,
-            x.probabilidade,
-            x.data_fechamento_previsto,
-            x.motivo_perda,
-            x.motivo_perda_detalhe,
-          ]),
-        )
+      const query = new URLSearchParams({
+        aceite: aceite.id,
+        q: filters.q,
+        status: filters.status,
+        stage: filters.stage,
+      })
+      const resposta = await pb.send<{ filename: string; quantidade: number; csv: string }>(
+        `/backend/v1/export/${exportEntity}?${query.toString()}`,
+        { method: 'GET' },
+      )
+      downloadCsv(resposta.filename, resposta.csv)
       setExportEntity(null)
       toast({
         title: 'Exportação concluída',
-        description: `${visibleCount} registro(s) exportado(s).`,
+        description: `${resposta.quantidade} registro(s) exportado(s).`,
       })
     } catch (err) {
       void trackOutcome(
         'falha',
         exportEntity,
-        `Falha ao registrar aceite: ${err instanceof Error ? err.message : String(err)}`.slice(
+        `Falha na exportação server-side: ${err instanceof Error ? err.message : String(err)}`.slice(
           0,
           500,
         ),
       )
       toast({
         title: 'Exportação não realizada',
-        description: 'Não foi possível registrar o aceite. Nenhum arquivo foi baixado.',
+        description:
+          'Não foi possível concluir a exportação autorizada. Nenhum arquivo foi baixado.',
         variant: 'destructive',
       })
     } finally {
@@ -453,7 +429,7 @@ export default function SearchPage() {
             <DialogDescription>
               Você está exportando {visibleCount} registro(s) de{' '}
               {exportEntity === 'clientes' ? 'contatos' : 'oportunidades'} para uso interno na
-              gestão comercial.
+              gestão comercial. A quantidade final é confirmada pelo servidor.
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-lg bg-[#F7F5F1] p-3 text-sm">
