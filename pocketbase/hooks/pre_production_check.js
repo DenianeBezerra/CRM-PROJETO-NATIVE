@@ -121,13 +121,34 @@ routerAdd(
       const apto =
         contasProblema === 0 && contatosProblema.length === 0 && negociosProblema.length === 0
 
-      return e.json(200, {
+      const resposta = {
         apto_producao: apto,
         contas: { total: contas.length, fixtures: contasProblema, detalhe: contasDetalhe },
         contatos: { total: contatos.length, fixtures_ou_seeds: contatosProblema },
         oportunidades: { total: negocios.length, fixtures_ou_seeds: negociosProblema },
         verificado_em: new Date().toISOString(),
-      })
+      }
+
+      // Diagnóstico temporário T2.10 (?debug=interacoes — somente leitura):
+      // expõe as interações e seus campos brutos para calibrar a migration.
+      if (e.request.url.query().get('debug') === 'interacoes') {
+        let interacoes = []
+        try {
+          interacoes = $app.findRecordsByFilter('interacoes', '', '', 100, 0)
+        } catch (err) {
+          return e.json(200, Object.assign(resposta, { erro_interacoes: String(err) }))
+        }
+        const amostra = []
+        for (let i = 0; i < Math.min(interacoes.length, 10); i++) {
+          amostra.push({
+            id: interacoes[i].id,
+            export: interacoes[i].publicExport(),
+          })
+        }
+        resposta.debug_interacoes = { total: interacoes.length, amostra: amostra }
+      }
+
+      return e.json(200, resposta)
     } catch (err) {
       return e.json(500, { erro: String(err) })
     }
