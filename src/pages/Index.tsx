@@ -72,8 +72,10 @@ export default function Index() {
 
   const fillDemoCredentials = () => {
     if (!IS_DEMO) return
+    // T2.06/CA-2-001: NUNCA preencher senha real — só o e-mail de demonstração.
+    // A senha é sempre digitada pelo usuário.
     setEmail('deniane@vibratto.com.br')
-    setPassword('Skip@Pass')
+    setPassword('')
     setFieldErrors({})
     setErrorMessage(null)
   }
