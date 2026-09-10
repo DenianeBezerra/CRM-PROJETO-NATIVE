@@ -1,13 +1,15 @@
 // T2.06 / CA-2-001 — saneamento de snapshots da auditoria.
-// Antes de qualquer evento de auditoria ser gravado, campos com nome sensível
-// (password, token, secret, key, credential...) têm o valor substituído por
-// "[REDACTED]". Assim o snapshot nunca carrega credencial utilizável, hoje ou
-// no futuro — independentemente do registro de origem.
+// Campos com nome sensível (password, token, secret, key...) têm o valor
+// substituído por "[REDACTED]" antes do evento ser persistido.
 //
-// Padrões JSVM: TODA a lógica inline no callback — funções top-level não são
-// visíveis dentro de callbacks (lição aplicada de T2.01/T2.04).
+// LIÇÃO T2.06: a auditoria é gravada pelos hooks de auditoria via $app.save()
+// (contexto sistema, sem request HTTP) — request hooks NÃO disparam para esses
+// saves. Por isso o saneamento usa MODEL hooks (onRecordCreate/onRecordUpdate),
+// que disparam em qualquer save, inclusive interno.
+//
+// Padrões JSVM: TODA a lógica inline no callback.
 
-onRecordCreateRequest((e) => {
+onRecordCreate((e) => {
   const camposSensiveis = [
     'password',
     'passwordhash',
@@ -52,9 +54,7 @@ onRecordCreateRequest((e) => {
   e.next()
 }, 'auditoria')
 
-onRecordUpdateRequest((e) => {
-  // Auditoria é append-only — update é bloqueado por regra; este hook é defesa
-  // em profundidade caso a regra mude.
+onRecordUpdate((e) => {
   const camposSensiveis = [
     'password',
     'passwordhash',
