@@ -1,19 +1,25 @@
-# Changelog
+# Changelog — CRM Vibratto
 
-## 2026-09-10
+## [0.0.163] — 2026-09-10 — T2.10 concluída (SPEC-2-001 FECHADA 10/10)
 
-- 2026-09-10 · Deni.Ai · Task T2.05 concluída: CA-2-040 integral — leitura da auditoria respeita papel (admin vê tudo, operator só os próprios atos: 55→1 eventos), retenção definida (campo retido_ate + backfill 365 dias + cron diário provado com fixture vencida), instalação limpa (27 migrations sem IDs de ambiente, revisão documentada) e limpeza das fixtures de teste acumuladas (T2.01–T2.04). QA v0.0.115–0.0.120 verde; teste humano aprovado ("Aprovado, conclua a T2.05"). **FECHA A SPEC-2-000 (5/5)**. Evidências em `evidencias/spec-2-000/ca-2-040-*.md`.
-- 2026-09-10 · Deni.Ai · Task T2.04 concluída: CA-2-039 integral — exportação de dados pessoais via endpoint server-side autorizado (`GET /backend/v1/export/{entidade}`): servidor recalcula filtros e quantidade, exige aceite válido de uso único (reuso → 403), gera CSV com neutralização OWASP e registra trilha append-only (coleção `exportacoes`, migration 0025). Frontend baixa o CSV do servidor. Defeito corrigido: findFirstRecordByFilter não aceita sort no JSVM. QA v0.0.101–0.0.113 verde; teste aprovado ("todos passaram").
-- 2026-09-10 · Deni.Ai · Task T2.03 concluída: CA-2-038 integral — CSV neutraliza =, +, -, @; coleção `eventos_exportacao` append-only (cancelado/negado/falha); modal com três saídas rastreadas; bônus: Busca exibe nome da empresa. QA v0.0.97–0.0.99 verde; teste aprovado ("feito" + CSV real). GitHub commit 5fa80c07.
-- 2026-09-10 · Deni.Ai · Task T2.02 concluída: CA-2-037 integral — Opção A (empresa como entidade relacional própria): coleção `empresas` (0022), `clientes.empresa` relation (0023 idempotente), backfill 6 empresas. QA v0.0.93–0.0.95 verde; teste aprovado ("TODAS PASSARAM"). GitHub commit 85eef79.
-- 2026-09-10 · Deni.Ai · Task T2.01 concluída: CA-2-036 integral — 8 campos comerciais, validação server-side, auditoria de delete, tela de Oportunidades. QA v0.0.87–0.0.92 verde; teste aprovado. GitHub commit 9ad54f1.
-- 2026-09-10 · Deni.Ai · Fase 2 liberada com 8 SPECs e 40 tasks; Fase 1 arquivada em `05_entregas/fase-1/`.
+### Adicionado
 
-## 2026-09-09
+- **Consulta reproduzível de aptidão para produção** (CA-2-005): `GET /backend/v1/security/pre-production-check` (admin-only, somente leitura). Varre contas, contatos e oportunidades procurando fixtures/seeds por padrões conhecidos; retorna `{apto_producao, contas, contatos, oportunidades, verificado_em}`. Reexecutável com resultado determinístico.
 
-- 2026-09-09 · Deni.Ai · Task T9.2 concluída: regressão de contadores, tempo por etapa e filas; Fase 1 completa: 24/24.
-- 2026-09-09 · Deni.Ai · Task T9.1 concluída: contadores, tempo por etapa, filas operacionais e painel `/operacional`.
+### Removido (limpeza do denominador real — migration 0033)
 
-## Histórico anterior
+- 6 contatos seed de demonstração (Juliana Vasconcelos, Rodrigo Alcantara, Camila Fernandes, Marcelo Pires de Castro, Fernanda Albuquerque Ribeiro, Eduardo Martins Soares) e 5 oportunidades fictícias (Nexus Tech, Alcantara, TransBrasil, Bella Casa, Albuquerque) da migration 0006.
+- 6 interações de seed (incluindo a quebrada com `negocio=""` que bloqueava o delete) e permanências vinculadas.
+- Fixtures de teste remanescentes: RED T201 Fixture Contato, G4 Fixture T202, =CMD T203 fixture, negócio "TESTE".
+- Conta de demonstração `operador.demo@vibratto.com.br` (seed de RBAC antigo).
+- **Preservados**: dados reais (Maria Rodrigues, ROMEU, empresa AG) e a conta `operator@vibratto.com.br` (papel de operação, marcada como teste até operadores reais).
 
-As demais conclusões (T1.1–T8.2, T10.1–T12.2) permanecem registradas no histórico oficial sincronizado do projeto (repositório GitHub de governança).
+### Corrigido
+
+- Delete bloqueado por required reference em interação de seed com `negocio` vazio — interações de seed agora são removidas antes dos negócios.
+
+### Notas
+
+- Deletes de limpeza via migration não passam pelos hooks de auditoria (sem trilha) — aceito para seeds/fixtures; documentado como limitação.
+- UX: telas sem resultados não exibem estado "nenhum resultado" (backlog).
+- QA verde v0.0.152–0.0.163. Teste humano aprovado pela cliente (print /contatos).

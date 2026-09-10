@@ -150,7 +150,23 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
 
             <p className="font-inter text-base sm:text-lg text-[#6B7280] leading-relaxed">
               <span>Seu CRM está pronto. Em breve, seus clientes aparecerão aqui. </span>
-              {!adminOnly && (
+              {adminOnly && user?.role === 'admin' ? (
+                <>
+                  <button
+                    onClick={() => navigate('/admin/etapas')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Etapas comerciais
+                  </button>{' '}
+                  ·{' '}
+                  <button
+                    onClick={() => navigate('/admin/qualificacao')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Qualificação
+                  </button>
+                </>
+              ) : (
                 <>
                   <button
                     onClick={() => navigate('/contatos')}
@@ -166,7 +182,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                     Painel operacional
                   </button>
                 </>
-              )}
+              )}{' '}
             </p>
           </div>
 

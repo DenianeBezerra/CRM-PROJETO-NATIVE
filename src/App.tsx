@@ -11,6 +11,7 @@ import Stages from './pages/Stages'
 import Kanban from './pages/Kanban'
 import SearchPage from './pages/SearchPage'
 import Operacional from './pages/Operacional'
+import Qualificacao from './pages/Qualificacao'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -101,6 +102,14 @@ const App = () => (
               element={
                 <AdminRoute>
                   <Stages />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/qualificacao"
+              element={
+                <AdminRoute>
+                  <Qualificacao />
                 </AdminRoute>
               }
             />
