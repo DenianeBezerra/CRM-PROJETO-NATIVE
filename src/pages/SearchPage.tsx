@@ -18,12 +18,14 @@ type Contact = {
   id: string
   nome: string
   empresa?: string
+  empresa_nome?: string
   email?: string
   telefone?: string
   cidade?: string
   origem?: string
   status?: string
 }
+type Empresa = { id: string; nome: string }
 type Opportunity = {
   id: string
   titulo: string
@@ -85,12 +87,18 @@ export default function SearchPage() {
     const load = async () => {
       try {
         const [cs, os] = await Promise.all([
-          pb.collection('clientes').getFullList<Contact>({ sort: 'nome' }),
+          pb.collection('clientes').getFullList<Contact>({ sort: 'nome', expand: 'empresa' }),
           pb
             .collection('negocios')
             .getFullList<Opportunity>({ sort: '-created', expand: 'cliente' }),
         ])
-        setContacts(cs)
+        setContacts(
+          cs.map((item) => ({
+            ...item,
+            empresa_nome: (item as Contact & { expand?: { empresa?: Empresa } }).expand?.empresa
+              ?.nome,
+          })),
+        )
         setOpportunities(
           os.map((item) => ({
             ...item,
@@ -118,7 +126,9 @@ export default function SearchPage() {
       (x) =>
         (status === 'todos' || x.status === status) &&
         (!needle ||
-          [x.nome, x.empresa, x.email, x.telefone].some((v) => v?.toLowerCase().includes(needle))),
+          [x.nome, x.empresa_nome, x.email, x.telefone].some((v) =>
+            v?.toLowerCase().includes(needle),
+          )),
     )
   }, [contacts, q, status])
   const filteredOpportunities = useMemo(() => {
@@ -195,7 +205,7 @@ export default function SearchPage() {
           ['Nome', 'Empresa', 'E-mail', 'Telefone', 'Cidade', 'Origem', 'Status'],
           filteredContacts.map((x) => [
             x.nome,
-            x.empresa,
+            x.empresa_nome,
             x.email,
             x.telefone,
             x.cidade,
@@ -356,11 +366,11 @@ export default function SearchPage() {
                 <div className="space-y-3">
                   {filteredContacts.map((item) => (
                     <article key={item.id} className="bg-white border rounded-xl p-4">
-                      <div className="flex justify-between gap-3">
+                      <div className="flex justify-between">
                         <div>
                           <h3 className="font-semibold">{item.nome}</h3>
                           <p className="text-sm text-[#6B7280]">
-                            {item.empresa || 'Empresa não informada'}
+                            {item.empresa_nome || 'Empresa não informada'}
                           </p>
                           <p className="text-xs mt-2">
                             {item.email || 'Sem e-mail'} · {item.telefone || 'Sem telefone'}
