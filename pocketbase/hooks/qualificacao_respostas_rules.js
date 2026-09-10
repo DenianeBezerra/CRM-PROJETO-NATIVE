@@ -1,11 +1,34 @@
 // T2.12 — CA-2-007: validação server-side das respostas de qualificação.
-// Lições v0.0.169–0.0.173:
+// Lições v0.0.169–0.0.174:
 // (1) respondido_em é autodate — set() manual gera 400 genérico;
 // (2) índice UNIQUE composto sobre relations derruba todo INSERT — unicidade
 //     por (negocio, pergunta) é validada aqui no hook;
-// (3) findFirstRecordByFilter NÃO aceita sort; findRecordsByFilter com bind
-//     params {:x} falhou neste JSVM — usar interpolação direta (IDs PocketBase
-//     são [a-z0-9], seguros) ou findRecordsByFilter sem params.
+// (3) findFirstRecordByFilter NÃO aceita sort; bind params {:x} falhou neste
+//     JSVM — interpolação direta de IDs (PocketBase IDs são [a-z0-9], seguros);
+// (4) número ausente vira 0 no model hook (zero value) — a checagem de
+//     "número obrigatório vazio" precisa do corpo cru da requisição.
+
+onRecordCreateRequest((e) => {
+  const body = e.requestInfo().body || {}
+  const perguntaId = String(body.pergunta || '')
+  if (perguntaId === '') {
+    throw new Error('Pergunta de qualificação obrigatória.')
+  }
+  let pergunta
+  try {
+    pergunta = $app.findRecordById('perguntas_qualificacao', perguntaId)
+  } catch (_) {
+    throw new Error('Pergunta de qualificação não encontrada.')
+  }
+  if (String(pergunta.get('tipo') || '') === 'numero') {
+    const bruto = body.resposta_numero
+    if (bruto === undefined || bruto === null || bruto === '') {
+      throw new Error('Resposta obrigatória: informe o número.')
+    }
+  }
+  e.next()
+}, 'respostas_qualificacao')
+
 onRecordCreate((e) => {
   let pergunta
   try {
@@ -20,14 +43,10 @@ onRecordCreate((e) => {
 
   const tipo = String(pergunta.get('tipo') || '')
   const texto = String(e.record.get('resposta_texto') || '').trim()
-  const numero = e.record.get('resposta_numero')
   const bool = e.record.get('resposta_bool')
 
   if (tipo === 'texto_livre' && texto === '') {
     throw new Error('Resposta obrigatória: informe o texto.')
-  }
-  if (tipo === 'numero' && (numero === undefined || numero === null || String(numero) === '')) {
-    throw new Error('Resposta obrigatória: informe o número.')
   }
   if (tipo === 'escolha_unica') {
     const opcoes = String(pergunta.get('opcoes') || '')
@@ -79,13 +98,9 @@ onRecordUpdate((e) => {
 
   const tipo = String(pergunta.get('tipo') || '')
   const texto = String(e.record.get('resposta_texto') || '').trim()
-  const numero = e.record.get('resposta_numero')
 
   if (tipo === 'texto_livre' && texto === '') {
     throw new Error('Resposta obrigatória: informe o texto.')
-  }
-  if (tipo === 'numero' && (numero === undefined || numero === null || String(numero) === '')) {
-    throw new Error('Resposta obrigatória: informe o número.')
   }
   if (tipo === 'escolha_unica') {
     const opcoes = String(pergunta.get('opcoes') || '')
