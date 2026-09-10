@@ -1,26 +1,29 @@
 # Status
 
-**Status:** Fase 2 em execução — 2 de 40 tasks concluídas (5%)
+**Status:** Fase 2 em execução — 3 de 40 tasks concluídas (7,5%)
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.02 — CA-2-037, empresa como entidade relacional própria (2026-09-10)
-**Próxima task elegível:** T2.03 — CA-2-038 (CSV injection e auditoria de exportação)
+**Última task concluída:** T2.03 — CA-2-038, CSV neutralizado e eventos append-only de exportação (2026-09-10)
+**Próxima task elegível:** T2.04 — CA-2-039 (exportação server-side autorizada com trilha)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
-## Evidência da T2.02 (concluída — teste humano aprovado em 2026-09-10)
+## Evidência da T2.03 (concluída — teste humano aprovado em 2026-09-10)
 
-- Coleção `empresas` (migration 0022): nome, cnpj, setor, observações, status; delete admin-only.
-- `clientes.empresa`: texto → relation (migration 0023, correção idempotente — a 0022 não persistiu a conversão do campo).
-- Backfill: 6 empresas ativas criadas dos textos existentes; contatos vinculados; resíduos de fixtures antigas ("DB", "AG") desativados.
-- Tela de Contatos: select de empresa com expand; busca por empresa mantida.
-- Revalidação do zero: 6 empresas ativas, 7 contatos vinculados, sem duplicidade; QA v0.0.93–v0.0.95 verde.
-- Aceite da consultora/cliente registrado: Opção A — entidade relacional própria (10/09/2026 17:37).
-- Governança sincronizada no GitHub (commit 85eef79).
+- `csvCell` neutraliza células iniciadas por `=`, `+`, `-`, `@` (prefixo `'`, padrão OWASP) — provado no arquivo real baixado pela cliente (`"'=CMD T203 fixture"`).
+- Coleção `eventos_exportacao` (migration 0024) append-only: cancelado/negado/falha com ator, filtros, quantidade, motivo e data; update/delete bloqueados (403).
+- Modal de exportação com três saídas rastreadas: Cancelar → `cancelado`, Não aceitar → `negado`, falha → `falha` com motivo.
+- Bônus validado pela cliente: tela de Busca exibe nome da empresa (expand) em vez do ID — correção pós-T2.02 (v0.0.99).
+- Revalidação do zero: 4 eventos registrados, imutáveis; aceite da cliente persistido; fluxo T2.02 intacto (6 empresas ativas).
+- Evidências em `evidencias/spec-2-000/ca-2-038-red.md` e `ca-2-038-green.md`.
+
+## Evidência da T2.02 (concluída — 2026-09-10)
+
+- Coleção `empresas` + `clientes.empresa` relation + backfill 6 empresas; select na tela de Contatos; aceite da consultora (Opção A). GitHub commit 85eef79.
 
 ## Evidência da T2.01 (concluída — 2026-09-10)
 
-- Migration 0021: 8 campos comerciais em `negocios` + backfill de data_entrada; auditoria de delete; validação server-side; tela completa. Revalidação e provas em `evidencias/spec-2-000/`. GitHub commit 9ad54f1.
+- 8 campos comerciais em `negocios` + validação server-side + auditoria de delete + tela completa. GitHub commit 9ad54f1.
 
 ## Fase 1
 
