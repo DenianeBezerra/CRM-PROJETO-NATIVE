@@ -38,6 +38,7 @@ type Opportunity = {
 }
 type Stage = { chave: string; nome: string; ativa: boolean; ordem: number }
 type ExportEntity = 'clientes' | 'negocios'
+type ExportOutcome = 'cancelado' | 'negado' | 'falha'
 const EXPORT_PURPOSE = 'Uso interno na gestão comercial.'
 const fallbackStages: Stage[] = [
   { chave: 'novo', nome: 'Novo', ativa: true, ordem: 10 },
@@ -47,8 +48,12 @@ const fallbackStages: Stage[] = [
   { chave: 'fechado_perdido', nome: 'Fechado perdido', ativa: true, ordem: 50 },
 ]
 
+// T2.03/CA-2-038: neutraliza CSV injection — célula iniciada por =, +, - ou @
+// recebe prefixo de escape (padrão OWASP) além do escape de aspas.
 function csvCell(value: unknown) {
-  return `"${String(value ?? '').replaceAll('"', '""')}"`
+  let text = String(value ?? '')
+  if (/^[=+\-@]/.test(text)) text = `'` + text
+  return `"${text.replaceAll('"', '""')}"`
 }
 function downloadCsv(filename: string, headers: string[], rows: unknown[][]) {
   const csv = '\ufeff' + [headers, ...rows].map((row) => row.map(csvCell).join(';')).join('\r\n')
@@ -136,15 +141,44 @@ export default function SearchPage() {
     setExportEntity(target)
     setAccepted(false)
   }
+  const currentFilters = (target: ExportEntity) => ({
+    q: q.trim(),
+    entity,
+    status: target === 'clientes' ? status : 'todos',
+    stage: target === 'negocios' ? stage : 'todos',
+  })
+  // T2.03/CA-2-038: cancelamento, negação e falha geram evento append-only.
+  // Falha de rastreio nunca bloqueia o fluxo do usuário — só é logada.
+  const trackOutcome = async (outcome: ExportOutcome, target: ExportEntity, motivo: string) => {
+    if (!user) return
+    try {
+      await pb.collection('eventos_exportacao').create({
+        usuario: user.id,
+        entidade: target,
+        evento: outcome,
+        filtros: JSON.stringify(currentFilters(target)),
+        quantidade: visibleCount,
+        motivo,
+        ocorrido_em: new Date().toISOString(),
+      })
+    } catch (err) {
+      console.error('Falha ao registrar evento de exportação', err)
+    }
+  }
+  const cancelExport = () => {
+    if (exportEntity) void trackOutcome('cancelado', exportEntity, 'Modal fechado sem aceite.')
+    setExportEntity(null)
+  }
+  const refuseExport = () => {
+    if (exportEntity)
+      void trackOutcome('negado', exportEntity, 'Usuário não aceitou o termo de finalidade.')
+    setExportEntity(null)
+    setAccepted(false)
+  }
   const confirmExport = async () => {
     if (!exportEntity || !accepted || !user) return
     setExporting(true)
-    const filters = {
-      q: q.trim(),
-      entity,
-      status: exportEntity === 'clientes' ? status : 'todos',
-      stage: exportEntity === 'negocios' ? stage : 'todos',
-    }
+    const filters = currentFilters(exportEntity)
     try {
       await pb.collection('aceites_exportacao').create({
         usuario: user.id,
@@ -198,7 +232,15 @@ export default function SearchPage() {
         title: 'Exportação concluída',
         description: `${visibleCount} registro(s) exportado(s).`,
       })
-    } catch {
+    } catch (err) {
+      void trackOutcome(
+        'falha',
+        exportEntity,
+        `Falha ao registrar aceite: ${err instanceof Error ? err.message : String(err)}`.slice(
+          0,
+          500,
+        ),
+      )
       toast({
         title: 'Exportação não realizada',
         description: 'Não foi possível registrar o aceite. Nenhum arquivo foi baixado.',
@@ -283,26 +325,20 @@ export default function SearchPage() {
                 <>
                   <option value="todos">Todos os status</option>
                   <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
                   <option value="prospect">Prospect</option>
-                  <option value="inativo">Inativo / arquivado</option>
                 </>
               )}
             </select>
           </label>
         </div>
-        {error && (
-          <p className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-            {error}
-          </p>
-        )}
+        {error && <p className="mb-4 text-sm text-red-700 bg-red-50 p-3 rounded">{error}</p>}
         {loading ? (
-          <p>Carregando resultados...</p>
+          <p>Carregando...</p>
         ) : empty ? (
-          <div className="bg-white border rounded-xl p-8 text-center text-[#6B7280]">
-            Nenhum resultado encontrado. Tente limpar os filtros ou usar outro termo.
-          </div>
+          <p className="text-[#6B7280]">Nenhum resultado encontrado.</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-8">
             {(entity === 'todos' || entity === 'clientes') && (
               <section>
                 <div className="flex items-center justify-between mb-3">
@@ -320,7 +356,7 @@ export default function SearchPage() {
                 <div className="space-y-3">
                   {filteredContacts.map((item) => (
                     <article key={item.id} className="bg-white border rounded-xl p-4">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between gap-3">
                         <div>
                           <h3 className="font-semibold">{item.nome}</h3>
                           <p className="text-sm text-[#6B7280]">
@@ -397,7 +433,9 @@ export default function SearchPage() {
       </main>
       <Dialog
         open={exportEntity !== null}
-        onOpenChange={(open) => !open && !exporting && setExportEntity(null)}
+        onOpenChange={(open) => {
+          if (!open && !exporting) cancelExport()
+        }}
       >
         <DialogContent>
           <DialogHeader>
@@ -418,10 +456,18 @@ export default function SearchPage() {
           <DialogFooter>
             <button
               disabled={exporting}
-              onClick={() => setExportEntity(null)}
+              onClick={cancelExport}
               className="border rounded-lg px-4 py-2"
             >
               Cancelar
+            </button>
+            <button
+              disabled={exporting || accepted}
+              onClick={refuseExport}
+              className="border rounded-lg px-4 py-2 disabled:opacity-50"
+              title="Registra a recusa do termo como evento rastreável"
+            >
+              Não aceitar
             </button>
             <button
               disabled={!accepted || exporting || visibleCount === 0}

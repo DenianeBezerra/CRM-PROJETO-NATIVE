@@ -1,13 +1,14 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
+- task_id: T2.03
 - champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
-- spec: nenhuma
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-09-10 17:37, owner: "Aprovar Opção A — implementar entidade relacional"
-- teste_humano: aprovado — 2026-09-10 17:45, owner: "TODAS PASSARAM"
-- verificacao_automatica: passou — revalidação do zero: 6 empresas ativas com backfill, 7 contatos vinculados (vínculo da Maria feito pela cliente no teste), sem duplicidade; QA v0.0.93–v0.0.95 verde
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-10-t202-migration-parcial.md
-- ultima_acao: T2.02 concluída — fase.md (GitHub, commit 85eef79), STATUS, changelog e estado atualizados
-- proxima_acao: selecionar/analisar a próxima task elegível, T2.03, somente mediante novo pedido
-- atualizado_em: 2026-09-10T17:48:00-03:00
+- spec: SPEC-2-000
+- etapa: implementando
+- criterio: CA-2-038 — CSV neutraliza células iniciadas por =, +, - e @; cancelamento, negação e falha de exportação geram evento append-only
+- autorizacao_implementacao: confirmada — 2026-09-10 17:56, owner: "sim, Posso implementar o plano da T2.03"
+- plano: (1) migration 0024 coleção eventos_exportacao append-only; (2) hook export_events_guard.js; (3) csvCell neutraliza =, +, -, @; (4) modal com cancelado/negado/falha rastreados
+- teste_humano: pendente
+- verificacao_automatica: RED em execução
+- ultima_acao: análise concluída e autorização concedida; início do RED
+- proxima_acao: RED por API → implementação → GREEN por API e UI
+- atualizado_em: 2026-09-10T17:57:00-03:00
