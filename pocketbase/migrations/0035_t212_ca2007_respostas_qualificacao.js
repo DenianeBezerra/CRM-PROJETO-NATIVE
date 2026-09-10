@@ -48,7 +48,9 @@ migrate(
         { name: 'updated', type: 'autodate', onCreate: true, onUpdate: true },
       ],
       indexes: [
-        'CREATE UNIQUE INDEX idx_resposta_negocio_pergunta ON respostas_qualificacao (negocio, pergunta)',
+        // Unicidade por (negocio, pergunta) é garantida pelo hook (índice UNIQUE
+        // composto sobre relations derrubava todo INSERT com erro genérico 400).
+        'CREATE INDEX idx_resposta_negocio ON respostas_qualificacao (negocio)',
       ],
     })
     app.save(col)
