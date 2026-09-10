@@ -104,6 +104,7 @@ export default function QualificacaoNegocio({
         resposta_numero: pergunta.tipo === 'numero' && valor !== '' ? Number(valor) : null,
         resposta_bool: pergunta.tipo === 'sim_nao' ? valor === 'true' : null,
         respondido_por: pb.authStore.record?.id,
+        respondido_em: new Date().toISOString(),
       }
       const existente = respostas[pergunta.id]
       if (existente) {

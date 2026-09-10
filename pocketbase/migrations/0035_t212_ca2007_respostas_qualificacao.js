@@ -1,11 +1,15 @@
 migrate(
   (app) => {
-    // T2.12 — CA-2-007: operador salva qualificação válida e visualiza
-    // percentual e pendências de completude. Respostas vinculadas a negócio
-    // e pergunta; unicidade por par (negocio + pergunta).
-    if (app.hasTable('respostas_qualificacao')) return
+    // T2.12 — CA-2-007: recria respostas_qualificacao com created/updated
+    // autodate padrão (padrão das demais coleções) e respondido_em como date
+    // simples. A versão anterior com autodate customizado falhava na criação.
+    let col
+    try {
+      col = app.findCollectionByNameOrId('respostas_qualificacao')
+      app.delete(col)
+    } catch (_) {}
 
-    const col = new Collection({
+    col = new Collection({
       name: 'respostas_qualificacao',
       type: 'base',
       listRule: "@request.auth.id != ''",
@@ -33,8 +37,15 @@ migrate(
         { name: 'resposta_texto', type: 'text', max: 2000 },
         { name: 'resposta_numero', type: 'number' },
         { name: 'resposta_bool', type: 'bool' },
-        { name: 'respondido_por', type: 'relation', collectionId: '_pb_users_auth_', maxSelect: 1 },
-        { name: 'respondido_em', type: 'autodate', onCreate: true, onUpdate: true },
+        {
+          name: 'respondido_por',
+          type: 'relation',
+          collectionId: '_pb_users_auth_',
+          maxSelect: 1,
+        },
+        { name: 'respondido_em', type: 'date' },
+        { name: 'created', type: 'autodate', onCreate: true, onUpdate: false },
+        { name: 'updated', type: 'autodate', onCreate: true, onUpdate: true },
       ],
       indexes: [
         'CREATE UNIQUE INDEX idx_resposta_negocio_pergunta ON respostas_qualificacao (negocio, pergunta)',

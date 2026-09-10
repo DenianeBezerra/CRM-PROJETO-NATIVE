@@ -43,6 +43,12 @@ onRecordCreate((e) => {
     throw new Error('Resposta obrigatória: selecione sim ou não.')
   }
 
+  // Carimbar respondido_em (date simples, não autodate).
+  const em = String(e.record.get('respondido_em') || '')
+  if (!em || em.startsWith('0001-01-01')) {
+    e.record.set('respondido_em', new Date().toISOString())
+  }
+
   // Unicidade por par (o índice único também protege; mensagem amigável aqui).
   let existentes = []
   try {
@@ -100,6 +106,9 @@ onRecordUpdate((e) => {
       throw new Error('Escolha uma das opções configuradas para esta pergunta.')
     }
   }
+
+  // Recarimbar respondido_em no update.
+  e.record.set('respondido_em', new Date().toISOString())
 
   e.next()
 }, 'respostas_qualificacao')
