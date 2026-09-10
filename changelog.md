@@ -1,5 +1,26 @@
 # Changelog — CRM Vibratto
 
+## [0.0.178] — 2026-09-10 — T2.12 implementada (CA-2-007, aguardando teste humano)
+
+### Adicionado
+
+- **Qualificação do operador** (CA-2-007): coleção `respostas_qualificacao` (negócio + pergunta, resposta por tipo, respondido_por/em), botão "Qualificar" na tela de Oportunidades com barra de percentual, contador de pendências obrigatórias e formulário por tipo de pergunta.
+- Endpoint server-side `GET /backend/v1/qualificacao/{negocio}/completude` — recalcula no servidor perguntas aplicáveis à etapa, respostas, percentual e pendências.
+- Validação server-side: pergunta ativa, número obrigatório (corpo cru), escolha única restrita às opções, unicidade negócio+pergunta.
+
+### Corrigido (integração JSVM — 5 defeitos, lições documentadas)
+
+- Sort inexistente no endpoint (`updated` → `respondido_em`).
+- Índice UNIQUE composto sobre relations derrubava todo INSERT (400 genérico) → índice simples + unicidade no hook.
+- `set()` manual em campo autodate gera 400 → autodate se preenche sozinho.
+- Bind params `{:x}` no findRecordsByFilter falha no JSVM → interpolação direta de IDs.
+- Número ausente vira 0 no model hook (zero value) → validação movida ao request hook.
+
+### Notas
+
+- Limpeza das provas: negócio-fixture, respostas e ativações temporárias removidos (migrations 0036–0038); 2 respostas órfãs remanescentes sem negócio vinculado (sem efeito no denominador).
+- QA verde v0.0.167–0.0.178. Evidências: `evidencias/spec-2-002/ca-2-007-red.md` / `ca-2-007-green.md`.
+
 ## [0.0.166] — 2026-09-10 — T2.11 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
