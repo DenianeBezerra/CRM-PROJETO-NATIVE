@@ -1,14 +1,14 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T2.10
-- champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
-- spec: SPEC-2-001
-- etapa: concluida
-- criterio: CA-2-005 — antes de produção, consulta reproduzível confirma zero contas/fixtures ativas e zero seeds de demonstração no denominador real
-- autorizacao_implementacao: confirmada — 2026-09-10 19:39
-- teste_humano: APROVADO — 2026-09-10 20:26, owner: "Agora sim, aprovado, conclua a T2.10" (print /contatos com ROMEU e Maria Rodrigues visíveis)
-- verificacao_automatica: passou — revalidação independente pós-aprovação: apto_producao=true, 2 contas reais, 2 contatos reais (zero seeds), 0 oportunidades (zero fixtures)
-- aprendizado: interação de seed com negócio vazio bloqueava delete por required reference — remover interações de seed antes dos negócios; migrations não passam pelos hooks de auditoria (deletes de limpeza ficam sem trilha)
-- ultima_acao: task concluída com governança (estado, changelog, fase.md, evidências)
-- proxima_acao: sincronizar GitHub; SPEC-2-001 FECHADA (10/10); próxima task T2.11 (SPEC-2-002, produto)
-- atualizado_em: 2026-09-10T20:30:00-03:00
+- task_id: T2.11
+- champion: Deni.Ai (executor das tasks de Engenharia de produto da Fase 2)
+- spec: SPEC-2-002 (arquivo ausente em 04-fase-atual/specs/; critério de origem = tabela da fase.md)
+- etapa: aguardando_teste_humano
+- criterio: CA-2-006 — administrador configura perguntas, obrigatoriedade, ordem e aplicabilidade sem código
+- autorizacao_implementacao: confirmada — 2026-09-10 20:39, owner: "Prossiga" (após análise da T2.11 apresentada)
+- teste_humano: pendente — roteiro enviado (criar/editar/inativar pergunta em /admin/qualificacao)
+- verificacao_automatica: passou — QA v0.0.164 verde (setup/static/build/integrations/test); RED/GREEN provados por API (4 RED 400, GREEN create/update 200, RBAC operator bloqueado, delete 403 append-only)
+- aprendizado: pendente
+- ultima_acao: implementação concluída + provas por API + evidências red/green gravadas + perguntas de prova inativadas (denominador limpo)
+- proxima_acao: aguardar teste humano da Deniane em https://tela-de-login-crm-a400a--preview.goskip.app/admin/qualificacao
+- atualizado_em: 2026-09-10T22:10:00-03:00
