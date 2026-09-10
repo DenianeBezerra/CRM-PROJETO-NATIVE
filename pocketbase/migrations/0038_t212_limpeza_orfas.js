@@ -1,16 +1,16 @@
 migrate(
   (app) => {
-    // T2.12 — limpeza residual: respostas órfãs (negocio de prova já removido).
-    let orfas = []
+    // T2.12 — limpeza final: remove QUALQUER resposta de qualificação restante
+    // das provas (o denominador real não tem oportunidades, logo nenhuma
+    // resposta legítima pode existir). Idempotente.
+    let todas = []
     try {
-      orfas = app.findRecordsByFilter('respostas_qualificacao', '', '-created', 100, 0)
+      todas = app.findRecordsByFilter('respostas_qualificacao', '', '-created', 100, 0)
     } catch (_) {}
-    for (const r of orfas) {
+    for (const r of todas) {
       try {
-        app.findRecordById('negocios', r.get('negocio'))
-      } catch (_) {
         app.delete(r)
-      }
+      } catch (_) {}
     }
   },
   (app) => {},
