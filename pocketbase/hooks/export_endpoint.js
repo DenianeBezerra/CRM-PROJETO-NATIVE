@@ -85,14 +85,17 @@ routerAdd(
     }
     let ultimoConsumo = null
     try {
-      // sort -ocorrido_em: pega o consumo MAIS RECENTE (sem sort, o finder
-      // retorna o mais antigo e a validação de aceite consumido falha).
-      ultimoConsumo = $app.findFirstRecordByFilter(
+      // findFirstRecordByFilter NÃO aceita sort no JSVM (params viram dbx.Params).
+      // Usar findRecordsByFilter com sort -ocorrido_em e pegar o mais recente.
+      const consumos = $app.findRecordsByFilter(
         'exportacoes',
         'usuario = {:u} && csv_gerado = true',
         '-ocorrido_em',
+        1,
+        0,
         { u: actor.id },
       )
+      if (consumos.length > 0) ultimoConsumo = consumos[0]
     } catch {
       ultimoConsumo = null
     }
