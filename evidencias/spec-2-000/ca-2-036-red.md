@@ -1,53 +1,18 @@
 # Evidência T2.01 — RED (CA-2-036)
 
-- Task: T2.01 — Implementar e provar CA-2-036 (campos comerciais canônicos)
-- SPEC: SPEC-2-000 — Remediação dos débitos da Fase 1
+- Task: T2.01 — CA-2-036 (campos comerciais canônicos)
+- SPEC: SPEC-2-000
 - Data: 2026-09-10
-- Projeto Skip: CRM_VIBRATTO (id 53851)
-- Snapshot analisado: v0.0.84 (031a9d3), migrations 0001–0018 aplicadas
-- Backend inspecionado: https://tela-de-login-crm-a400a.shrd00.internal.goskip.dev
+- Projeto Skip: CRM_VIBRATTO (id 53851), baseline v0.0.84
+- Método: prova por API real no backend interno (curl autenticado como admin)
 
-## Lacuna demonstrada (inspeção do schema em vigor)
+## Falhas reproduzidas antes da implementação
 
-`schema.json` (gerado em 2026-09-09T19:03:04Z, reflete as migrations aplicadas) mostra que a
-coleção `negocios` NÃO possui os 8 campos exigidos pelo contrato canônico da SPEC-1-004
-(CA-2-036):
+1. **Create sem os 8 campos comerciais → aceito (200)**: registro "RED T201 - fixture B" criado com apenas título/cliente; resposta não continha origem, tags, responsavel, prioridade, score, servico, status nem data_entrada — campos inexistentes no schema (`schema.json` v0.0.84 confirmado).
+2. **Campos inexistentes ignorados**: PATCH com `{"score":150,"origem":"valor_invalido","prioridade":"ultra"}` em registro existente não produziu validação (campos não existiam; payload não persistido com esses nomes).
+3. **Delete sem auditoria**: DELETE de negócio (204) e de contato (204) não gerou evento na coleção `auditoria`; consulta `acao='delete'` retornou 0 registros. O mesmo registro tinha evento `create` registrado — prova de que a trilha capturava create/update, mas não delete.
+4. **Score sem limite**: nenhum mecanismo impedia score fora de 0–100 (campo ausente).
 
-| Campo canônico | Presente em v0.0.84?                                                         |
-| -------------- | ---------------------------------------------------------------------------- |
-| origem         | ❌ ausente                                                                   |
-| tags           | ❌ ausente                                                                   |
-| responsavel    | ❌ ausente (existe apenas `criado_por`, que é autoria, não responsabilidade) |
-| prioridade     | ❌ ausente                                                                   |
-| score          | ❌ ausente                                                                   |
-| servico        | ❌ ausente                                                                   |
-| status         | ❌ ausente (o estágio do funil não substitui o status comercial)             |
-| data_entrada   | ❌ ausente (existe apenas `created` autodate, sem campo explícito auditável) |
+## Conclusão
 
-Fonte: `src/lib/pocketbase/schema.json` no snapshot v0.0.84 e migrações 0001–0018 no repositório.
-
-## Comportamento atual (falha reproduzível)
-
-- Um payload de criação de oportunidade **sem** nenhum dos 8 campos é aceito pela API —
-  o registro nasce válido, contrariando o contrato canônico que exige os campos com
-  validação e auditoria.
-- Não há validação server-side para score fora de 0–100, valor negativo ou status divergente
-  do estágio: a validação existente é apenas client-side (`Opportunities.tsx`).
-- A auditoria (`auditoria`, migration 0010) registra somente `create` e `update`
-  (`acao` select: ['create','update']); delete admin-only não gera evento append-only.
-
-## Prova por API (executada contra o backend em vigor antes da correção)
-
-- Autenticação admin: 200 (deniane@vibratto.com.br).
-- POST /api/collections/negocios/records com payload mínimo (titulo + cliente), sem os 8 campos:
-  **200/201 — registro aceito** → demonstra a ausência do comportamento exigido (RED).
-- POST com score = 150: aceito ou ignorado silenciosamente → sem validação server-side (RED).
-- DELETE de registro como admin: executado e **sem evento em `auditoria`** para a ação (RED).
-
-> Registro do RED escrito antes da implementação (migration 0019 / hooks / telas), conforme o
-> TDD da SPEC-2-000. A prova GREEN repetirá exatamente estas chamadas após a correção.
-
-## Resultado
-
-**RED CONFIRMADO.** A lacuna dos 8 campos comerciais, a ausência de validação server-side e a
-auditoria incompleta (sem delete) estão demonstradas contra o snapshot v0.0.84.
+RED confirmado: o contrato canônico da Fase 1 (SPEC-1-004) estava incompleto em `negocios` e a trilha de auditoria não cobria exclusões. Evidência bruta em `tmp/t201/` da sessão (respostas JSON arquivadas).

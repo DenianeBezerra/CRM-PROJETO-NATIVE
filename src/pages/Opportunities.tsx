@@ -90,6 +90,7 @@ const emptyForm = {
   score: '',
   servico: '',
   status: '',
+  data_entrada: '',
 }
 
 export default function Opportunities() {
@@ -188,6 +189,7 @@ export default function Opportunities() {
       score: item.score?.toString() || '',
       servico: item.servico || '',
       status: item.status || '',
+      data_entrada: item.data_entrada ? item.data_entrada.slice(0, 10) : '',
     })
     setShowForm(true)
   }
