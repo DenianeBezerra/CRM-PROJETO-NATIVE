@@ -1,12 +1,39 @@
 # Status
 
-**Status:** Fase 2 em execução — 5 de 40 tasks concluídas (12,5%) — **SPEC-2-000 FECHADA**
+**Status:** Fase 2 em execução — 11 de 40 tasks concluídas (27,5%) — **SPEC-2-000 e SPEC-2-001 FECHADAS (10/10)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.05 — CA-2-040, auditoria com papel e retenção (2026-09-10) — fecha a SPEC-2-000
-**Próxima task elegível:** T2.06 — CA-2-001 (SPEC-2-001 — segurança de credenciais)
+**Última task concluída:** T2.11 — CA-2-006, configuração de perguntas de qualificação sem código (2026-09-10)
+**Próxima task elegível:** T2.12 — CA-2-007 (SPEC-2-002 — qualificação: operador salva e vê completude)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
+
+## SPEC-2-001 — COMPLETA (5/5) — segurança de credenciais
+
+| Task  | Entrega                                                                         |
+| ----- | ------------------------------------------------------------------------------- |
+| T2.06 | Senhas rotacionadas via secrets + busca automatizada de credenciais (achados 0) |
+| T2.07 | Guard server-side de contas inativas (login/refresh bloqueados)                 |
+| T2.08 | Build reproduzível: engines declaradas, typecheck, suíte vitest 22 testes       |
+| T2.09 | Rotação reforçada idempotente (rejeita valores expostos)                        |
+| T2.10 | Consulta reproduzível de aptidão para produção + limpeza do denominador real    |
+
+## SPEC-2-002 — qualificação (em execução, 1/5)
+
+| Task  | Entrega                                                                                   | Status                                     |
+| ----- | ----------------------------------------------------------------------------------------- | ------------------------------------------ |
+| T2.11 | Configuração de perguntas de qualificação sem código (coleção + tela admin)               | ✅ Concluída — 2026-09-10 (teste aprovado) |
+| T2.12 | Operador salva qualificação válida e visualiza percentual e pendências de completude      | ☐ Próxima task elegível                    |
+| T2.13 | Campo obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria  | ☐ Planejada                                |
+| T2.14 | Desqualificação com motivo estruturado e detalhe obrigatório para Outro                   | ☐ Planejada                                |
+| T2.15 | Alterações e exceções na auditoria com ator, data e snapshots, inclusive tentativa negada | ☐ Planejada                                |
+
+## Evidência da T2.11 (concluída — teste humano aprovado em 2026-09-10)
+
+- Coleção `perguntas_qualificacao` (admin-only create/update, delete bloqueado — append-only).
+- Tela admin `/admin/qualificacao` + links na home admin.
+- Provas RED/GREEN por API (4 rejeições 400, create/update 200, RBAC operator bloqueado).
+- Evidências: `evidencias/spec-2-002/ca-2-006-red.md` / `ca-2-006-green.md`.
 
 ## SPEC-2-000 — COMPLETA (5/5)
 
@@ -18,17 +45,9 @@
 | T2.04 | Exportação server-side autorizada (aceite de uso único, quantidade recalculada, trilha)      |
 | T2.05 | Auditoria com papel (operator só os próprios atos) + retenção 365d + cron + instalação limpa |
 
-## Evidência da T2.05 (concluída — teste humano aprovado em 2026-09-10)
+## Tasks anteriores (todas com evidências em evidencias/spec-2-000/ e spec-2-001/)
 
-- Leitura da auditoria por papel: admin 56 eventos, operator 1 (só os próprios atos).
-- Retenção: campo `retido_ate` + backfill 365 dias + cron diário (prova: fixture vencida removida).
-- Instalação limpa: 27 migrations sem IDs de ambiente (revisão documentada).
-- Fixtures de teste zeradas (aceite forjado, eventos T2.03, trilhas T2.04).
-- Evidências: `evidencias/spec-2-000/ca-2-040-red.md` / `ca-2-040-green.md`.
-
-## Tasks anteriores (todas com evidências em evidencias/spec-2-000/)
-
-- T2.01 (CA-2-036), T2.02 (CA-2-037), T2.03 (CA-2-038), T2.04 (CA-2-039) — concluídas em 2026-09-10.
+- T2.01–T2.05 (SPEC-2-000) e T2.06–T2.10 (SPEC-2-001) — concluídas em 2026-09-10.
 
 ## Fase 1
 
@@ -36,4 +55,4 @@ Arquivada em `05_entregas/fase-1/` com `phase-closure-manifest.json` (24/24 task
 
 ## Limitações
 
-Integrações externas, IA, dados reais e operação financeira permanecem fora do escopo até seus gates específicos. Produção e dados reais bloqueados até SPEC-2-001 (segurança de credenciais) aceita.
+Integrações externas, IA, dados reais e operação financeira permanecem fora do escopo até seus gates específicos. Produção liberada após SPEC-2-001 aceita (pre-production-check apto_producao=true); publicação aguarda decisão da cliente.

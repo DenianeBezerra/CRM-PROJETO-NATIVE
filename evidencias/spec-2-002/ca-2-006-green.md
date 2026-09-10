@@ -2,7 +2,8 @@
 
 - **Data:** 2026-09-10
 - **Versão:** 0.0.164 (QA verde: setup, staticAnalysis, build, integrations, test — todos ok)
-- **Teste humano:** pendente (portão atual)
+- **Teste humano:** APROVADO — 2026-09-10 20:44, owner: "testes aprovados. Conclua a T2.11" (prints: pergunta criada com tag "obrigatória", edição e inativação/reativação confirmadas)
+- **Revalidação independente pós-aprovação:** coleção íntegra (3 registros, 0 ativos), operator lê 200 / cria 400, preview 200
 
 ## Alterações
 

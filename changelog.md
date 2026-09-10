@@ -1,5 +1,13 @@
 # Changelog — CRM Vibratto
 
+## [0.0.166] — 2026-09-10 — T2.11 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-006 fechado: administrador configura perguntas, obrigatoriedade, ordem e aplicabilidade sem código.
+- Revalidação independente pós-aprovação: coleção íntegra (3 registros, 0 ativos), operator lê 200 / cria 400, preview 200.
+- Teste humano aprovado com prints (criação, edição, inativação/reativação).
+
 ## [0.0.164] — 2026-09-10 — T2.11 implementada (CA-2-006, aguardando teste humano)
 
 ### Adicionado
