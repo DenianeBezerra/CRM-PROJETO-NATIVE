@@ -70,11 +70,8 @@ onRecordCreate((e) => {
     }
   }
 
-  const em = String(e.record.get('respondido_em') || '')
-  if (!em || em.startsWith('0001-01-01')) {
-    e.record.set('respondido_em', new Date().toISOString().replace('T', ' '))
-  }
-
+  // respondido_em é autodate (preenchido automaticamente no create/update) —
+  // set() manual em campo autodate gera erro 400 genérico (lição v0.0.171).
   e.next()
 }, 'respostas_qualificacao')
 
@@ -110,6 +107,6 @@ onRecordUpdate((e) => {
     }
   }
 
-  e.record.set('respondido_em', new Date().toISOString().replace('T', ' '))
+  // respondido_em é autodate — set() manual gera 400 genérico (lição v0.0.171).
   e.next()
 }, 'respostas_qualificacao')
