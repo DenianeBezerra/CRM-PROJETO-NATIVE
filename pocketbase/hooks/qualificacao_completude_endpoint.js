@@ -41,12 +41,13 @@ routerAdd(
     })
 
     // Respostas existentes para este negócio.
+    // (Sort por respondido_em — campo autodate da coleção; "updated" não existe aqui.)
     let respostas = []
     try {
       respostas = $app.findRecordsByFilter(
         'respostas_qualificacao',
         'negocio = {:n}',
-        '-updated',
+        '-respondido_em',
         500,
         0,
         { n: negocioId },
