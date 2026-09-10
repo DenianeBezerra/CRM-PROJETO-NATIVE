@@ -3,12 +3,11 @@
 - task_id: T2.08
 - champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
 - spec: SPEC-2-001
-- etapa: implementando
+- etapa: aguardando_teste_humano
 - criterio: CA-2-003 — exportação contém todos os imports locais; npm ci, typecheck, build, lint e suíte real terminam com código zero no Node declarado
 - autorizacao_implementacao: confirmada — 2026-09-10 19:16, owner: "Sim, implementar"
-- plano: (1) engines node >=20 <23; (2) script typecheck (tsc --noEmit); (3) suíte real vitest (csvCell, sanitizarSnapshot, guard); (4) script verify agregador; (5) prova executada com exit codes registrados
-- teste_humano: pendente
-- verificacao_automatica: RED provado em v0.0.139
-- ultima_acao: autorização concedida; início da implementação
-- proxima_acao: package.json → testes → prova → GREEN
-- atualizado_em: 2026-09-10T19:17:00-03:00
+- teste_humano: pendente — roteiro enviado
+- verificacao_automatica: passou — GREEN provado: engines node >=20 <23, scripts typecheck/test/verify, suíte real vitest com 22 testes de segurança (QA v0.0.140 verde incluindo o estágio test), frontend servido 200
+- ultima_acao: GREEN completo, evidências salvas
+- proxima_acao: aguardar teste humano da Deniane; não concluir nem iniciar T2.09 antes
+- atualizado_em: 2026-09-10T19:20:00-03:00
