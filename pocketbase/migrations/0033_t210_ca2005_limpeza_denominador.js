@@ -32,7 +32,23 @@ migrate(
           }
         }
       }
-      if (remover) app.delete(negocios[i])
+      if (!remover) continue
+      // Remover primeiro as permanências vinculadas (T9.1 protege o negócio
+      // via relação obrigatória — o delete do negócio falha sem isso).
+      try {
+        const permanencias = app.findRecordsByFilter(
+          'permanencias_negocio',
+          'negocio = {:n}',
+          '',
+          100,
+          0,
+          { n: negocios[i].id },
+        )
+        for (let k = 0; k < permanencias.length; k++) app.delete(permanencias[k])
+      } catch (_) {
+        // coleção pode não existir em instalação limpa
+      }
+      app.delete(negocios[i])
     }
 
     // ---- 2. Contatos: seeds demo (0006). Preserva Maria Rodrigues, ROMEU e
