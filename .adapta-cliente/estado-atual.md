@@ -3,12 +3,12 @@
 - task_id: T2.05
 - champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
 - spec: SPEC-2-000
-- etapa: implementando
+- etapa: aguardando_teste_humano
 - criterio: CA-2-040 — instalação limpa aplica migrations sem IDs de ambiente; delete é auditado; leitura da auditoria respeita papel e retenção definida
 - autorizacao_implementacao: confirmada — 2026-09-10 18:30, owner: "Sim, implementar o plano"
-- plano: (1) migration 0026 campo retido_ate + backfill 365 dias; (2) regras de leitura por papel (admin tudo, operator só os próprios atos, snapshots só admin); (3) cron diário de retenção; (4) migration 0027 limpeza de fixtures; (5) prova de instalação limpa
-- teste_humano: pendente
-- verificacao_automatica: RED provado em v0.0.114
-- ultima_acao: autorização concedida; início da implementação
-- proxima_acao: migration 0026 → regras → cron → limpeza → GREEN
-- atualizado_em: 2026-09-10T18:31:00-03:00
+- teste_humano: pendente — roteiro enviado
+- verificacao_automatica: passou — GREEN provado: operator vê só os próprios atos (55→1), admin vê tudo (56), retido_ate com backfill 365d, cron de retenção provado (fixture vencida removida), fixtures zeradas, delete auditado intacto, 27 migrations sem IDs de ambiente; QA v0.0.115–0.0.119 verde
+- aprendizado: nenhum novo (padrões JSVM aplicados)
+- ultima_acao: GREEN completo, debug removido (404), evidências salvas
+- proxima_acao: aguardar teste humano da Deniane; não concluir nem iniciar próxima antes
+- atualizado_em: 2026-09-10T18:40:00-03:00
