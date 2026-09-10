@@ -3,12 +3,12 @@
 - task_id: T2.09
 - champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
 - spec: SPEC-2-001
-- etapa: implementando
+- etapa: aguardando_teste_humano
 - criterio: CA-2-004 — ausência de secret obrigatório interrompe provisionamento sem criar conta parcial; rotação exige valor diferente do exposto
 - autorizacao_implementacao: confirmada — 2026-09-10 19:29, owner: "Sim, siga com o plano"
-- plano: (1) migration 0032 — rotação atômica (runInTransaction), valida secrets antes, rejeita valor igual ao atual ou às senhas expostas conhecidas; (2) GREEN: valor igual → falha sem alterar; valor diferente → aplica; falha no 2º → 1º não aplica
-- teste_humano: pendente
-- verificacao_automatica: RED provado em v0.0.142
-- ultima_acao: autorização concedida; início da implementação
-- proxima_acao: migration 0032 → provas → GREEN
-- atualizado_em: 2026-09-10T19:30:00-03:00
+- teste_humano: pendente — roteiro enviado
+- verificacao_automatica: passou — GREEN provado: rotação com valor igual rejeitada; expostos bloqueados; migration 0032 idempotente aplicada; admin/operator íntegros e estáveis 30s+; varredura de credenciais zero. INCIDENTE durante provas documentado com transparência (rota debug com bug + runInTransaction não reverter setPassword; senhas restauradas)
+- aprendizado: AP-2026-09-10-t209-transacao-senhas.md
+- ultima_acao: GREEN completo, evidências salvas, rota debug removida definitivamente
+- proxima_acao: aguardar teste humano da Deniane; recomendação de rotação nova de senhas após aprovação
+- atualizado_em: 2026-09-10T19:50:00-03:00
