@@ -85,9 +85,12 @@ routerAdd(
     }
     let ultimoConsumo = null
     try {
+      // sort -ocorrido_em: pega o consumo MAIS RECENTE (sem sort, o finder
+      // retorna o mais antigo e a validação de aceite consumido falha).
       ultimoConsumo = $app.findFirstRecordByFilter(
         'exportacoes',
         'usuario = {:u} && csv_gerado = true',
+        '-ocorrido_em',
         { u: actor.id },
       )
     } catch {
