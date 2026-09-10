@@ -97,9 +97,11 @@ routerAdd(
       ultimoConsumo = null
     }
     if (ultimoConsumo) {
-      const criadoAceite = String(aceite.get('created'))
-      const consumidoEm = String(ultimoConsumo.get('ocorrido_em'))
-      if (criadoAceite <= consumidoEm) {
+      // Comparação por epoch: String() de datas no JSVM não é confiável para
+      // ordenar (formatos/precisão divergem entre created autodate e campo date).
+      const criadoMs = Date.parse(String(aceite.get('created')))
+      const consumidoMs = Date.parse(String(ultimoConsumo.get('ocorrido_em')))
+      if (!isNaN(criadoMs) && !isNaN(consumidoMs) && criadoMs <= consumidoMs) {
         return e.json(403, { error: 'Aceite já consumido. Confirme a exportação novamente.' })
       }
     }
