@@ -50,19 +50,23 @@ migrate(
         // coleção pode não existir em instalação limpa
       }
       try {
-        // O campo de relação em interacoes pode ser 'negocio' ou 'oportunidade'
-        // (nomenclatura variou entre SPECs) — tentar ambos.
-        let interacoes = []
-        try {
-          interacoes = app.findRecordsByFilter('interacoes', 'negocio = {:n}', '', 100, 0, {
-            n: negocios[i].id,
-          })
-        } catch (_) {
-          interacoes = app.findRecordsByFilter('interacoes', 'oportunidade = {:n}', '', 100, 0, {
-            n: negocios[i].id,
-          })
+        // O campo de relação em interacoes tem nomenclatura variável — iterar
+        // TODAS as interações e deletar as que referenciam este negócio em
+        // qualquer campo de relação (valor = id do negócio).
+        const todasInteracoes = app.findRecordsByFilter('interacoes', '', '', 10000, 0)
+        for (let k = 0; k < todasInteracoes.length; k++) {
+          const inter = todasInteracoes[k]
+          const exportado = inter.publicExport()
+          let referencia = false
+          for (const campo in exportado) {
+            const valor = exportado[campo]
+            if (valor === negocios[i].id) {
+              referencia = true
+              break
+            }
+          }
+          if (referencia) app.delete(inter)
         }
-        for (let k = 0; k < interacoes.length; k++) app.delete(interacoes[k])
       } catch (_) {
         // coleção pode não existir em instalação limpa
       }
