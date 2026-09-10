@@ -2,7 +2,8 @@
 
 ## 2026-09-10
 
-- 2026-09-10 · Deni.Ai · Task T2.01 (SPEC-2-000, CA-2-036) implementada e aguardando teste humano: migration 0021 adicionou os 8 campos comerciais canônicos a `negocios` (origem, tags, responsavel, prioridade, score 0–100, servico, status, data_entrada) com backfill de data_entrada para registros existentes; hook `comercial_fields_rules.js` valida score, coerência status×etapa e data de entrada; `audit_crm_changes.js` passou a registrar exclusões como evento append-only; tela de Oportunidades atualizada com os 8 campos. Provas RED (create sem campos aceito; delete sem auditoria) e GREEN (campos persistem, score 150 → 400, delete → evento `delete`) por API real; QA v0.0.87–v0.0.88 verde. Evidências em `evidencias/spec-2-000/`.
+- 2026-09-10 · Deni.Ai · Task T2.01 concluída: CA-2-036 integral — migration 0021 com os 8 campos comerciais canônicos (origem, tags, responsavel, prioridade, score 0–100, servico, status, data_entrada) e backfill de data_entrada; validação server-side (score, status×etapa, data de entrada); auditoria append-only de exclusões; tela de Oportunidades completa. RED provado contra v0.0.84 (campos inexistentes, delete sem trilha); GREEN por API e UI (score 150 → 400, status divergente → 400, campos persistem, edição recarrega). QA v0.0.87–v0.0.91 verde; teste humano aprovado pela cliente ("validado, agora sim!"). Governança sincronizada no GitHub (commit 9ad54f1). Evidências em `evidencias/spec-2-000/`.
+- 2026-09-10 · Deni.Ai · DEBUG T2.01: cliente relatou caminho de teste incorreto → causa raiz era o roteiro (home sem link para /oportunidades; credenciais ausentes), não o produto; roteiro corrigido e teste repetido ponta a ponta pela UI com sucesso. Registrado em `06_notas/debug/`.
 - 2026-09-10 · Deni.Ai · Fase 2 liberada com 8 SPECs e 40 tasks; Fase 1 arquivada em `05_entregas/fase-1/` com manifest de fechamento.
 
 ## 2026-09-09

@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T2.01
+- task_id: nenhuma
 - champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
-- spec: 04_fase-atual/specs/SPEC-2-000-remediacao-debitos-fase-1.md
-- etapa: aguardando_teste_humano
-- autorizacao_implementacao: confirmada — 2026-09-10 16:58, owner respondeu "Pode implementar o plano da T2.01" ao portão da análise
-- teste_humano: pendente — roteiro apresentado em 2026-09-10 20:15
-- verificacao_automatica: passou — QA v0.0.87 e v0.0.88 verde (setup, estática, build, integrações, testes); provas GREEN por API real: 8 campos persistem (200), score 150 rejeitado (400), delete gera evento append-only `delete` na auditoria (204 + evento `{"excluido":true}`)
-- aprendizado: pendente
-- ultima_acao: T2.01 implementada (migration 0021 + hooks + tela) e provada por API; evidências RED/GREEN em evidencias/spec-2-000/
-- proxima_acao: aguardar teste humano da cliente; não concluir nem abrir outra task antes da confirmação
-- atualizado_em: 2026-09-10T20:15:00-03:00
+- spec: nenhuma
+- etapa: concluida
+- autorizacao_implementacao: confirmada — 2026-09-10 16:58, owner: "Pode implementar o plano da T2.01"
+- teste_humano: aprovado — 2026-09-10 17:29, owner: "validado, agora sim!" com captura de tela do formulário
+- verificacao_automatica: passou — revalidação do zero: score 150 → 400; 8 campos persistem (registro da UI); status divergente → 400; movimentação de estágio → 200; auditoria registra create/update; QA v0.0.90–v0.0.91 verde
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-10-t201-migration-queimada-hook-top-level.md
+- ultima_acao: T2.01 concluída — fase.md (GitHub, commit 9ad54f1), STATUS, changelog e estado atualizados
+- proxima_acao: selecionar/analisar a próxima task elegível, T2.02, somente mediante novo pedido
+- atualizado_em: 2026-09-10T17:35:00-03:00
