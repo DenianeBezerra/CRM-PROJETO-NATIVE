@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-10T20:39:21.028Z",
+  "generatedAt": "2026-09-10T20:40:06.835Z",
   "collections": [
     {
       "name": "users",
@@ -83,12 +83,6 @@
           "system": false
         },
         {
-          "name": "empresa",
-          "type": "text",
-          "required": false,
-          "system": false
-        },
-        {
           "name": "email",
           "type": "email",
           "required": false,
@@ -154,6 +148,13 @@
             "onCreate",
             "onUpdate"
           ]
+        },
+        {
+          "name": "empresa",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "empresas"
         }
       ],
       "indexes": [
