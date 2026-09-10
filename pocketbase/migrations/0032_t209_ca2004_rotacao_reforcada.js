@@ -52,17 +52,18 @@ migrate(
         admin = null
       }
       if (admin) {
-        // Rotação exige valor DIFERENTE do atual.
+        // Idempotente: se a senha JÁ É o valor do secret (rotação anterior
+        // aplicada pela 0028/T2.06), a conta já está no estado válido de
+        // destino — no-op. A rejeição de "valor igual ao exposto" vale para
+        // as senhas historicamente expostas (bloqueadas acima).
         const igualAdmin = admin.validatePassword(adminSenha)
-        if (igualAdmin) {
-          throw new Error(
-            'Rotação do admin exige valor diferente da senha atual — nada foi alterado.',
-          )
+        if (!igualAdmin) {
+          // Senha atual ≠ secret: rotação real — aplicar.
+          admin.setPassword(adminSenha)
+          admin.setVerified(true)
+          admin.set('active', true)
+          tx.save(admin)
         }
-        admin.setPassword(adminSenha)
-        admin.setVerified(true)
-        admin.set('active', true)
-        tx.save(admin)
       }
 
       // Operator.
@@ -74,15 +75,12 @@ migrate(
       }
       if (operator) {
         const igualOperator = operator.validatePassword(operatorSenha)
-        if (igualOperator) {
-          throw new Error(
-            'Rotação do operator exige valor diferente da senha atual — nada foi alterado.',
-          )
+        if (!igualOperator) {
+          operator.setPassword(operatorSenha)
+          operator.setVerified(true)
+          operator.set('active', true)
+          tx.save(operator)
         }
-        operator.setPassword(operatorSenha)
-        operator.setVerified(true)
-        operator.set('active', true)
-        tx.save(operator)
       }
     })
   },
