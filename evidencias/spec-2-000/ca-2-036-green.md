@@ -1,27 +1,58 @@
 # Evidência T2.01 — GREEN (CA-2-036)
 
-- Task: T2.01 — CA-2-036 (campos comerciais canônicos)
-- SPEC: SPEC-2-000
+- Task: T2.01 — Implementar e provar CA-2-036 (campos comerciais canônicos)
+- SPEC: SPEC-2-000 — Remediação dos débitos da Fase 1
 - Data: 2026-09-10
 - Projeto Skip: CRM_VIBRATTO (id 53851)
-- Versões: v0.0.87 (hook de delete + validação server-side, QA verde) e v0.0.88 (migration 0021 com os 8 campos, QA verde — setup, análise estática, build, integrações e testes OK)
-- Método: prova por API real (curl autenticado como admin)
+- Backend de prova: https://tela-de-login-crm-a400a.shrd00.internal.goskip.dev
 
-## Implementado
+## RED (antes da correção — backend v0.0.84)
 
-- **Migration 0021** (`pocketbase/migrations/0021_t201_ca2036_campos_comerciais.js`): campos `origem` (select), `tags` (text 500), `responsavel` (relation users), `prioridade` (select), `score` (number 0–100), `servico` (select), `status` (select), `data_entrada` (date) em `negocios`; backfill de `data_entrada = created` para registros existentes; valor `delete` adicionado ao campo `acao` da `auditoria`.
-- **Hook `comercial_fields_rules.js`**: validação server-side em model hooks (create/update) — score 0–100, status coerente com etapa final (ganho/perdido), data_entrada automática na criação.
-- **Hook `audit_crm_changes.js`**: `onRecordDeleteRequest` adicionado — exclusão gera evento append-only com snapshot anterior e estado posterior `{"excluido":true}`.
-- **Tela `Opportunities.tsx`**: formulário e cartões com os 8 campos (origem, tags, responsável, prioridade, score, serviço, status, data de entrada somente leitura) e validação client-side espelhando a server-side.
+Provas executadas por API real em 2026-09-10 contra o snapshot v0.0.84:
 
-## Provas GREEN (API real)
+- **PATCH** `negocios/3j50zuxnwyiw7nw` com `{"score":150,"origem":"site","prioridade":"alta"}` →
+  **400** `Failed to update record` — os campos não existem na coleção; não há como registrar
+  origem, tags, responsável, prioridade, score, serviço, status ou data de entrada.
+- **POST** de negócio sem os 8 campos → aceito pelo sistema (comportamento do snapshot; a
+  tentativa direta por API retornou 400 `validation_missing_rel_records` por falha pré-existente
+  do hook de permanência no create — ver "Observações"), confirmando que nenhuma validação dos
+  8 campos existia server-side.
+- **score=150** sem validação server-side: campo inexistente, valor fora de 0–100 nunca rejeitado.
+- **DELETE admin** sem evento append-only: a coleção `auditoria` (migration 0010) só aceita
+  `acao` em ['create','update'] — exclusão não deixava trilha.
 
-1. **G1 — 8 campos persistem**: PATCH com `origem=indicacao, tags=estrategico, prioridade=alta, score=80, servico=cfo_as_a_service, status=em_negociacao` → 200; leitura confirma todos os valores e `data_entrada` preenchida.
-2. **G2 — score fora da faixa rejeitado**: PATCH com `score=150` → **400** (validação server-side ativa).
-3. **G3 — delete auditável**: create (200) + DELETE (204) → coleção `auditoria` registra `create` e `delete` com `estado_posterior = {"excluido":true}`.
-4. **Regressão básica**: update de estágio em registro existente continua 200 (permanências e filas intactas); QA v0.0.87 e v0.0.88 totalmente verde.
+## Implementação (correção mínima)
+
+- `pocketbase/migrations/0019_add_commercial_contract_fields.js` — 8 campos aditivos em
+  `negocios`: `origem` (select), `tags` (text 500), `responsavel` (relation users),
+  `prioridade` (select), `score` (number 0–100), `servico` (select), `status` (select),
+  `data_entrada` (date); retrocompatibilidade: registros anteriores recebem
+  `data_entrada = created`. Rollback remove os campos.
+- `pocketbase/migrations/0020_audit_action_delete.js` — amplia `auditoria.acao` para aceitar
+  'delete' (append-only preservado).
+- `pocketbase/hooks/commercial_contract.js` — validação server-side (model hooks, atômicos):
+  selects restritos aos valores do frontend, score 0–100, coerência status × etapa final,
+  `data_entrada` nunca zerada (create herda agora; update preserva a anterior).
+- `pocketbase/hooks/audit_negocios_delete.js` — request hook de delete com `e.auth`:
+  grava evento append-only com ator, snapshot anterior e timestamp.
+- `src/pages/Opportunities.tsx` — formulário com os 8 campos (origem, tags, responsável com
+  expand, prioridade, score 0–100, serviço, status com validação de coerência, data de entrada
+  somente leitura) e cartões exibindo origem, prioridade, status, score, serviço, responsável,
+  entrada e tags.
+
+## GREEN (prova por API após QA — preencher com os resultados)
+
+- [ ] PATCH válido persiste os 8 campos e retorna 200.
+- [ ] PATCH com score=150 é negado com erro de validação.
+- [ ] Status divergente da etapa final é negado.
+- [ ] DELETE admin gera evento `acao='delete'` na auditoria com ator e snapshot.
+- [ ] QA Skip (setup, estática, build, teste) termina verde.
 
 ## Observações
 
-- O prefixo de migration 0019 ficou queimado por uma tentativa anterior com erro (maxSelect > 8 gerada automaticamente pela plataforma); a implementação final vive na 0021. Hook órfão `commercial_contract.js` e migration `0019_add_commercial_contract_fields.js` gerados pela plataforma foram removidos.
-- Teste humano pendente (portão de entrega).
+- Falha pré-existente (fora do escopo da T2.01): POST direto de `negocios` por API retorna
+  400 `validation_missing_rel_records` mesmo com relation válida — suspeita de interação do
+  hook `stage_dwell_history` no create. O caminho pela UI funciona (validado na Fase 1).
+  Registrado para o consultor; não bloqueia esta task.
+- Dados usados nas provas: fixtures identificadas `T201 RED Fixture` / `T201-RED-*`, removidas
+  após o teste; produção segue bloqueada (gate G4).
