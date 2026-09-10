@@ -2,6 +2,7 @@ migrate(
   (app) => {
     // T2.01 — CA-2-036: campos comerciais canônicos da Fase 1 em negocios,
     // backfill de data_entrada e valor 'delete' na trilha de auditoria.
+    // (Renumeração: o prefixo 0019 ficou queimado por tentativa anterior com erro.)
     const negocios = app.findCollectionByNameOrId('negocios')
     const fields = [
       {
@@ -53,7 +54,7 @@ migrate(
       }
     }
 
-    // Auditoria passa a registrar também exclusões.
+    // Auditoria passa a registrar também exclusões (idempotente com 0020).
     const auditoria = app.findCollectionByNameOrId('auditoria')
     const acaoField = auditoria.fields.getByName('acao')
     if (acaoField && !acaoField.values.includes('delete')) {
@@ -80,14 +81,6 @@ migrate(
         } catch (_) {}
       }
       app.save(negocios)
-    } catch (_) {}
-    try {
-      const auditoria = app.findCollectionByNameOrId('auditoria')
-      const acaoField = auditoria.fields.getByName('acao')
-      if (acaoField) {
-        acaoField.values = acaoField.values.filter((v) => v !== 'delete')
-        app.save(auditoria)
-      }
     } catch (_) {}
   },
 )
