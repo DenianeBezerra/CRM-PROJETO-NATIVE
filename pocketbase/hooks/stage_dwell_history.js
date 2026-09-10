@@ -7,13 +7,16 @@ onRecordCreate((e) => {
   const db = e.app || $app
   const stage = String(e.record.get('estagio') || '').trim()
   if (!stage) return e.next()
+  // A permanência é criada APÓS e.next(): dentro da mesma transação, o registro
+  // pai só passa a existir no banco depois do save — criar antes violava a
+  // validação de relação (validation_missing_rel_records) e quebrava todo create.
+  e.next()
   const permCollection = db.findCollectionByNameOrId('permanencias_negocio')
   const entry = new Record(permCollection)
   entry.set('negocio', e.record.id)
   entry.set('etapa', stage)
   entry.set('entrou_em', new Date().toISOString())
   db.save(entry)
-  e.next()
 }, 'negocios')
 
 onRecordUpdate((e) => {
