@@ -8,6 +8,7 @@ type Cliente = {
   id: string
   nome: string
   empresa?: string
+  empresa_nome?: string
   email?: string
   telefone?: string
   cidade?: string
@@ -15,6 +16,7 @@ type Cliente = {
   observacoes?: string
   status?: 'ativo' | 'inativo' | 'prospect'
 }
+type Empresa = { id: string; nome: string; status?: string }
 
 const emptyForm = {
   nome: '',
@@ -31,6 +33,7 @@ export default function Contacts() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [items, setItems] = useState<Cliente[]>([])
+  const [empresas, setEmpresas] = useState<Empresa[]>([])
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -41,7 +44,18 @@ export default function Contacts() {
   const load = async () => {
     setLoading(true)
     try {
-      setItems(await pb.collection('clientes').getFullList<Cliente>({ sort: '-created' }))
+      const [records, empresasList] = await Promise.all([
+        pb.collection('clientes').getFullList<Cliente>({ sort: '-created', expand: 'empresa' }),
+        pb.collection('empresas').getFullList<Empresa>({ sort: 'nome' }),
+      ])
+      setItems(
+        records.map((item) => ({
+          ...item,
+          empresa_nome: (item as Cliente & { expand?: { empresa?: Empresa } }).expand?.empresa
+            ?.nome,
+        })),
+      )
+      setEmpresas(empresasList)
     } catch {
       setError('Não foi possível carregar os contatos.')
     } finally {
@@ -56,7 +70,8 @@ export default function Contacts() {
     const q = search.trim().toLowerCase()
     return items.filter(
       (x) =>
-        !q || [x.nome, x.empresa, x.email, x.telefone].some((v) => v?.toLowerCase().includes(q)),
+        !q ||
+        [x.nome, x.empresa_nome, x.email, x.telefone].some((v) => v?.toLowerCase().includes(q)),
     )
   }, [items, search])
 
@@ -88,8 +103,9 @@ export default function Contacts() {
     if (duplicate)
       return setError(`Possível duplicidade: ${duplicate.nome}. Revise antes de salvar.`)
     try {
-      if (editing) await pb.collection('clientes').update(editing, form)
-      else await pb.collection('clientes').create(form)
+      const payload: Record<string, unknown> = { ...form, empresa: form.empresa || null }
+      if (editing) await pb.collection('clientes').update(editing, payload)
+      else await pb.collection('clientes').create(payload)
       toast({
         title: editing ? 'Contato atualizado' : 'Contato cadastrado',
         description: 'Os dados foram persistidos.',
@@ -160,7 +176,7 @@ export default function Contacts() {
                   <div>
                     <h2 className="font-semibold text-lg">{item.nome}</h2>
                     <p className="text-sm text-[#6B7280]">
-                      {item.empresa || 'Empresa não informada'}
+                      {item.empresa_nome || 'Empresa não informada'}
                     </p>
                   </div>
                   <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-1 h-fit">
@@ -220,7 +236,6 @@ export default function Contacts() {
               {(
                 [
                   ['nome', 'Nome *'],
-                  ['empresa', 'Empresa'],
                   ['email', 'E-mail'],
                   ['telefone', 'Telefone'],
                   ['cidade', 'Cidade'],
@@ -235,6 +250,21 @@ export default function Contacts() {
                   />
                 </label>
               ))}
+              <label className="text-sm font-medium">
+                Empresa
+                <select
+                  value={form.empresa}
+                  onChange={(e) => update('empresa', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {empresas.map((empresa) => (
+                    <option key={empresa.id} value={empresa.id}>
+                      {empresa.nome}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="text-sm font-medium">
                 Origem
                 <select

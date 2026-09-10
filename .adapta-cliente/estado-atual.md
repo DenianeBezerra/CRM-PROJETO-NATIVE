@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma
+- task_id: T2.02
 - champion: Deni.Ai (executor das tasks de Engenharia/Segurança da Fase 2)
-- spec: nenhuma
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-09-10 16:58, owner: "Pode implementar o plano da T2.01"
-- teste_humano: aprovado — 2026-09-10 17:29, owner: "validado, agora sim!" com captura de tela do formulário
-- verificacao_automatica: passou — revalidação do zero: score 150 → 400; 8 campos persistem (registro da UI); status divergente → 400; movimentação de estágio → 200; auditoria registra create/update; QA v0.0.90–v0.0.91 verde
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-10-t201-migration-queimada-hook-top-level.md
-- ultima_acao: T2.01 concluída — fase.md (GitHub, commit 9ad54f1), STATUS, changelog e estado atualizados
-- proxima_acao: selecionar/analisar a próxima task elegível, T2.02, somente mediante novo pedido
-- atualizado_em: 2026-09-10T17:35:00-03:00
+- spec: 04_fase-atual/specs/SPEC-2-000-remediacao-debitos-fase-1.md
+- etapa: implementando
+- autorizacao_implementacao: confirmada — 2026-09-10 17:37, owner: "Aprovar Opção A — implementar entidade relacional" (aceite da consultora/cliente registrado para CA-2-037)
+- teste_humano: pendente
+- verificacao_automatica: pendente — RED em execução
+- aprendizado: pendente
+- ultima_acao: autorização da Opção A recebida; implementação iniciada
+- proxima_acao: RED → migration (coleção empresas + relation + backfill) → telas → GREEN → regressão → QA
+- atualizado_em: 2026-09-10T17:38:00-03:00
