@@ -33,8 +33,9 @@ migrate(
         }
       }
       if (!remover) continue
-      // Remover primeiro as permanências vinculadas (T9.1 protege o negócio
-      // via relação obrigatória — o delete do negócio falha sem isso).
+      // Remover primeiro os registros que referenciam o negócio (T9.1 protege
+      // o negócio via relações obrigatórias — o delete falha sem isso):
+      // permanências e interações.
       try {
         const permanencias = app.findRecordsByFilter(
           'permanencias_negocio',
@@ -45,6 +46,14 @@ migrate(
           { n: negocios[i].id },
         )
         for (let k = 0; k < permanencias.length; k++) app.delete(permanencias[k])
+      } catch (_) {
+        // coleção pode não existir em instalação limpa
+      }
+      try {
+        const interacoes = app.findRecordsByFilter('interacoes', 'negocio = {:n}', '', 100, 0, {
+          n: negocios[i].id,
+        })
+        for (let k = 0; k < interacoes.length; k++) app.delete(interacoes[k])
       } catch (_) {
         // coleção pode não existir em instalação limpa
       }
