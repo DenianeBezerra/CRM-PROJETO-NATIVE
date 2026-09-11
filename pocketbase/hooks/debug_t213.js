@@ -52,7 +52,13 @@ routerAdd(
     out.respostas_count = respostas.length
     let perguntas = []
     try {
-      perguntas = $app.findRecordsByFilter('perguntas_qualificacao', 'ativa = true', 'ordem', 500, 0)
+      perguntas = $app.findRecordsByFilter(
+        'perguntas_qualificacao',
+        'ativa = true',
+        'ordem',
+        500,
+        0,
+      )
     } catch (err) {
       out.perguntas_erro = String(err)
     }
