@@ -111,12 +111,14 @@ onRecordUpdate((e) => {
   }
 
   // Exceção vigente (não expirada) libera o avanço.
+  // Sem sort no findRecordsByFilter (lição T2.04: 3º param vira dbx.Params
+  // e falha silenciosamente em try/catch) — sort é irrelevante aqui.
   let excecoes = []
   try {
     excecoes = $app.findRecordsByFilter(
       'excecoes_qualificacao',
       'negocio = "' + e.record.id + '"',
-      '-created',
+      '',
       50,
       0,
     )
