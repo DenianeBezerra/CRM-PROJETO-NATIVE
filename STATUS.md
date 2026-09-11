@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 12 de 40 tasks concluídas (30%) — **SPEC-2-000 e SPEC-2-001 FECHADAS (10/10)**
+**Status:** Fase 2 em execução — 13 de 40 tasks concluídas (32,5%) — **SPEC-2-000 e SPEC-2-001 FECHADAS (10/10)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.12 — CA-2-007, operador salva qualificação e vê percentual/pendências (2026-09-10)
-**Próxima task elegível:** T2.13 — CA-2-008 (SPEC-2-002 — obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria)
+**Última task concluída:** T2.13 — CA-2-008, obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria (2026-09-11)
+**Próxima task elegível:** T2.14 — CA-2-009 (SPEC-2-002 — desqualificação registra motivo estruturado, detalhe obrigatório para Outro e próxima ação quando aplicável)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
@@ -14,7 +14,7 @@
 | ----- | ----------------------------------------------------------------------------------------- | ------------------------------------------ |
 | T2.11 | Configuração de perguntas de qualificação sem código (coleção + tela admin)               | ✅ Concluída — 2026-09-10 (teste aprovado) |
 | T2.12 | Operador salva qualificação válida e visualiza percentual e pendências de completude      | ✅ Concluída — 2026-09-10 (teste aprovado) |
-| T2.13 | Campo obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria  | ☐ Próxima task elegível                    |
+| T2.13 | Campo obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria  | ✅ Concluída — 2026-09-11 (teste aprovado) |
 | T2.14 | Desqualificação com motivo estruturado e detalhe obrigatório para Outro                   | ☐ Planejada                                |
 | T2.15 | Alterações e exceções na auditoria com ator, data e snapshots, inclusive tentativa negada | ☐ Planejada                                |
 

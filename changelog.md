@@ -18,6 +18,25 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.199] — 2026-09-11 — T2.13 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-008 fechado: operador não avança com pergunta obrigatória sem resposta; administrador libera por exceção com motivo (mín. 10 caracteres), validade futura e ator registrados (coleção append-only `excecoes_qualificacao`).
+- Teste humano aprovado pela cliente (2026-09-11, 21:45 — "todos passaram, conclua a T2.13").
+- Revalidação independente do zero (9 provas por API): RED 400/400/403, GREEN 200/200, retorno 200, permanências consistentes (1 aberta em `novo`), preview 200.
+
+### Corrigido (debug — causa raiz documentada)
+
+- Bloqueio de avanço movido de model hook para **request hook**: a versão anterior corrompia o histórico de permanências a cada bloqueio (permanência fantasma), e o guard do `stage_dwell_history` travava todo avanço seguinte com 400 genérico. Reparo do histórico na migration 0042.
+- Frontend de Oportunidades agora exibe a mensagem de erro server-side (antes: mensagem genérica).
+
+### Notas
+
+- Evidências: `evidencias/spec-2-002/ca-2-008-red.md` / `ca-2-008-green.md`; debug em `06_notas/debug/debug-2026-09-11-t213-green-excecao.md`.
+- Denominador limpo (migrations 0043/0044): 0 exceções de prova; "Proposta BPO" preservada em `novo`, completude 0%.
+- Fase 2: 13/40 (32,5%).
+
 ## [0.0.183] — 2026-09-10 — T2.12 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
