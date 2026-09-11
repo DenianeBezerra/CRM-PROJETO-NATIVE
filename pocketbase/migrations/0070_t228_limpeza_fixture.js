@@ -36,8 +36,19 @@ migrate(
       }
     }
 
+    // Permanências do negócio fixture (relação obrigatória) antes do negócio.
     const negocios = app.findRecordsByFilter('negocios', 'titulo ~ "Fixture T228"', '', 10, 0)
-    for (let i = 0; i < negocios.length; i++) app.delete(negocios[i])
+    for (let i = 0; i < negocios.length; i++) {
+      const perms = app.findRecordsByFilter(
+        'permanencias_negocio',
+        'negocio = "' + negocios[i].id + '"',
+        '',
+        50,
+        0,
+      )
+      for (let j = 0; j < perms.length; j++) app.delete(perms[j])
+      app.delete(negocios[i])
+    }
   },
   (app) => {
     // Down: irreversível por design (limpeza).
