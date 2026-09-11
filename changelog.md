@@ -1,5 +1,15 @@
 # Changelog — CRM Vibratto
 
+## [0.0.295] — 2026-09-12 — T2.31 implementada (CA-2-026, aguardando teste humano)
+
+### Adicionado
+
+- **Handoff de ganho idempotente (CA-2-026)**: ao mover oportunidade para `fechado_ganho`, o model hook `handoff_ganho.js` cria automaticamente um handoff em `pendente` com checklist padrão do onboarding Vibratto (5 itens), origem (serviço da oportunidade), responsável emissor (ator do ganho) e receptor (responsável da oportunidade). Idempotente: índice UNIQUE em `negocio` + check no hook — re-save não duplica nem sobrescreve decisão. Create/update/delete via API bloqueados (403) — decisão humana fica para a T2.33. Provas: RED 2 + GREEN 2 + idempotência (evidência em `evidencias/spec-2-006/ca-2-026-green.md`). Migration 0079 (limpeza da probe).
+
+### Corrigido (debug do 400 na transição de ganho)
+
+- Causa raiz do 400 genérico ao ganhar: o model hook de campos comerciais exige `status='ganho'` coerente com `fechado_ganho` — PATCH só com `estagio` é rejeitado ("Status divergente"), e erros de model hook não preservam a mensagem nos logs de request. Diagnóstico por rota debug somente-leitura (removida após o uso); discriminante: transição para etapa não-final passa sem status.
+
 ## [0.0.187] — 2026-09-11 — T2.13 implementada (CA-2-008, EM CORREÇÃO — GREEN 2 pendente)
 
 ### Adicionado
