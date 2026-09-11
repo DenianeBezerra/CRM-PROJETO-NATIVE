@@ -1,5 +1,11 @@
 # Changelog — CRM Vibratto
 
+## [0.0.320] — 2026-09-12 — T2.33 implementada (CA-2-028, aguardando teste humano)
+
+### Adicionado
+
+- **Decisão do receptor com snapshot (CA-2-028)**: endpoint `POST /backend/v1/handoffs/{id}/decisao` — `acao: "devolver"` exige motivo ≥ 10 chars e grava ator, data, motivo e snapshot do checklist/pendências; `acao: "aceitar"` mantém as regras da T2.32 (obrigatório pendente bloqueia) e grava snapshot no aceite. Decisão só sobre handoff pendente (idempotente por estado); 401 sem auth. Campos novos (0090: `devolvido_por`, `devolvido_em`, `motivo_devolucao`, `snapshot_decisao`). Provas: RED 4 + GREEN 2 + idempotência (evidência em `evidencias/spec-2-006/ca-2-028-green.md`).
+
 ## [0.0.317] — 2026-09-12 — T2.32 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
