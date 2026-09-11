@@ -9,6 +9,7 @@ type Diagnostico = {
   resumo: string
   pontos_de_dor?: string
   decisao_envolvida?: string
+  motivo_atualizacao?: string
   criado_por?: string
   created?: string
 }
@@ -26,6 +27,7 @@ export default function DiagnosticoNegocio({
   const [resumo, setResumo] = useState('')
   const [pontosDeDor, setPontosDeDor] = useState('')
   const [decisao, setDecisao] = useState('')
+  const [motivoAtualizacao, setMotivoAtualizacao] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -49,6 +51,10 @@ export default function DiagnosticoNegocio({
     setError('')
     if (resumo.trim().length < 20)
       return setError('O resumo precisa de pelo menos 20 caracteres (núcleo mínimo).')
+    if (versoes.length > 0 && motivoAtualizacao.trim().length < 10)
+      return setError(
+        'A partir da segunda versão, informe o motivo da atualização (mínimo 10 caracteres).',
+      )
     setSaving(true)
     try {
       await pb.collection('diagnosticos').create({
@@ -56,11 +62,13 @@ export default function DiagnosticoNegocio({
         resumo: resumo.trim(),
         pontos_de_dor: pontosDeDor.trim(),
         decisao_envolvida: decisao.trim(),
+        motivo_atualizacao: motivoAtualizacao.trim(),
       })
       toast({ title: 'Diagnóstico registrado', description: 'Nova versão criada.' })
       setResumo('')
       setPontosDeDor('')
       setDecisao('')
+      setMotivoAtualizacao('')
       await load()
     } catch (err: unknown) {
       const response =
@@ -103,6 +111,18 @@ export default function DiagnosticoNegocio({
               className="mt-1 w-full border rounded-lg px-3 py-2"
             />
           </label>
+          {versoes.length > 0 && (
+            <label className="block text-sm font-medium mb-3">
+              Motivo da atualização * (mín. 10 caracteres)
+              <input
+                value={motivoAtualizacao}
+                onChange={(e) => setMotivoAtualizacao(e.target.value)}
+                maxLength={1000}
+                placeholder="Ex.: cliente sinalizou mudança de escopo na última conversa"
+                className="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+            </label>
+          )}
           <div className="grid sm:grid-cols-2 gap-3 mb-3">
             <label className="block text-sm font-medium">
               Pontos de dor
@@ -150,6 +170,11 @@ export default function DiagnosticoNegocio({
                     : ''}
                 </p>
                 <p className="text-sm whitespace-pre-wrap">{v.resumo}</p>
+                {v.motivo_atualizacao && (
+                  <p className="text-xs text-[#6B7280] mt-1">
+                    Motivo da atualização: {v.motivo_atualizacao}
+                  </p>
+                )}
                 {v.pontos_de_dor && (
                   <p className="text-xs text-[#6B7280] mt-2">Dor: {v.pontos_de_dor}</p>
                 )}

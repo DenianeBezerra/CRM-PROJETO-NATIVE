@@ -39,11 +39,25 @@ onRecordCreateRequest((e) => {
     throw new Error('Falha ao validar a versão do diagnóstico.')
   }
 
-  e.record.set('versao', ultima + 1)
+  const novaVersao = ultima + 1
+  e.record.set('versao', novaVersao)
   e.record.set('resumo', resumo)
   if (!e.record.get('criado_por')) {
     e.record.set('criado_por', e.auth ? e.auth.id : '')
   }
+
+  // T2.17/CA-2-012: a partir da v2, toda nova versão exige o motivo da
+  // atualização (a v1 é a criação — não tem motivo).
+  const motivo = String(e.requestInfo().body.motivo_atualizacao || '').trim()
+  if (novaVersao >= 2) {
+    if (motivo.length < 10) {
+      throw new Error(
+        'A partir da segunda versão, o diagnóstico exige o motivo da atualização (mínimo 10 caracteres).',
+      )
+    }
+    e.record.set('motivo_atualizacao', motivo)
+  }
+
   e.next()
 }, 'diagnosticos')
 
