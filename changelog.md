@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.232] — 2026-09-11 — T2.19 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-014 fechado: data passada, responsável inativo e texto acima de 5.000 caracteres são rejeitados sem estado parcial.
+- Teste humano aprovado pela cliente (2026-09-11 22:41 — "Aprovado, todos passaram").
+- Revalidação independente: "Proposta BPO" íntegra (responsável ativo, próxima ação 20/10, 1 permanência em `novo`), usuário de prova removido, preview 200.
+- Fase 2: 19/40 (47,5%).
+
 ## [0.0.229] — 2026-09-11 — T2.18 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
