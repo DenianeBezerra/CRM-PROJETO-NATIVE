@@ -40,5 +40,6 @@
 
 ## Limpeza
 
-- Migration 0074 remove a fixture de usuário probe (findAuthRecordByEmail).
+- Migration 0074 (findAuthRecordByEmail com catch vazio) NÃO removeu a probe — o login continuava retornando token. Migration 0075 (busca por filtro, sem engolir erro) removeu definitivamente (v0.0.285).
 - Estado final: 0 fixtures, regras RBAC ativas, fluxos de ambos os papéis intactos.
+- Lição registrada: catch vazio em limpeza engole falha silenciosamente — limpeza deve falhar alto quando o alvo existe; findAuthRecordByEmail pode divergir do filtro de email (usar findRecordsByFilter e verificar contagem).
