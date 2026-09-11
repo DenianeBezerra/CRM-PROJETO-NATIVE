@@ -38,6 +38,8 @@ onRecordUpdateRequest((e) => {
       }
       if (motivoNegativa) {
         // T2.15/CA-2-010: tentativa negada gera evento append-only.
+        // Grava o evento e responde 400 SEM chamar e.next(): a transação do
+        // save nunca abre, então o evento não é revertido pelo rollback.
         try {
           const actor = e.auth
           if (actor) {
@@ -58,7 +60,7 @@ onRecordUpdateRequest((e) => {
         } catch (auditErr) {
           $app.logger().error('Falha ao registrar tentativa negada', 'error', String(auditErr))
         }
-        throw new Error(motivoNegativa)
+        return e.json(400, { message: motivoNegativa })
       }
     }
   }

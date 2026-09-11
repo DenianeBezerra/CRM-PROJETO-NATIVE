@@ -164,11 +164,14 @@ onRecordUpdateRequest((e) => {
     $app.logger().error('Falha ao registrar tentativa negada', 'error', String(auditErr))
   }
 
-  throw new Error(
-    'Avanço bloqueado: ' +
+  // Responde 400 SEM chamar e.next(): a transação do save nunca abre, então
+  // o evento 'negado' gravado acima não é revertido por rollback.
+  return e.json(400, {
+    message:
+      'Avanço bloqueado: ' +
       pendentes.length +
       ' pergunta(s) obrigatória(s) sem resposta (' +
       pendentes.join('; ') +
       '). Um administrador pode liberar por exceção com motivo e validade.',
-  )
+  })
 }, 'negocios')
