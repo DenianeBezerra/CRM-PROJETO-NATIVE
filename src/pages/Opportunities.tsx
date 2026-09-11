@@ -264,8 +264,15 @@ export default function Opportunities() {
       toast({ title: editing ? 'Oportunidade atualizada' : 'Oportunidade cadastrada' })
       reset()
       await load()
-    } catch {
-      setError('Não foi possível salvar. Verifique os campos e tente novamente.')
+    } catch (err: unknown) {
+      const response =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+          : undefined
+      setError(
+        response?.data?.message ||
+          'Não foi possível salvar. Verifique os campos e tente novamente.',
+      )
     }
   }
   const label = (options: { value: string; label: string }[], value?: string) =>

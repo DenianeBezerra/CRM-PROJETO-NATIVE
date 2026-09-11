@@ -3,14 +3,16 @@
 //
 // Regra server-side (model hook onRecordUpdate em negocios):
 // - se a etapa está avançando (ordem da nova etapa > ordem da atual) e
-//   existem perguntas obrigatórias aplicáveis à NOVA etapa sem resposta →
-//   bloqueia, listando as pendências;
-// - exceção vigente (não expirada) para o negócio libera o avanço;
+//   existe exceção vigente (não expirada) para o negócio → libera;
+// - senão, se existem perguntas obrigatórias aplicáveis à etapa atual
+//   sem resposta → bloqueia, listando as pendências;
 // - voltar de etapa ou mover para etapa final (fechado_*) não é bloqueado
 //   aqui (fechamento tem regras próprias — outcome_rules/comercial_fields).
 //
-// Lições JSVM aplicadas: sem bind params {:x} (interpolação direta de IDs),
-// findFirstRecordByFilter sem sort, datas comparadas por Date.parse.
+// Lições JSVM aplicadas: sem bind params (interpolação direta de IDs),
+// findFirstRecordByFilter sem sort, sort de respostas usa respondido_em
+// (a coleção não tem "created" como campo sortável — lição T2.12),
+// datas do PocketBase normalizadas de " " para "T" antes do Date.parse.
 
 onRecordUpdate((e) => {
   const etapaNova = String(e.record.get('estagio') || '').trim()
@@ -50,13 +52,39 @@ onRecordUpdate((e) => {
     return
   }
 
-  // Perguntas obrigatórias ativas aplicáveis à etapa ATUAL (a que está sendo
-  // deixada) ou a todas — sair da etapa sem respondê-las é o avanço bloqueado.
+  // 1) Exceção vigente libera o avanço ANTES de qualquer outra verificação.
+  let excecoes = []
+  try {
+    excecoes = $app.findRecordsByFilter(
+      'excecoes_qualificacao',
+      'negocio = "' + e.record.id + '"',
+      '-created',
+      50,
+      0,
+    )
+  } catch (err) {
+    console.log('T213 excecoes erro: ' + String(err))
+    excecoes = []
+  }
+  const agora = Date.now()
+  for (let i = 0; i < excecoes.length; i++) {
+    // Datas do PocketBase vêm como "2026-09-30 00:00:00.000Z" (espaço) —
+    // normalizar para "T" antes do Date.parse (lição T2.04).
+    const validade = Date.parse(String(excecoes[i].get('validade') || '').replace(' ', 'T'))
+    console.log('T213 excecao ' + excecoes[i].id + ' validade=' + validade + ' agora=' + agora)
+    if (!isNaN(validade) && validade >= agora) {
+      e.next()
+      return
+    }
+  }
+
+  // 2) Perguntas obrigatórias ativas aplicáveis à etapa ATUAL (a que está
+  // sendo deixada) ou a todas — sair da etapa sem respondê-las é bloqueado.
   let perguntas = []
   try {
     perguntas = $app.findRecordsByFilter('perguntas_qualificacao', 'ativa = true', 'ordem', 500, 0)
   } catch (err) {
-    $app.logger().error('Falha ao consultar perguntas (avanço)', 'error', String(err))
+    console.log('T213 perguntas erro: ' + String(err))
     throw new Error('Falha ao validar o avanço de etapa.')
   }
   const aplicaveis = perguntas.filter(function (p) {
@@ -74,11 +102,12 @@ onRecordUpdate((e) => {
     respostas = $app.findRecordsByFilter(
       'respostas_qualificacao',
       'negocio = "' + e.record.id + '"',
-      '-created',
+      '-respondido_em',
       500,
       0,
     )
-  } catch (_) {
+  } catch (err) {
+    console.log('T213 respostas erro: ' + String(err))
     respostas = []
   }
   const respondidas = {}
@@ -110,43 +139,7 @@ onRecordUpdate((e) => {
     return
   }
 
-  // Exceção vigente (não expirada) libera o avanço.
-  // Sem sort no findRecordsByFilter (lição T2.04: 3º param vira dbx.Params
-  // e falha silenciosamente em try/catch) — sort é irrelevante aqui.
-  let excecoes = []
-  try {
-    excecoes = $app.findRecordsByFilter(
-      'excecoes_qualificacao',
-      'negocio = "' + e.record.id + '"',
-      '',
-      50,
-      0,
-    )
-  } catch (err) {
-    $app.logger().error('Falha ao consultar exceções (avanço)', 'error', String(err))
-    excecoes = []
-  }
-  const agora = Date.now()
-  for (let i = 0; i < excecoes.length; i++) {
-    // Datas do PocketBase vêm como "2026-09-30 00:00:00.000Z" (espaço) —
-    // Date.parse do JSVM só aceita ISO com "T"; normalizar antes (lição T2.04).
-    const validade = Date.parse(String(excecoes[i].get('validade') || '').replace(' ', 'T'))
-    if (!isNaN(validade) && validade >= agora) {
-      e.next()
-      return
-    }
-  }
-  $app
-    .logger()
-    .error(
-      'Avanço bloqueado (diagnóstico)',
-      'excecoes',
-      String(excecoes.length),
-      'etapaAntes',
-      etapaAntes,
-      'etapaNova',
-      etapaNova,
-    )
+  console.log('T213 bloqueio: pendentes=' + pendentes.length + ' excecoes=' + excecoes.length)
 
   throw new Error(
     'Avanço bloqueado: ' +
