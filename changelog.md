@@ -18,6 +18,25 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.204] — 2026-09-11 — T2.14 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-009 fechado: desqualificação exige motivo estruturado, detalhe obrigatório para "Outro" e **próxima ação** (descrição + data futura); registro já perdido pode ser editado sem reexigir.
+- Teste humano aprovado pela cliente (2026-09-11 21:54 — "todas as etapas passaram como orientado").
+- Revalidação independente: RED (sem próxima ação → 400), fixture removida (404), "Proposta BPO" íntegra (1 permanência aberta em `novo`, resíduo de motivo limpo), preview 200.
+
+### Adicionado
+
+- Regra server-side em `outcome_rules.js` (request hook): próxima ação obrigatória na desqualificação, com descrição e data futura.
+- Validação client-side espelhada no formulário de Oportunidades.
+
+### Notas
+
+- Evidências: `evidencias/spec-2-002/ca-2-009-green.md`. Migrations 0045–0047 (reparos de permanências + limpeza da fixture).
+- Lição: prova GREEN em registro com histórico corrompido falha no guard de permanências — isolar prova em fixture.
+- Fase 2: 14/40 (35%).
+
 ## [0.0.199] — 2026-09-11 — T2.13 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
