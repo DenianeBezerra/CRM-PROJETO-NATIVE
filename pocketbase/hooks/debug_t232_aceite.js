@@ -17,7 +17,8 @@ routerAdd(
     out.raw_tipo = typeof raw
     let checklist = []
     try {
-      checklist = typeof raw === 'string' ? JSON.parse(raw || '[]') : raw || []
+      const rawStr = typeof raw === 'string' ? raw : raw ? JSON.stringify(raw) : '[]'
+      checklist = JSON.parse(rawStr)
     } catch (err) {
       out.parse_erro = String(err)
     }

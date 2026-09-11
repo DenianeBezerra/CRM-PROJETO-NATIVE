@@ -36,8 +36,13 @@ routerAdd(
     const body = e.requestInfo().body
     let checklist = []
     try {
+      // Lição T2.32: campo JSON do JSVM NÃO é iterável como array — o valor
+      // chega como objeto goja cuja iteração retorna lixo. SEMPRE re-parsar
+      // da forma string (String(raw) de um array vira "item1,item2..." sem
+      // colchetes — por isso o campo é lido via publicExport/JSON.stringify).
       const raw = handoff.get('checklist')
-      checklist = typeof raw === 'string' ? JSON.parse(raw || '[]') : raw || []
+      const rawStr = typeof raw === 'string' ? raw : raw ? JSON.stringify(raw) : '[]'
+      checklist = JSON.parse(rawStr)
     } catch (_) {
       checklist = []
     }
