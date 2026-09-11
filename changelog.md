@@ -18,6 +18,13 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.287] — 2026-09-12 — T2.30 CONCLUÍDA (teste humano aprovado) — SPEC-2-005 FECHADA
+
+### Adicionado
+
+- **RBAC de visualização (CA-2-025)**: `sla_config` admin-only na leitura; trilhas `eventos_exportacao`/`exportacoes` filtradas por ator (operator vê só os próprios atos, admin vê tudo); perguntas de qualificação legíveis para autenticados por decisão de produto (o operator as responde). Rotas `/admin/*` protegidas por `AdminRoute`. Provas: RED 2 + GREEN 8 + regressão 3 (evidência em `evidencias/spec-2-005/ca-2-025-green.md`). Fixtures limpas (0074+0075).
+- **SPEC-2-005 FECHADA (T2.25–T2.30, 6/6)**: SLA, fila de propostas vencidas, tarefas, filas distintas, ciclo de vida consistente e RBAC de visualização. Fase 2: 30/40 (75%).
+
 ## [0.0.282] — 2026-09-12 — T2.29 CONCLUÍDA (teste humano aprovado)
 
 ### Adicionado
