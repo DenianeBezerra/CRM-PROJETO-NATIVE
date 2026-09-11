@@ -18,6 +18,19 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.250] — 2026-09-11 — T2.23 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-018 fechado: status inválido, valor negativo, validade passada e emissão concorrente bloqueados atomicamente.
+- Teste humano aprovado pela cliente (2026-09-11 23:00 — "aprovado").
+- Revalidação independente: propostas v1–v6 íntegras, "Proposta BPO" em `novo`, preview 200.
+- Fase 2: 23/40 (57,5%).
+
+### Corrigido (defeito da T2.22)
+
+- Emissão não era atômica: duas emissões paralelas gravavam ambas (200/200). Corrigido com `runInTransaction` + re-checagem de status dentro da transação — provado por API (200 + 400).
+
 ## [0.0.245] — 2026-09-11 — T2.22 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído

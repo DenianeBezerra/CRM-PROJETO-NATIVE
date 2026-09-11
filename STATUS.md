@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 22 de 40 tasks concluídas (55%) — **SPEC-2-000, SPEC-2-001, SPEC-2-002 e SPEC-2-003 FECHADAS (20/20)**
+**Status:** Fase 2 em execução — 23 de 40 tasks concluídas (57,5%) — **SPEC-2-000, SPEC-2-001, SPEC-2-002 e SPEC-2-003 FECHADAS (20/20)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.22 — CA-2-017, emissão congela a versão; mudança cria número sequencial sem sobrescrever histórico (2026-09-11)
-**Próxima task elegível:** T2.23 — CA-2-018 (SPEC-2-004 — status inválido, valor negativo, validade passada ou emissão concorrente são bloqueados atomicamente)
+**Última task concluída:** T2.23 — CA-2-018, status inválido, valor negativo, validade passada e emissão concorrente bloqueados atomicamente (2026-09-11)
+**Próxima task elegível:** T2.24 — CA-2-019 (SPEC-2-004 — aceite ou recusa registra ator, data, canal, observação e mantém a decisão como humana)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
