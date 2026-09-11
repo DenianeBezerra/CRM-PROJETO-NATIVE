@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.224] — 2026-09-11 — T2.17 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-012 fechado: edição preserva versão anterior, ator, data e motivo — toda alteração cria nova versão com motivo da atualização obrigatório a partir da v2 (mín. 10 caracteres).
+- Teste humano aprovado pela cliente (2026-09-11 22:29 — "funcionou, conclua e siga a proxima task").
+- Revalidação independente: v6 com motivo/ator/data gravada, v1–v5 preservadas (append-only), fixture removida (404), "Proposta BPO" íntegra, preview 200.
+- Fase 2: 17/40 (42,5%).
+
 ## [0.0.220] — 2026-09-11 — T2.16 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
