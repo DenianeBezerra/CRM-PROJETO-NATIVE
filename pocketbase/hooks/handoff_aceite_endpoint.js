@@ -76,6 +76,33 @@ routerAdd(
       }
 
       const agora = new Date().toISOString()
+      // Idempotência: se já existem pendências registradas, preserva a
+      // primeira (não sobrescreve dono/prazo já acordados).
+      let pendenciasExistentes = null
+      try {
+        const rawP = handoff.get('pendencias')
+        const pStr = typeof rawP === 'string' ? rawP : rawP ? String(rawP) : ''
+        if (pStr && pStr !== 'null') pendenciasExistentes = JSON.parse(pStr)
+      } catch (_) {
+        pendenciasExistentes = null
+      }
+      if (
+        pendenciasExistentes &&
+        pendenciasExistentes.itens &&
+        pendenciasExistentes.itens.length > 0
+      ) {
+        return e.json(400, {
+          error:
+            'Aceite bloqueado: ' +
+            obrigatoriosPendentes.length +
+            ' item(ns) obrigatório(s) pendente(s). Pendência já registrada (preservada).',
+          itens_pendentes: obrigatoriosPendentes,
+          pendencia: {
+            dono: pendenciasExistentes.itens[0].dono,
+            prazo: pendenciasExistentes.itens[0].prazo,
+          },
+        })
+      }
       const pendencias = {
         geradas_em: agora,
         gerada_por: actor.id,
