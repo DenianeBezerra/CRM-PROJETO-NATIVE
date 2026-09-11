@@ -124,6 +124,74 @@ routerAdd(
     const proximaAcaoEm = String(negocio.get('proxima_acao_em') || '').trim()
     const proximaAcaoDescricao = String(negocio.get('proxima_acao_descricao') || '').trim()
 
+    // --- Handoff (T2.35 — CA-2-030): estado, pendências abertas e tempo ---
+    // Leitura explícita: dado ausente aparece como "nenhum", nunca é omitido
+    // nem maquiado. Tempo até aceite: aceito = aceito_em - criado_em;
+    // pendente = decorrido; devolvido = null (aguardando reenvio).
+    let handoffs = []
+    try {
+      handoffs = $app.findRecordsByFilter(
+        'handoffs',
+        'negocio = "' + negocio.id + '"',
+        '-created',
+        1,
+        0,
+      )
+    } catch (err) {
+      $app.logger().error('T235 falha ao consultar handoff', 'error', String(err))
+    }
+
+    let handoff = { estado: 'nenhum' }
+    if (handoffs.length > 0) {
+      const h = handoffs[0]
+      const status = String(h.get('status') || 'pendente')
+
+      let pendenciasAbertas = []
+      try {
+        const rawP = h.get('pendencias')
+        const pStr = typeof rawP === 'string' ? rawP : rawP ? String(rawP) : ''
+        if (pStr && pStr !== 'null') {
+          const p = JSON.parse(pStr)
+          if (p && p.itens && Array.isArray(p.itens)) {
+            pendenciasAbertas = p.itens.filter(function (it) {
+              return it && !it.resolvida_em
+            })
+          }
+        }
+      } catch (_) {
+        pendenciasAbertas = []
+      }
+
+      const criadoEm = String(h.get('criado_em') || '')
+      const aceitoEm = String(h.get('aceito_em') || '')
+      let tempoSegundos = null
+      let tempoBase = ''
+      if (status === 'aceito' && aceitoEm && !aceitoEm.startsWith('0001-01-01')) {
+        const msC = Date.parse(criadoEm.replace(' ', 'T'))
+        const msA = Date.parse(aceitoEm.replace(' ', 'T'))
+        if (!isNaN(msC) && !isNaN(msA)) {
+          tempoSegundos = Math.max(0, Math.floor((msA - msC) / 1000))
+          tempoBase = 'aceito_em - criado_em'
+        }
+      } else if (status === 'pendente' && criadoEm && !criadoEm.startsWith('0001-01-01')) {
+        const msC = Date.parse(criadoEm.replace(' ', 'T'))
+        if (!isNaN(msC)) {
+          tempoSegundos = Math.max(0, Math.floor((Date.now() - msC) / 1000))
+          tempoBase = 'decorrido'
+        }
+      }
+
+      handoff = {
+        estado: status,
+        criado_em: criadoEm,
+        decidido_em: status === 'aceito' ? aceitoEm : String(h.get('devolvido_em') || ''),
+        motivo_devolucao: String(h.get('motivo_devolucao') || ''),
+        pendencias_abertas: pendenciasAbertas,
+        tempo_ate_aceite_segundos: tempoSegundos,
+        tempo_base: tempoBase,
+      }
+    }
+
     // --- Campos ausentes (explícitos) ---
     const camposAusentes = []
     if (!diagnosticoAtual) {
@@ -161,6 +229,7 @@ routerAdd(
       },
       responsavel: { id: respId, nome: responsavelNome },
       proxima_acao: { em: proximaAcaoEm, descricao: proximaAcaoDescricao, futura: proximaOk },
+      handoff: handoff,
       campos_ausentes: camposAusentes,
       calculado_em: new Date().toISOString(),
     })

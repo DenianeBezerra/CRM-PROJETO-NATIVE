@@ -18,7 +18,39 @@ type Consulta360 = {
   }
   responsavel: { id: string; nome: string }
   proxima_acao: { em: string; descricao: string; futura: boolean }
+  handoff?: {
+    estado: 'nenhum' | 'pendente' | 'aceito' | 'devolvido'
+    criado_em?: string
+    decidido_em?: string
+    motivo_devolucao?: string
+    pendencias_abertas?: { item?: string; dono?: string; prazo?: string }[]
+    tempo_ate_aceite_segundos?: number | null
+    tempo_base?: string
+  }
   campos_ausentes: string[]
+}
+
+const HANDOFF_ESTADO: Record<string, { label: string; classe: string }> = {
+  nenhum: { label: 'Nenhum handoff', classe: 'bg-[#F7F5F1] text-[#6B7280] border' },
+  pendente: {
+    label: 'Aguardando aceite',
+    classe: 'bg-amber-50 text-amber-800 border border-amber-200',
+  },
+  aceito: { label: 'Aceito', classe: 'bg-green-50 text-green-800 border border-green-200' },
+  devolvido: {
+    label: 'Devolvido ao emissor',
+    classe: 'bg-red-50 text-red-800 border border-red-200',
+  },
+}
+
+const formatarTempo = (segundos: number | null | undefined): string => {
+  if (segundos == null) return 'Aguardando reenvio'
+  if (segundos < 60) return `${segundos}s`
+  if (segundos < 3600) return `${Math.floor(segundos / 60)}min`
+  if (segundos < 86400)
+    return `${Math.floor(segundos / 3600)}h ${Math.floor((segundos % 3600) / 60)}min`
+  const dias = Math.floor(segundos / 86400)
+  return `${dias}d ${Math.floor((segundos % 86400) / 3600)}h`
 }
 
 const LABEL_AUSENTE: Record<string, string> = {
@@ -104,6 +136,61 @@ export default function Consulta360Negocio({
                     : ' (sem perguntas)'}
                 </p>
               </div>
+            </div>
+            <div className="p-4 rounded-xl border">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold">Handoff</p>
+                <span
+                  className={`text-xs rounded-full px-2 py-1 ${
+                    HANDOFF_ESTADO[dados.handoff?.estado || 'nenhum']?.classe ||
+                    HANDOFF_ESTADO.nenhum.classe
+                  }`}
+                >
+                  {HANDOFF_ESTADO[dados.handoff?.estado || 'nenhum']?.label || 'Nenhum handoff'}
+                </span>
+              </div>
+              {dados.handoff && dados.handoff.estado !== 'nenhum' && (
+                <div className="space-y-1 text-sm">
+                  <p className="text-[#6B7280] text-xs">
+                    Criado em{' '}
+                    {dados.handoff.criado_em
+                      ? new Date(dados.handoff.criado_em.replace(' ', 'T')).toLocaleString('pt-BR')
+                      : '—'}
+                  </p>
+                  <p>
+                    <span className="text-[#6B7280]">Tempo até aceite: </span>
+                    <span className="font-medium">
+                      {formatarTempo(dados.handoff.tempo_ate_aceite_segundos)}
+                    </span>
+                    {dados.handoff.tempo_base === 'decorrido' && (
+                      <span className="text-xs text-[#6B7280]"> (em andamento)</span>
+                    )}
+                  </p>
+                  {dados.handoff.estado === 'devolvido' && dados.handoff.motivo_devolucao && (
+                    <p className="text-xs text-[#B91C1C]">
+                      Motivo da devolução: {dados.handoff.motivo_devolucao}
+                    </p>
+                  )}
+                  {dados.handoff.pendencias_abertas &&
+                    dados.handoff.pendencias_abertas.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-amber-800">
+                          Pendências abertas ({dados.handoff.pendencias_abertas.length})
+                        </p>
+                        <ul className="list-disc list-inside text-xs text-[#6B7280]">
+                          {dados.handoff.pendencias_abertas.map((p, i) => (
+                            <li key={i}>
+                              {p.item || 'Pendência'} — dono: {p.dono || '—'} · prazo:{' '}
+                              {p.prazo
+                                ? new Date(p.prazo.replace(' ', 'T')).toLocaleDateString('pt-BR')
+                                : '—'}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </div>
+              )}
             </div>
             <div>
               <p className="text-sm font-semibold mb-2">
