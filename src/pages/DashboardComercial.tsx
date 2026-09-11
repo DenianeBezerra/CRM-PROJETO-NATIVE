@@ -102,6 +102,63 @@ export default function DashboardComercial() {
   const [inicio, setInicio] = useState('')
   const [fim, setFim] = useState('')
   const [origem, setOrigem] = useState('')
+  const [drilldown, setDrilldown] = useState<{
+    bloco: string
+    chave: string | null
+    n: number
+    itens: Record<string, unknown>[]
+  } | null>(null)
+  const [drillLoading, setDrillLoading] = useState(false)
+  const [exportMsg, setExportMsg] = useState('')
+
+  const abrirDrilldown = async (bloco: string, chave?: string) => {
+    setDrillLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('bloco', bloco)
+      if (chave) params.set('chave', chave)
+      if (inicio) params.set('periodo_inicio', inicio)
+      if (fim) params.set('periodo_fim', fim)
+      if (origem) params.set('origem', origem)
+      const resp = await pb.send<{
+        bloco: string
+        chave: string | null
+        n: number
+        itens: Record<string, unknown>[]
+      }>(`/backend/v1/dashboard/comercial/drilldown?${params.toString()}`)
+      setDrilldown(resp)
+    } catch {
+      setDrilldown(null)
+    } finally {
+      setDrillLoading(false)
+    }
+  }
+
+  const exportarCsv = async () => {
+    setExportMsg('')
+    try {
+      const params = new URLSearchParams()
+      if (inicio) params.set('periodo_inicio', inicio)
+      if (fim) params.set('periodo_fim', fim)
+      if (origem) params.set('origem', origem)
+      const qs = params.toString()
+      const resp = await pb.send<{ filename: string; quantidade: number; csv: string }>(
+        `/backend/v1/dashboard/comercial/export${qs ? '?' + qs : ''}`,
+      )
+      const blob = new Blob(['\ufeff' + resp.csv.replace(/^\ufeff/, '')], {
+        type: 'text/csv;charset=utf-8',
+      })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = resp.filename
+      a.click()
+      URL.revokeObjectURL(url)
+      setExportMsg(`Exportado: ${resp.quantidade} linhas.`)
+    } catch {
+      setExportMsg('Falha ao exportar. Nenhum arquivo gerado.')
+    }
+  }
 
   const load = async () => {
     setLoading(true)
@@ -184,7 +241,15 @@ export default function DashboardComercial() {
           >
             Aplicar filtros
           </button>
+          <button
+            onClick={() => void exportarCsv()}
+            className="px-4 py-2 rounded-lg border border-[#A8862B] text-[#A8862B] text-sm font-medium hover:bg-[#A8862B]/10"
+            title="Exporta as agregações exibidas (mesmos filtros) em CSV"
+          >
+            Exportar CSV
+          </button>
         </div>
+        {exportMsg && <p className="mb-4 text-xs text-[#6B7280]">{exportMsg}</p>}
 
         {error && (
           <p className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
@@ -230,7 +295,12 @@ export default function DashboardComercial() {
               >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.leads_por_origem.por_origem).map(([o, v]) => (
-                    <li key={o} className="flex justify-between">
+                    <li
+                      key={o}
+                      className="flex justify-between cursor-pointer hover:bg-[#F7F5F1] rounded px-1 -mx-1"
+                      onClick={() => void abrirDrilldown('leads_por_origem', o)}
+                      title="Ver as oportunidades que compõem este número"
+                    >
                       <span className="capitalize">{o.replace('_', ' ')}</span>
                       <span className="font-semibold">{v}</span>
                     </li>
@@ -246,7 +316,12 @@ export default function DashboardComercial() {
               >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.oportunidades_por_etapa.por_etapa).map(([e, v]) => (
-                    <li key={e} className="flex justify-between">
+                    <li
+                      key={e}
+                      className="flex justify-between cursor-pointer hover:bg-[#F7F5F1] rounded px-1 -mx-1"
+                      onClick={() => void abrirDrilldown('oportunidades_por_etapa', e)}
+                      title="Ver as oportunidades que compõem este número"
+                    >
                       <span>{e}</span>
                       <span className="font-semibold">{v}</span>
                     </li>
@@ -310,7 +385,12 @@ export default function DashboardComercial() {
               >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.perdas.por_motivo).map(([m, v]) => (
-                    <li key={m} className="flex justify-between">
+                    <li
+                      key={m}
+                      className="flex justify-between cursor-pointer hover:bg-[#F7F5F1] rounded px-1 -mx-1"
+                      onClick={() => void abrirDrilldown('perdas', m)}
+                      title="Ver as oportunidades que compõem este número"
+                    >
                       <span className="capitalize">{m.replace('_', ' ')}</span>
                       <span className="font-semibold">{v}</span>
                     </li>
@@ -338,9 +418,62 @@ export default function DashboardComercial() {
                 </div>
               </Bloco>
             </div>
+
+            <div className="pt-2 text-xs text-[#6B7280]">
+              Clique em uma linha dos blocos Leads por origem, Oportunidades por etapa ou Perdas
+              para ver as oportunidades que compõem o número (drill-down).
+            </div>
           </div>
         ) : null}
       </main>
+
+      {drilldown && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
+          onClick={() => setDrilldown(null)}
+        >
+          <div
+            className="bg-white rounded-xl border shadow-lg max-w-2xl w-full max-h-[80vh] overflow-auto p-5"
+            onClick={(ev) => ev.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold">
+                  Drill-down — {drilldown.bloco}
+                  {drilldown.chave ? ` · ${drilldown.chave}` : ''}
+                </h3>
+                <p className="text-xs text-[#6B7280]">
+                  {drillLoading
+                    ? 'Carregando...'
+                    : `${drilldown.n} registro(s) — mesmo filtro do número exibido.`}
+                </p>
+              </div>
+              <button
+                onClick={() => setDrilldown(null)}
+                className="text-sm text-[#6B7280] hover:text-[#0A0A0A]"
+              >
+                Fechar
+              </button>
+            </div>
+            {drilldown.n === 0 ? (
+              <p className="text-sm text-[#6B7280]">Nenhum registro compõe este número.</p>
+            ) : (
+              <ul className="text-sm divide-y">
+                {drilldown.itens.map((it, i) => (
+                  <li key={String(it.id ?? it.proposta_id ?? i)} className="py-2">
+                    <p className="font-medium">{String(it.titulo ?? it.proposta_id ?? '—')}</p>
+                    <p className="text-xs text-[#6B7280]">
+                      {String(it.estagio ?? it.status ?? '')}
+                      {it.origem ? ` · origem: ${String(it.origem)}` : ''}
+                      {it.valor !== undefined ? ` · ${fmtBRL(Number(it.valor) || 0)}` : ''}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
