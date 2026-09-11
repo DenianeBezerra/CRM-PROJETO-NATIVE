@@ -187,6 +187,13 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                     className="font-semibold text-[#A8862B] underline"
                   >
                     Painel operacional
+                  </button>{' '}
+                  ·{' '}
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Dashboard comercial
                   </button>
                 </>
               )}{' '}

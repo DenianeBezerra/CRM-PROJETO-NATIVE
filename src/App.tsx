@@ -13,6 +13,7 @@ import SearchPage from './pages/SearchPage'
 import Operacional from './pages/Operacional'
 import Qualificacao from './pages/Qualificacao'
 import Dicionario from './pages/Dicionario'
+import DashboardComercial from './pages/DashboardComercial'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -120,6 +121,14 @@ const App = () => (
                 <AdminRoute>
                   <Dicionario />
                 </AdminRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardComercial />
+                </ProtectedRoute>
               }
             />
           </Route>
