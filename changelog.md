@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.241] — 2026-09-11 — T2.21 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-016 fechado: usuário autorizado cria rascunho de proposta com valor, validade, responsável e resumo válidos.
+- Teste humano aprovado pela cliente (2026-09-11 22:51 — "validado, proximo"; v3 criada pela UI: R$ 8.000, validade 20/06/2027).
+- Revalidação independente: 3 rascunhos no histórico, "Proposta BPO" íntegra, preview 200.
+- Fase 2: 21/40 (52,5%).
+
 ## [0.0.237] — 2026-09-11 — T2.20 CONCLUÍDA (teste humano aprovado) — SPEC-2-003 FECHADA
 
 ### Concluído
