@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 30 de 40 tasks concluídas (75%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (35/35)**
+**Status:** Fase 2 em execução — 33 de 40 tasks concluídas (82,5%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (35/35)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.30 — CA-2-025, RBAC de visualização (2026-09-12) — fecha SPEC-2-005
-**Próxima task elegível:** T2.31 — CA-2-026 (SPEC-2-006 — ganho cria handoff idempotente com checklist, origem, responsável emissor e receptor)
+**Última task concluída:** T2.33 — CA-2-028, decisão do receptor (aceite/devolução com ator, data, motivo e snapshots) (2026-09-12)
+**Próxima task elegível:** T2.34 — CA-2-029 (SPEC-2-006 — repetição simultânea do evento de ganho cria exatamente um handoff e não sobrescreve decisão existente)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
