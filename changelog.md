@@ -18,6 +18,13 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.266] — 2026-09-12 — Limpeza de ruídos (pós-T2.26)
+
+### Removido
+
+- 11 propostas fixture/prova do negócio real "Proposta BPO" (v1–v13, todas com texto de teste) e seu registro na fila de vencidas — a cliente identificou os resíduos na UI. A oportunidade fica limpa para o primeiro uso real do módulo de propostas.
+- Mantidos: 6 versões de diagnóstico (conteúdo real), 2 configurações de SLA (exemplo da configuração; ativação real é da consultora/cliente).
+
 ## [0.0.263] — 2026-09-12 — T2.25 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
