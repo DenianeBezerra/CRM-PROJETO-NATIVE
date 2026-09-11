@@ -1,5 +1,13 @@
 # Changelog — CRM Vibratto
 
+## [0.0.339] — 2026-09-12 — T2.36 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-031 fechado: dicionário registra fórmula, fonte, evento inicial/final, fuso, exclusões e dono para cada métrica. Teste humano aprovado pela cliente (2026-09-12 09:26 — "sim, concluir e seguir", execução delegada ao champion).
+- Prova na UI real (browser): tela /admin/dicionario com os 5 cards completos; prints em artifacts/t236_dicionario_topo|meio|fim.png.
+- Fase 2: 36/40 (90%).
+
 ## [0.0.337] — 2026-09-12 — T2.36 implementada (CA-2-031, aguardando teste humano)
 
 ### Adicionado
