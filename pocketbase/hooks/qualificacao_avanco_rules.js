@@ -126,7 +126,9 @@ onRecordUpdate((e) => {
   }
   const agora = Date.now()
   for (let i = 0; i < excecoes.length; i++) {
-    const validade = Date.parse(String(excecoes[i].get('validade') || ''))
+    // Datas do PocketBase vêm como "2026-09-30 00:00:00.000Z" (espaço) —
+    // Date.parse do JSVM só aceita ISO com "T"; normalizar antes (lição T2.04).
+    const validade = Date.parse(String(excecoes[i].get('validade') || '').replace(' ', 'T'))
     if (!isNaN(validade) && validade >= agora) {
       e.next()
       return
