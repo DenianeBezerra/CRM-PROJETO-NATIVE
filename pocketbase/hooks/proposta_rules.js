@@ -7,6 +7,15 @@
 // Lições JSVM: interpolação direta de IDs, datas PB normalizadas " " → "T",
 // lógica inline nos callbacks (scoping).
 onRecordCreateRequest((e) => {
+  // T2.23/CA-2-018: status inválido na criação é rejeitado — o único status
+  // de nascimento é 'rascunho' (emissão é transição pelo endpoint dedicado).
+  const statusEnviado = String(e.requestInfo().body.status || 'rascunho').trim()
+  if (statusEnviado !== 'rascunho') {
+    throw new Error(
+      'Uma proposta nasce como rascunho. Emissão e decisão são transições posteriores.',
+    )
+  }
+
   const resumo = String(e.requestInfo().body.resumo || '').trim()
   if (resumo.length < 20) {
     throw new Error('A proposta exige um resumo com pelo menos 20 caracteres.')
