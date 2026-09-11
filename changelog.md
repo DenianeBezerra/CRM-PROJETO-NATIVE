@@ -6,7 +6,7 @@
 
 - CA-2-034 fechado: dado ausente aparece como cobertura incompleta e não é removido silenciosamente do denominador. Teste humano aprovado pela cliente (2026-09-12 ~10:00 — "perfeito, siga", execução delegada ao champion).
 - Prova na UI real (browser): bloco "Cobertura incompleta" com avisos "permanecem no denominador" (3 de 3 / 2 de 3 / 1 de 3), badges COBERTURA 1/3 e 1/2, `sem_etapa: 1` explícito, conversão "50% (N=2)" com 3 oportunidades; filtro Origem = Site recalcula todos os avisos sobre o denominador filtrado (2 de 2, N=1). Prints em artifacts/t239_dashboard_cobertura_geral|filtro_site.png.
-- Limpeza pós-teste: migration 0105 remove as fixtures da prova (proposta de contraste + negócio/permanência/proposta da 0104) — delete via API bloqueado por design (T2.21 append-only), padrão AP-2026-09-12-0915.
+- Limpeza pós-teste: migration 0105 remove as fixtures da prova (proposta de contraste + negócio/permanência/proposta da 0104); migration 0106 remove o negócio órfão criado via API durante a prova GREEN (nascido após a 0104 rodar, fora do alcance do down dela). Base final: 2 negócios (real "Proposta BPO" + fixture arquivada da T2.38) — dashboard recalculado (avisos 2 de 2, conversão 50% N=2).
 - Fase 2: 39/40 (97,5%). SPEC-2-007: 4/5.
 
 ## [0.0.350] — 2026-09-12 — T2.38 CONCLUÍDA (teste humano aprovado)
