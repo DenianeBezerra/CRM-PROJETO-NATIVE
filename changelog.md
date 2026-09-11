@@ -13,6 +13,7 @@
 - Pendência sobrescrita na re-tentativa — preservada (v0.0.311).
 
 - 2026-09-12 · [Deni.Ai] · DEBUG task T2.31: 400 genérico na transição fechado_ganho → causa raiz: model hook exige status='ganho' coerente (PATCH só com estagio rejeitado) → corrigido (PATCH com status junto), provado por API.
+- 2026-09-12 · [Deni.Ai] · DEBUG task T2.32: aceite passava com checklist incompleto → causa raiz dupla: (1) handoffs pré-0082 sem flag `obrigatorio`, (2) campo JSON do JSVM chega como array de char codes e iteração direta retorna lixo → corrigido (0082 + JSON.parse(String(raw))), provado por API.
 - 2026-09-12 · [Deni.Ai] · Task T2.31 CONCLUÍDA (teste humano aprovado 08:08: "funcionou"): handoff de ganho idempotente com checklist/origem/emissor/receptor; revalidação independente (1 handoff único, idempotência re-provada), fixture de teste removida (0080), QA v0.0.298. Fase 2: 31/40 (77,5%).
 
 ## [0.0.298] — 2026-09-12 — T2.31 CONCLUÍDA (teste humano aprovado)
