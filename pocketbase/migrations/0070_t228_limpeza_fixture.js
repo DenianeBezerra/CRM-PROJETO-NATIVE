@@ -15,9 +15,8 @@ migrate(
       for (let j = 0; j < ts.length; j++) app.delete(ts[j])
     }
 
-    const negocios = app.findRecordsByFilter('negocios', 'titulo ~ "Fixture T228"', '', 10, 0)
-    for (let i = 0; i < negocios.length; i++) app.delete(negocios[i])
-
+    // PRIMEIRO as exceções (a relação obrigatória negócio→exceção impede
+    // apagar o negócio com exceção pendente), DEPOIS os negócios fixture.
     // Exceções órfãs (negócio removido) e as da prova.
     const excecoes = app.findRecordsByFilter('excecoes_qualificacao', '', '', 100, 0)
     for (let i = 0; i < excecoes.length; i++) {
@@ -36,6 +35,9 @@ migrate(
         app.delete(x)
       }
     }
+
+    const negocios = app.findRecordsByFilter('negocios', 'titulo ~ "Fixture T228"', '', 10, 0)
+    for (let i = 0; i < negocios.length; i++) app.delete(negocios[i])
   },
   (app) => {
     // Down: irreversível por design (limpeza).
