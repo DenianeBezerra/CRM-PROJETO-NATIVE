@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.237] — 2026-09-11 — T2.20 CONCLUÍDA (teste humano aprovado) — SPEC-2-003 FECHADA
+
+### Concluído
+
+- CA-2-015 fechado: consulta 360º exibe versão atual, histórico completo e campos ausentes explicitamente.
+- Teste humano aprovado pela cliente (2026-09-11 22:46 — "Aprovado. Siga para a proxima"; print: quadro consolidado, v6 atual, histórico 6 versões expandido).
+- Revalidação independente: endpoint 200 com ausentes=[], fixture removida (404), "Proposta BPO" íntegra, preview 200.
+- **SPEC-2-003 FECHADA (5/5)** — Fase 2: 20/40 (50%).
+
 ## [0.0.232] — 2026-09-11 — T2.19 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído

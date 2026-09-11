@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 19 de 40 tasks concluídas (47,5%) — **SPEC-2-000, SPEC-2-001 e SPEC-2-002 FECHADAS (15/15)**
+**Status:** Fase 2 em execução — 20 de 40 tasks concluídas (50%) — **SPEC-2-000, SPEC-2-001, SPEC-2-002 e SPEC-2-003 FECHADAS (20/20)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.19 — CA-2-014, data passada, responsável inativo e texto acima de 5.000 caracteres rejeitados sem estado parcial (2026-09-11)
-**Próxima task elegível:** T2.20 — CA-2-015 (SPEC-2-003 — consulta 360º exibe versão atual, histórico e campos ausentes explicitamente)
+**Última task concluída:** T2.20 — CA-2-015, consulta 360º com versão atual, histórico e campos ausentes explícitos (2026-09-11)
+**Próxima task elegível:** T2.21 — CA-2-016 (SPEC-2-004 — usuário autorizado cria rascunho de proposta com valor, validade, responsável e resumo válidos)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
