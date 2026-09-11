@@ -1,5 +1,11 @@
 # Changelog — CRM Vibratto
 
+## [0.0.333] — 2026-09-12 — T2.35 implementada (CA-2-030, aguardando teste humano)
+
+### Adicionado
+
+- **Handoff na visão da oportunidade (CA-2-030)**: bloco `handoff` no `GET /backend/v1/negocios/{id}/consulta-360` — estado (pendente/aceito/devolvido/nenhum, explícito), pendências abertas (item/dono/prazo, só as não resolvidas), tempo até aceite (aceito = calculado; pendente = decorrido; devolvido = null, aguardando reenvio) e contexto (criado_em, decidido_em, motivo_devolucao). Card "Handoff" no modal Consulta 360º com badge colorido, tempo formatado e lista de pendências. Provas: RED 1 + GREEN 4 + regressão (evidência em `evidencias/spec-2-006/ca-2-030-green.md`). Fixtures 0095/0096 limpas.
+
 ## [0.0.330] — 2026-09-12 — T2.34 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
