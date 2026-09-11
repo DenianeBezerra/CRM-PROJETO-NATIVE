@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.254] — 2026-09-11 — T2.24 CONCLUÍDA (teste humano aprovado) — SPEC-2-004 FECHADA
+
+### Concluído
+
+- CA-2-019 fechado: aceite ou recusa registra ator, data, canal, observação e mantém a decisão como humana (401 sem autenticação; só proposta emitida decide; canal e observação obrigatórios; atômico).
+- Teste humano aprovado pela cliente (2026-09-11 23:05 — "conclua").
+- Revalidação independente: v10 aceita (whatsapp) e v12 recusada (email) com ator/data/canal/observação completos, "Proposta BPO" íntegra, preview 200.
+- **SPEC-2-004 FECHADA (4/4)** — Fase 2: 24/40 (60%).
+
 ## [0.0.250] — 2026-09-11 — T2.23 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
