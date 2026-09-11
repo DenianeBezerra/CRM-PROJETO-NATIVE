@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.263] — 2026-09-12 — T2.25 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-020 fechado: cron diário 08:00 America/Sao_Paulo registra propostas emitidas vencidas na fila do responsável — sem alterar resultado comercial (status/estágio intactos, provado).
+- Teste humano aprovado pela cliente (2026-09-12 06:55 — "Sim, aprovado.. Siga para a task T2.28"; opção imediata: fixture vencida + varredura + fila populada confirmada).
+- Revalidação independente: fila 1 item (Proposta BPO v13, emitida, validade 10/09), status/estágio inalterados, preview 200.
+- Fase 2: 25/40 (62,5%).
+
 ## [0.0.254] — 2026-09-11 — T2.24 CONCLUÍDA (teste humano aprovado) — SPEC-2-004 FECHADA
 
 ### Concluído
