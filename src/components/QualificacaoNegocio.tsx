@@ -36,6 +36,33 @@ export default function QualificacaoNegocio({
   const [rascunho, setRascunho] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
   const [saving, setSaving] = useState<string | null>(null)
+  const [excecaoAberta, setExcecaoAberta] = useState(false)
+  const [excecaoMotivo, setExcecaoMotivo] = useState('')
+  const [excecaoValidade, setExcecaoValidade] = useState('')
+  const isAdmin = pb.authStore.record?.role === 'admin'
+
+  const liberarExcecao = async () => {
+    setError('')
+    if (excecaoMotivo.trim().length < 10)
+      return setError('Motivo obrigatório (mínimo 10 caracteres).')
+    if (!excecaoValidade) return setError('Informe a validade da exceção.')
+    try {
+      await pb.send(`/backend/v1/qualificacao/${negocio.id}/excecao`, {
+        method: 'POST',
+        body: { motivo: excecaoMotivo.trim(), validade: excecaoValidade },
+      })
+      toast({ title: 'Exceção registrada', description: 'Avanço liberado até a validade.' })
+      setExcecaoAberta(false)
+      setExcecaoMotivo('')
+      setExcecaoValidade('')
+    } catch (err: unknown) {
+      const response =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+          : undefined
+      setError(response?.data?.message || 'Não foi possível registrar a exceção.')
+    }
+  }
 
   const load = async () => {
     try {
@@ -163,6 +190,56 @@ export default function QualificacaoNegocio({
                   }`
                 : 'Nenhuma pergunta de qualificação configurada para esta etapa.'}
             </p>
+            {completude.obrigatorias_pendentes > 0 && (
+              <p className="text-xs text-[#B91C1C] mt-2">
+                O avanço de etapa fica bloqueado enquanto houver perguntas obrigatórias sem
+                resposta.
+                {isAdmin && (
+                  <>
+                    {' '}
+                    <button
+                      type="button"
+                      onClick={() => setExcecaoAberta(!excecaoAberta)}
+                      className="font-semibold underline"
+                    >
+                      Liberar por exceção
+                    </button>
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+        )}
+        {excecaoAberta && isAdmin && (
+          <div className="mb-5 p-4 rounded-xl border border-[#C9A227]/40 bg-[#F7F5F1]">
+            <p className="text-sm font-semibold mb-2">Liberar avanço por exceção (admin)</p>
+            <label className="block text-sm font-medium mb-2">
+              Motivo *
+              <textarea
+                value={excecaoMotivo}
+                onChange={(e) => setExcecaoMotivo(e.target.value)}
+                maxLength={1000}
+                rows={2}
+                placeholder="Ex.: cliente viajou; responde a qualificação no retorno"
+                className="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+            </label>
+            <label className="block text-sm font-medium mb-3">
+              Validade *
+              <input
+                type="date"
+                value={excecaoValidade}
+                onChange={(e) => setExcecaoValidade(e.target.value)}
+                className="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => void liberarExcecao()}
+              className="bg-[#C9A227] rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Registrar exceção
+            </button>
           </div>
         )}
         {perguntas.length === 0 ? (
