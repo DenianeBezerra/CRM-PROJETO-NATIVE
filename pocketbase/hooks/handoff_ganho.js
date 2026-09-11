@@ -65,11 +65,37 @@ onRecordUpdate((e) => {
   rec.set('criado_em', new Date().toISOString().replace('T', ' '))
   try {
     $app.save(rec)
+    $app.logger().info('T231 handoff criado no ganho', 'negocio', negocioId, 'emissor', ator)
   } catch (err) {
-    // Falha na criação do handoff NÃO pode quebrar o ganho — loga e segue.
-    $app.logger().error('T231 falha ao criar handoff', 'error', String(err))
+    // T2.34/CA-2-029: ganho simultâneo — o índice UNIQUE (negocio) garante
+    // exatamente um handoff. Conflito de unique = outro ganho venceu: loga,
+    // confirma que existe exatamente 1 e NÃO sobrescreve nada.
+    const msg = String(err)
+    if (msg.indexOf('unique') >= 0 || msg.indexOf('UNIQUE') >= 0) {
+      let total = -1
+      try {
+        total = $app.findRecordsByFilter(
+          'handoffs',
+          'negocio = "' + negocioId + '"',
+          '',
+          1,
+          0,
+        ).length
+      } catch (_) {}
+      $app
+        .logger()
+        .info(
+          'T234 ganho simultaneo: handoff unico preservado',
+          'negocio',
+          negocioId,
+          'handoffs',
+          total,
+        )
+    } else {
+      // Falha na criação do handoff NÃO pode quebrar o ganho — loga e segue.
+      $app.logger().error('T231 falha ao criar handoff', 'error', msg)
+    }
   }
 
-  $app.logger().info('T231 handoff criado no ganho', 'negocio', negocioId, 'emissor', ator)
   e.next()
 }, 'negocios')
