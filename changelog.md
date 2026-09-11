@@ -1,5 +1,15 @@
 # Changelog — CRM Vibratto
 
+## [0.0.327] — 2026-09-12 — T2.34 implementada (CA-2-029, aguardando teste humano)
+
+### Adicionado
+
+- **Ganho simultâneo com handoff único (CA-2-029)**: criação do handoff movida para request hook (`onRecordUpdateRequest` em `negocios`) — o model hook parou de disparar no runtime (RED provado: 8+ ganhos, 0 handoffs; causa: bloco duplicado do hook T2.31 em `comercial_fields_rules.js`, removido). Idempotência reforçada: check prévio + índice UNIQUE (`handoffs.negocio`); ganho simultâneo cria exatamente um handoff; re-ganho após decisão preserva status/motivo/snapshot byte a byte; falha de criação não quebra o ganho. Provas: RED (causa raiz) + GREEN 4 + segurança (evidência em `evidencias/spec-2-006/ca-2-029-green.md`).
+
+### Corrigido (durante as provas)
+
+- Hook de ganho inoperante (handoff nunca mais era criado desde 11/09) — request hook v0.0.326.
+
 ## [0.0.322] — 2026-09-12 — T2.33 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
