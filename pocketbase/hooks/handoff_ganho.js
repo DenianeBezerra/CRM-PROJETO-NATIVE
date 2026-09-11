@@ -26,12 +26,18 @@ onRecordUpdate((e) => {
   const observacao = String(e.record.get('observacao_ganho') || '')
 
   // Checklist padrão do onboarding Vibratto (3 frentes).
+  // T2.32/CA-2-027: itens críticos são OBRIGATÓRIOS — sem eles o aceite é
+  // bloqueado e gera pendência com dono e prazo (endpoint de aceite).
   const checklistPadrao = [
-    { item: 'Contrato assinado e arquivado', feito: false },
-    { item: 'Documentos fiscais e societários recebidos', feito: false },
-    { item: 'Acessos aos sistemas do cliente (Omie/Conta Azul/Nibo)', feito: false },
-    { item: 'Reunião de kickoff agendada', feito: false },
-    { item: 'Escopo e rotinas transferidos para a operação', feito: false },
+    { item: 'Contrato assinado e arquivado', obrigatorio: true, feito: false },
+    { item: 'Documentos fiscais e societários recebidos', obrigatorio: true, feito: false },
+    {
+      item: 'Acessos aos sistemas do cliente (Omie/Conta Azul/Nibo)',
+      obrigatorio: true,
+      feito: false,
+    },
+    { item: 'Reunião de kickoff agendada', obrigatorio: false, feito: false },
+    { item: 'Escopo e rotinas transferidos para a operação', obrigatorio: false, feito: false },
   ]
 
   // Idempotência: UNIQUE negocio — se já existe, preserva.
