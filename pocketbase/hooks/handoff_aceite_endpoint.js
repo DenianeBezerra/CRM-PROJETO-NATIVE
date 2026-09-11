@@ -36,12 +36,11 @@ routerAdd(
     const body = e.requestInfo().body
     let checklist = []
     try {
-      // Lição T2.32: campo JSON do JSVM NÃO é iterável como array — o valor
-      // chega como objeto goja cuja iteração retorna lixo. SEMPRE re-parsar
-      // da forma string (String(raw) de um array vira "item1,item2..." sem
-      // colchetes — por isso o campo é lido via publicExport/JSON.stringify).
+      // Lição T2.32: campo JSON do JSVM chega como ARRAY DE CHAR CODES
+      // ([91,123,34,...] = '[{"...'). String(raw) reconstrói a string correta;
+      // iterar o valor direto retorna lixo (1 item por char code).
       const raw = handoff.get('checklist')
-      const rawStr = typeof raw === 'string' ? raw : raw ? JSON.stringify(raw) : '[]'
+      const rawStr = typeof raw === 'string' ? raw : String(raw)
       checklist = JSON.parse(rawStr)
     } catch (_) {
       checklist = []
