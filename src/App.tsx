@@ -12,6 +12,7 @@ import Kanban from './pages/Kanban'
 import SearchPage from './pages/SearchPage'
 import Operacional from './pages/Operacional'
 import Qualificacao from './pages/Qualificacao'
+import Dicionario from './pages/Dicionario'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -110,6 +111,14 @@ const App = () => (
               element={
                 <AdminRoute>
                   <Qualificacao />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/dicionario"
+              element={
+                <AdminRoute>
+                  <Dicionario />
                 </AdminRoute>
               }
             />

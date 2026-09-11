@@ -164,6 +164,13 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                     className="font-semibold text-[#A8862B] underline"
                   >
                     Qualificação
+                  </button>{' '}
+                  ·{' '}
+                  <button
+                    onClick={() => navigate('/admin/dicionario')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Dicionário de métricas
                   </button>
                 </>
               ) : (
