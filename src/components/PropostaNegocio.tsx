@@ -12,6 +12,9 @@ type Proposta = {
   resumo: string
   motivo_atualizacao?: string
   emitida_em?: string
+  decidida_em?: string
+  canal_decisao?: string
+  observacao_decisao?: string
   created?: string
 }
 type Oportunidade = { id: string; titulo: string }
@@ -30,6 +33,8 @@ export default function PropostaNegocio({
   const [valor, setValor] = useState('')
   const [validade, setValidade] = useState('')
   const [resumo, setResumo] = useState('')
+  const [canalDecisao, setCanalDecisao] = useState('')
+  const [observacaoDecisao, setObservacaoDecisao] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -48,6 +53,31 @@ export default function PropostaNegocio({
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [negocio.id])
+
+  const decidir = async (p: Proposta, decisao: 'aceita' | 'recusada') => {
+    setError('')
+    if (!canalDecisao) return setError('Informe o canal da decisão.')
+    if (observacaoDecisao.trim().length < 10)
+      return setError('Observação da decisão obrigatória (mínimo 10 caracteres).')
+    try {
+      await pb.send(`/backend/v1/propostas/${p.id}/decidir`, {
+        method: 'POST',
+        body: { decisao, canal: canalDecisao, observacao: observacaoDecisao.trim() },
+      })
+      toast({
+        title: `Proposta v${p.versao} ${decisao}`,
+        description: 'Decisão humana registrada.',
+      })
+      setObservacaoDecisao('')
+      await load()
+    } catch (err: unknown) {
+      const response =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+          : undefined
+      setError(response?.data?.message || 'Não foi possível registrar a decisão.')
+    }
+  }
 
   const emitir = async (p: Proposta) => {
     setError('')
@@ -186,6 +216,52 @@ export default function PropostaNegocio({
                 {v.emitida_em && (
                   <p className="text-xs text-[#6B7280]">
                     Emitida em {new Date(v.emitida_em.replace(' ', 'T')).toLocaleString('pt-BR')}
+                  </p>
+                )}
+                {v.status === 'emitida' && (
+                  <div className="mt-2 border-t pt-2">
+                    <p className="text-xs font-semibold mb-1">Decisão (humana)</p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <select
+                        value={canalDecisao}
+                        onChange={(e) => setCanalDecisao(e.target.value)}
+                        className="border rounded-lg px-2 py-1 text-xs"
+                      >
+                        <option value="">Canal da decisão</option>
+                        <option value="ui">Sistema (UI)</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="email">E-mail</option>
+                        <option value="presencial">Presencial</option>
+                        <option value="telefone">Telefone</option>
+                      </select>
+                      <input
+                        value={observacaoDecisao}
+                        onChange={(e) => setObservacaoDecisao(e.target.value)}
+                        placeholder="Observação (mín. 10 caracteres)"
+                        className="flex-1 border rounded-lg px-2 py-1 text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void decidir(v, 'aceita')}
+                        className="text-xs border rounded px-2 py-1 font-semibold text-green-700"
+                      >
+                        Aceitar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void decidir(v, 'recusada')}
+                        className="text-xs border rounded px-2 py-1 font-semibold text-red-700"
+                      >
+                        Recusar
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {v.decidida_em && (
+                  <p className="text-xs text-[#6B7280]">
+                    Decisão: {v.status} · {v.canal_decisao} ·{' '}
+                    {new Date(v.decidida_em.replace(' ', 'T')).toLocaleString('pt-BR')}
+                    {v.observacao_decisao ? ` · ${v.observacao_decisao}` : ''}
                   </p>
                 )}
                 <p className="text-xs text-[#6B7280]">
