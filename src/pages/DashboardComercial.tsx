@@ -36,8 +36,11 @@ type Dashboard = {
     }
   }
   cobertura: string[]
+  cobertura_por_bloco: Record<
+    string,
+    { n_com_dado: number; n_sem_dado: number; aviso: string | null }
+  >
 }
-
 const fmtDur = (s: number | null) => {
   if (s == null) return '—'
   if (s < 60) return `${s}s`
@@ -47,10 +50,33 @@ const fmtDur = (s: number | null) => {
 }
 const fmtBRL = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Bloco({
+  titulo,
+  cobertura,
+  children,
+}: {
+  titulo: string
+  cobertura?: { n_com_dado: number; n_sem_dado: number; aviso: string | null }
+  children: React.ReactNode
+}) {
   return (
     <section className="bg-white border rounded-xl p-5 shadow-sm">
-      <h2 className="font-semibold mb-3">{titulo}</h2>
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <h2 className="font-semibold">{titulo}</h2>
+        {cobertura && cobertura.n_sem_dado > 0 && (
+          <span
+            className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-300 rounded-full px-2 py-0.5"
+            title={cobertura.aviso || 'Cobertura incompleta'}
+          >
+            Cobertura {cobertura.n_com_dado}/{cobertura.n_com_dado + cobertura.n_sem_dado}
+          </span>
+        )}
+      </div>
+      {cobertura && cobertura.aviso && (
+        <p className="mb-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+          {cobertura.aviso}
+        </p>
+      )}
       {children}
     </section>
   )
@@ -198,7 +224,10 @@ export default function DashboardComercial() {
               />
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
-              <Bloco titulo={`Leads por origem (N=${dados.leads_por_origem.n})`}>
+              <Bloco
+                titulo={`Leads por origem (N=${dados.leads_por_origem.n})`}
+                cobertura={dados.cobertura_por_bloco?.leads_por_origem}
+              >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.leads_por_origem.por_origem).map(([o, v]) => (
                     <li key={o} className="flex justify-between">
@@ -211,7 +240,10 @@ export default function DashboardComercial() {
                   )}
                 </ul>
               </Bloco>
-              <Bloco titulo={`Oportunidades por etapa (N=${dados.oportunidades_por_etapa.n})`}>
+              <Bloco
+                titulo={`Oportunidades por etapa (N=${dados.oportunidades_por_etapa.n})`}
+                cobertura={dados.cobertura_por_bloco?.oportunidades_por_etapa}
+              >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.oportunidades_por_etapa.por_etapa).map(([e, v]) => (
                     <li key={e} className="flex justify-between">
@@ -226,7 +258,10 @@ export default function DashboardComercial() {
                   )}
                 </ul>
               </Bloco>
-              <Bloco titulo={`Tempo por etapa (N=${dados.tempo_por_etapa.n})`}>
+              <Bloco
+                titulo={`Tempo por etapa (N=${dados.tempo_por_etapa.n})`}
+                cobertura={dados.cobertura_por_bloco?.tempo_por_etapa}
+              >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.tempo_por_etapa.por_etapa_segundos).map(([e, s]) => (
                     <li key={e} className="flex justify-between">
@@ -239,7 +274,10 @@ export default function DashboardComercial() {
                   )}
                 </ul>
               </Bloco>
-              <Bloco titulo={`Propostas / ciclo (N=${dados.propostas_ciclo.n})`}>
+              <Bloco
+                titulo={`Propostas / ciclo (N=${dados.propostas_ciclo.n})`}
+                cobertura={dados.cobertura_por_bloco?.propostas_ciclo}
+              >
                 <div className="text-sm space-y-1">
                   <p>
                     Valor total:{' '}
@@ -266,7 +304,10 @@ export default function DashboardComercial() {
                   </ul>
                 </div>
               </Bloco>
-              <Bloco titulo={`Perdas (N=${dados.perdas.n})`}>
+              <Bloco
+                titulo={`Perdas (N=${dados.perdas.n})`}
+                cobertura={dados.cobertura_por_bloco?.perdas}
+              >
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.perdas.por_motivo).map(([m, v]) => (
                     <li key={m} className="flex justify-between">

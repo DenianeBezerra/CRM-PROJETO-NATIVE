@@ -297,19 +297,138 @@ routerAdd(
       oportunidades_paradas: { n: paradas.length, itens: paradas, limite_dias: limiteDias },
     }
 
-    // ---- 9) Cobertura (dado ausente explícito — prepara T2.39) ----
+    // ---- 9) Cobertura (dado ausente explícito — T2.39, CA-2-034) ----
+    // Cada bloco declara n_com_dado / n_sem_dado sobre o MESMO denominador
+    // (filtrados). Dado ausente NUNCA é removido do denominador: aparece
+    // como cobertura incompleta, com aviso por bloco e na lista global.
+    const negociosComPermanencia = {}
+    for (const p of perms) {
+      const nid = p.getString('negocio')
+      if (idsFiltrados[nid]) negociosComPermanencia[nid] = true
+    }
+    const negociosComProposta = {}
+    for (const p of propostasFiltradas) {
+      negociosComProposta[p.getString('negocio')] = true
+    }
+    let nSemPermanencia = 0
+    for (const d of filtrados) {
+      if (!negociosComPermanencia[d.id]) nSemPermanencia++
+    }
+    let nSemProposta = 0
+    for (const d of filtrados) {
+      if (!negociosComProposta[d.id]) nSemProposta++
+    }
+    const nSemEncerramento = Math.max(0, filtrados.length - conversao.n_encerradas)
+    const nEncerradasSemPerda = Math.max(0, conversao.n_encerradas - perdas.n)
+
+    const coberturaPorBloco = {
+      leads_por_origem: {
+        n_com_dado: leadsPorOrigem.n,
+        n_sem_dado: 0,
+        aviso: leadsPorOrigem.n === 0 ? 'leads_por_origem: nenhum lead no filtro atual' : null,
+      },
+      oportunidades_por_etapa: {
+        n_com_dado: oportunidadesPorEtapa.n,
+        n_sem_dado: 0,
+        aviso:
+          oportunidadesPorEtapa.n === 0
+            ? 'oportunidades_por_etapa: nenhuma oportunidade no filtro atual'
+            : null,
+      },
+      primeira_resposta: {
+        n_com_dado: primeiraResposta.n,
+        n_sem_dado: primeiraResposta.n_sem_transicao,
+        aviso:
+          primeiraResposta.n === 0
+            ? 'primeira_resposta: nenhuma transição novo_lead→contato_feito no período (' +
+              primeiraResposta.n_sem_transicao +
+              ' de ' +
+              filtrados.length +
+              ' sem a transição — permanecem no denominador)'
+            : primeiraResposta.n_sem_transicao > 0
+              ? 'primeira_resposta: cobertura parcial — ' +
+                primeiraResposta.n_sem_transicao +
+                ' de ' +
+                filtrados.length +
+                ' oportunidades sem transição novo_lead→contato_feito (permanecem no denominador)'
+              : null,
+      },
+      tempo_por_etapa: {
+        n_com_dado: filtrados.length - nSemPermanencia,
+        n_sem_dado: nSemPermanencia,
+        aviso:
+          nSemPermanencia === filtrados.length && filtrados.length > 0
+            ? 'tempo_por_etapa: nenhuma permanência registrada no filtro atual (' +
+              nSemPermanencia +
+              ' de ' +
+              filtrados.length +
+              ' sem permanência — permanecem no denominador)'
+            : nSemPermanencia > 0
+              ? 'tempo_por_etapa: cobertura parcial — ' +
+                nSemPermanencia +
+                ' de ' +
+                filtrados.length +
+                ' oportunidades sem permanência registrada (permanecem no denominador)'
+              : null,
+      },
+      propostas_ciclo: {
+        n_com_dado: propostasCiclo.n,
+        n_sem_dado: nSemProposta,
+        aviso:
+          propostasCiclo.n === 0
+            ? 'propostas_ciclo: nenhuma proposta no filtro atual (' +
+              nSemProposta +
+              ' de ' +
+              filtrados.length +
+              ' oportunidades sem proposta — permanecem no denominador)'
+            : nSemProposta > 0
+              ? 'propostas_ciclo: cobertura parcial — ' +
+                nSemProposta +
+                ' de ' +
+                filtrados.length +
+                ' oportunidades sem proposta (permanecem no denominador)'
+              : null,
+      },
+      conversao: {
+        n_com_dado: conversao.n_encerradas,
+        n_sem_dado: nSemEncerramento,
+        aviso:
+          conversao.n_encerradas === 0
+            ? 'conversao: nenhuma oportunidade encerrada no filtro atual (' +
+              nSemEncerramento +
+              ' de ' +
+              filtrados.length +
+              ' em aberto — permanecem fora da taxa, N declarado)'
+            : nSemEncerramento > 0
+              ? 'conversao: cobertura parcial — ' +
+                nSemEncerramento +
+                ' de ' +
+                filtrados.length +
+                ' oportunidades ainda em aberto (taxa calculada sobre N=' +
+                conversao.n_encerradas +
+                ' encerradas)'
+              : null,
+      },
+      perdas: {
+        n_com_dado: perdas.n,
+        n_sem_dado: nEncerradasSemPerda,
+        aviso:
+          perdas.n === 0
+            ? 'perdas: nenhuma perda no filtro atual (' +
+              nEncerradasSemPerda +
+              ' encerradas como ganho — permanecem no denominador de encerradas)'
+            : null,
+      },
+      filas: {
+        n_com_dado: filas.acoes_vencidas.n + filas.oportunidades_paradas.n,
+        n_sem_dado: 0,
+        aviso: null,
+      },
+    }
     const cobertura = []
-    if (primeiraResposta.n === 0) {
-      cobertura.push('primeira_resposta: nenhuma transição novo_lead→contato_feito no período')
-    }
-    if (propostasCiclo.n === 0) {
-      cobertura.push('propostas: nenhuma proposta no período')
-    }
-    if (conversao.n_encerradas === 0) {
-      cobertura.push('conversao: nenhuma oportunidade encerrada no período')
-    }
-    if (perdas.n === 0) {
-      cobertura.push('perdas: nenhuma perda no período')
+    for (const bloco of Object.keys(coberturaPorBloco)) {
+      const aviso = coberturaPorBloco[bloco].aviso
+      if (aviso) cobertura.push(aviso)
     }
 
     return e.json(200, {
@@ -327,6 +446,7 @@ routerAdd(
       perdas: perdas,
       filas: filas,
       cobertura: cobertura,
+      cobertura_por_bloco: coberturaPorBloco,
       calculado_em: new Date().toISOString(),
     })
   },
