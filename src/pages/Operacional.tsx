@@ -13,6 +13,32 @@ type QueueItem = {
   dias_na_etapa?: number
   limite_dias?: number
 }
+type TarefaVencida = {
+  tarefa: string
+  negocio: string
+  titulo_negocio: string
+  titulo_tarefa: string
+  prioridade: string
+  prazo: string
+}
+type SemProximaAcao = {
+  negocio: string
+  titulo: string
+  estagio: string
+  proxima_acao_em: string
+}
+type ExcecaoVigente = {
+  excecao: string
+  negocio: string
+  titulo_negocio: string
+  motivo: string
+  validade: string
+}
+type FilasOperacionais = {
+  tarefas_vencidas: { itens: TarefaVencida[]; total: number }
+  sem_proxima_acao: { itens: SemProximaAcao[]; total: number }
+  excecoes_vigentes: { itens: ExcecaoVigente[]; total: number }
+}
 type Resumo = {
   oportunidades_ativas: number
   arquivadas: number
@@ -40,6 +66,7 @@ export default function Operacional() {
   const [paradas, setParadas] = useState<QueueItem[]>([])
   const [limiteDias, setLimiteDias] = useState<number | null>(null)
   const [estadoInvalido, setEstadoInvalido] = useState<string[]>([])
+  const [filas, setFilas] = useState<FilasOperacionais | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -48,7 +75,7 @@ export default function Operacional() {
       setLoading(true)
       setError('')
       try {
-        const [resumoData, tempoData, vencidasData, paradasData] = await Promise.all([
+        const [resumoData, tempoData, vencidasData, paradasData, filasData] = await Promise.all([
           pb.send<Resumo>('/backend/v1/operacional/resumo', {}),
           pb.send<{ etapas: StageTime[]; estado_invalido: string[] }>(
             '/backend/v1/operacional/tempo-por-etapa',
@@ -62,6 +89,7 @@ export default function Operacional() {
             '/backend/v1/operacional/paradas',
             {},
           ),
+          pb.send<FilasOperacionais>('/backend/v1/filas/operacionais', {}),
         ])
         setResumo(resumoData)
         setEtapas(tempoData.etapas || [])
@@ -69,6 +97,7 @@ export default function Operacional() {
         setVencidas(vencidasData.itens || [])
         setParadas(paradasData.itens || [])
         setLimiteDias(paradasData.limite_dias ?? null)
+        setFilas(filasData)
       } catch {
         setError('Não foi possível carregar os indicadores operacionais.')
       } finally {
@@ -176,6 +205,118 @@ export default function Operacional() {
                   ))}
                 </div>
               )}
+            </section>
+
+            <section className="bg-white border rounded-xl p-5 mb-8">
+              <h2 className="font-playfair text-xl font-bold mb-1">Filas distintas</h2>
+              <p className="text-xs text-[#6B7280] mb-4">
+                Tarefas vencidas, oportunidades sem próxima ação e exceções vigentes — critérios
+                explícitos e reproduzíveis. A fila de exceções é administrativa (visível só para
+                administrador).
+              </p>
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="border rounded-xl p-4">
+                  <p className="text-sm font-semibold mb-1">
+                    Tarefas vencidas{' '}
+                    <span className="text-[#A8862B] font-bold">
+                      {filas?.tarefas_vencidas.total ?? 0}
+                    </span>
+                  </p>
+                  <p className="text-xs text-[#6B7280] mb-3">Tarefa aberta com prazo no passado.</p>
+                  {filas?.tarefas_vencidas.itens.length ? (
+                    <ul className="space-y-2">
+                      {filas.tarefas_vencidas.itens.map((t) => (
+                        <li
+                          key={t.tarefa}
+                          className="text-xs border-b border-[#E5E7EB] pb-2 last:border-0"
+                        >
+                          <button
+                            onClick={() => navigate(`/oportunidades?destaque=${t.negocio}`)}
+                            className="font-semibold text-[#A8862B] hover:underline text-left"
+                          >
+                            {t.titulo_tarefa}
+                          </button>
+                          <p className="text-[#6B7280]">
+                            {t.titulo_negocio} · prazo{' '}
+                            {t.prazo
+                              ? new Date(t.prazo.replace(' ', 'T')).toLocaleDateString('pt-BR')
+                              : '—'}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-[#6B7280]">Nenhuma tarefa vencida.</p>
+                  )}
+                </div>
+                <div className="border rounded-xl p-4">
+                  <p className="text-sm font-semibold mb-1">
+                    Sem próxima ação{' '}
+                    <span className="text-[#A8862B] font-bold">
+                      {filas?.sem_proxima_acao.total ?? 0}
+                    </span>
+                  </p>
+                  <p className="text-xs text-[#6B7280] mb-3">
+                    Oportunidade ativa sem próxima ação futura e sem exceção vigente.
+                  </p>
+                  {filas?.sem_proxima_acao.itens.length ? (
+                    <ul className="space-y-2">
+                      {filas.sem_proxima_acao.itens.map((o) => (
+                        <li
+                          key={o.negocio}
+                          className="text-xs border-b border-[#E5E7EB] pb-2 last:border-0"
+                        >
+                          <button
+                            onClick={() => navigate(`/oportunidades?destaque=${o.negocio}`)}
+                            className="font-semibold text-[#A8862B] hover:underline text-left"
+                          >
+                            {o.titulo}
+                          </button>
+                          <p className="text-[#6B7280]">{stageName(o.estagio)}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-[#6B7280]">Nenhuma oportunidade na fila.</p>
+                  )}
+                </div>
+                <div className="border rounded-xl p-4">
+                  <p className="text-sm font-semibold mb-1">
+                    Exceções vigentes{' '}
+                    <span className="text-[#A8862B] font-bold">
+                      {filas?.excecoes_vigentes.total ?? 0}
+                    </span>
+                  </p>
+                  <p className="text-xs text-[#6B7280] mb-3">
+                    Liberações administrativas com validade futura. Fila administrativa.
+                  </p>
+                  {filas?.excecoes_vigentes.itens.length ? (
+                    <ul className="space-y-2">
+                      {filas.excecoes_vigentes.itens.map((x) => (
+                        <li
+                          key={x.excecao}
+                          className="text-xs border-b border-[#E5E7EB] pb-2 last:border-0"
+                        >
+                          <button
+                            onClick={() => navigate(`/oportunidades?destaque=${x.negocio}`)}
+                            className="font-semibold text-[#A8862B] hover:underline text-left"
+                          >
+                            {x.titulo_negocio}
+                          </button>
+                          <p className="text-[#6B7280]">
+                            até{' '}
+                            {x.validade
+                              ? new Date(x.validade.replace(' ', 'T')).toLocaleDateString('pt-BR')
+                              : '—'}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-[#6B7280]">Nenhuma exceção vigente.</p>
+                  )}
+                </div>
+              </div>
             </section>
 
             <div className="grid gap-4 lg:grid-cols-2">
