@@ -1,14 +1,14 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T2.12
+- task_id: T2.13
 - champion: Deni.Ai (executor das tasks de Engenharia de produto da Fase 2)
 - spec: SPEC-2-002 (arquivo ausente em 04-fase-atual/specs/; critério de origem = tabela da fase.md)
-- etapa: aguardando_teste_humano
-- criterio: CA-2-007 — operador salva qualificação válida e visualiza percentual e pendências de completude
-- autorizacao_implementacao: confirmada — 2026-09-10 20:46, owner: "sim, implemente t2.12"
-- teste_humano: pendente — roteiro enviado (modal Qualificar na oportunidade: responder, ver percentual/pendências)
-- verificacao_automatica: passou — QA v0.0.167–0.0.178 verde; GREEN create/update 200, completude 0%→100%, operator bloqueado na escrita; 5 defeitos de integração JSVM corrigidos e documentados
-- aprendizado: pendente
-- ultima_acao: implementação + provas por API + evidências + limpeza das provas (residual: 2 respostas órfãs remanescentes, sem efeito — sem negócio vinculado)
-- proxima_acao: aguardar teste humano da Deniane (modal Qualificar em /oportunidades)
-- atualizado_em: 2026-09-10T21:05:00-03:00
+- etapa: aguardando_autorizacao
+- criterio: CA-2-008 — operador não avança com campo obrigatório vazio; administrador só libera por exceção com motivo, validade e auditoria
+- autorizacao_implementacao: ausente — análise apresentada, aguardando confirmação do owner
+- teste_humano: aprovado (T2.12 — 2026-09-10 21:11, owner: "Todos passaram, conclua a task e siga para a proxima", print oportunidade "Proposta BPO")
+- verificacao_automatica: passou — T2.12 revalidada do zero (oportunidade real preservada, completude 0% com 1 pendência obrigatória, preview 200)
+- aprendizado: capturado:AP-2026-09-10-t212 (5 lições JSVM: índice UNIQUE sobre relations, autodate set, bind params, zero value número, sort de autodate custom)
+- ultima_acao: T2.12 concluída com governança (STATUS 12/40 = 30%, changelog 0.0.183, evidências aprovadas)
+- proxima_acao: aguardar autorização para implementar a T2.13 (CA-2-008)
+- atualizado_em: 2026-09-10T21:20:00-03:00

@@ -1,8 +1,9 @@
 # Evidência — T2.12 — CA-2-007 (GREEN)
 
 - **Data:** 2026-09-10
-- **Versões:** 0.0.167–0.0.175 (QA verde em todas)
-- **Teste humano:** pendente (portão atual)
+- **Versões:** 0.0.167–0.0.182 (QA verde em todas)
+- **Teste humano:** APROVADO — 2026-09-10 21:11, owner: "Todos passaram, conclua a task e siga para a proxima" (print: oportunidade "Proposta BPO" com botão "Qualificar" visível)
+- **Revalidação independente pós-aprovação:** oportunidade real "Proposta BPO" preservada, completude 0% com 1 pendência obrigatória (correto — ainda não respondida), preview 200
 
 ## Alterações
 

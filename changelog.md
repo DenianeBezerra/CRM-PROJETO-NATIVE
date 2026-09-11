@@ -1,5 +1,14 @@
 # Changelog — CRM Vibratto
 
+## [0.0.183] — 2026-09-10 — T2.12 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-007 fechado: operador salva qualificação válida e visualiza percentual e pendências de completude.
+- Teste humano aprovado com print (oportunidade "Proposta BPO" com botão "Qualificar").
+- Revalidação independente: oportunidade real preservada, completude 0% com 1 pendência obrigatória (correto — ainda não respondida), preview 200.
+- Fase 2: 12/40 (30%).
+
 ## [0.0.178] — 2026-09-10 — T2.12 implementada (CA-2-007, aguardando teste humano)
 
 ### Adicionado

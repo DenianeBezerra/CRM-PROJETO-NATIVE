@@ -1,12 +1,36 @@
 # Status
 
-**Status:** Fase 2 em execução — 11 de 40 tasks concluídas (27,5%) — **SPEC-2-000 e SPEC-2-001 FECHADAS (10/10)**
+**Status:** Fase 2 em execução — 12 de 40 tasks concluídas (30%) — **SPEC-2-000 e SPEC-2-001 FECHADAS (10/10)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.11 — CA-2-006, configuração de perguntas de qualificação sem código (2026-09-10)
-**Próxima task elegível:** T2.12 — CA-2-007 (SPEC-2-002 — qualificação: operador salva e vê completude)
+**Última task concluída:** T2.12 — CA-2-007, operador salva qualificação e vê percentual/pendências (2026-09-10)
+**Próxima task elegível:** T2.13 — CA-2-008 (SPEC-2-002 — obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
+
+## SPEC-2-002 — qualificação (em execução, 2/5)
+
+| Task  | Entrega                                                                                   | Status                                     |
+| ----- | ----------------------------------------------------------------------------------------- | ------------------------------------------ |
+| T2.11 | Configuração de perguntas de qualificação sem código (coleção + tela admin)               | ✅ Concluída — 2026-09-10 (teste aprovado) |
+| T2.12 | Operador salva qualificação válida e visualiza percentual e pendências de completude      | ✅ Concluída — 2026-09-10 (teste aprovado) |
+| T2.13 | Campo obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria  | ☐ Próxima task elegível                    |
+| T2.14 | Desqualificação com motivo estruturado e detalhe obrigatório para Outro                   | ☐ Planejada                                |
+| T2.15 | Alterações e exceções na auditoria com ator, data e snapshots, inclusive tentativa negada | ☐ Planejada                                |
+
+## Evidência da T2.12 (concluída — teste humano aprovado em 2026-09-10)
+
+- Coleção `respostas_qualificacao` + endpoint server-side de completude + modal "Qualificar" na oportunidade.
+- Fluxo ponta a ponta provado: 0% com pendência → resposta → 100% sem pendências.
+- 5 defeitos de integração JSVM corrigidos e documentados (evidência RED).
+- Evidências: `evidencias/spec-2-002/ca-2-007-red.md` / `ca-2-007-green.md`.
+
+## Evidência da T2.11 (concluída — teste humano aprovado em 2026-09-10)
+
+- Coleção `perguntas_qualificacao` (admin-only create/update, delete bloqueado — append-only).
+- Tela admin `/admin/qualificacao` + links na home admin.
+- Provas RED/GREEN por API (4 rejeições 400, create/update 200, RBAC operator bloqueado).
+- Evidências: `evidencias/spec-2-002/ca-2-006-red.md` / `ca-2-006-green.md`.
 
 ## SPEC-2-001 — COMPLETA (5/5) — segurança de credenciais
 
@@ -17,23 +41,6 @@
 | T2.08 | Build reproduzível: engines declaradas, typecheck, suíte vitest 22 testes       |
 | T2.09 | Rotação reforçada idempotente (rejeita valores expostos)                        |
 | T2.10 | Consulta reproduzível de aptidão para produção + limpeza do denominador real    |
-
-## SPEC-2-002 — qualificação (em execução, 1/5)
-
-| Task  | Entrega                                                                                   | Status                                     |
-| ----- | ----------------------------------------------------------------------------------------- | ------------------------------------------ |
-| T2.11 | Configuração de perguntas de qualificação sem código (coleção + tela admin)               | ✅ Concluída — 2026-09-10 (teste aprovado) |
-| T2.12 | Operador salva qualificação válida e visualiza percentual e pendências de completude      | ☐ Próxima task elegível                    |
-| T2.13 | Campo obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria  | ☐ Planejada                                |
-| T2.14 | Desqualificação com motivo estruturado e detalhe obrigatório para Outro                   | ☐ Planejada                                |
-| T2.15 | Alterações e exceções na auditoria com ator, data e snapshots, inclusive tentativa negada | ☐ Planejada                                |
-
-## Evidência da T2.11 (concluída — teste humano aprovado em 2026-09-10)
-
-- Coleção `perguntas_qualificacao` (admin-only create/update, delete bloqueado — append-only).
-- Tela admin `/admin/qualificacao` + links na home admin.
-- Provas RED/GREEN por API (4 rejeições 400, create/update 200, RBAC operator bloqueado).
-- Evidências: `evidencias/spec-2-002/ca-2-006-red.md` / `ca-2-006-green.md`.
 
 ## SPEC-2-000 — COMPLETA (5/5)
 
