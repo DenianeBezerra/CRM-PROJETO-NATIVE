@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast'
 import QualificacaoNegocio from '@/components/QualificacaoNegocio'
 import DiagnosticoNegocio from '@/components/DiagnosticoNegocio'
 import Consulta360Negocio from '@/components/Consulta360Negocio'
+import PropostaNegocio from '@/components/PropostaNegocio'
 
 type Oportunidade = {
   id: string
@@ -291,6 +292,7 @@ export default function Opportunities() {
   const [qualOpen, setQualOpen] = useState<Oportunidade | null>(null)
   const [diagOpen, setDiagOpen] = useState<Oportunidade | null>(null)
   const [c360Open, setC360Open] = useState<Oportunidade | null>(null)
+  const [propOpen, setPropOpen] = useState<Oportunidade | null>(null)
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -399,6 +401,12 @@ export default function Opportunities() {
                     className="text-xs flex items-center gap-1 border rounded px-2 py-1"
                   >
                     Consulta 360º
+                  </button>
+                  <button
+                    onClick={() => setPropOpen(item)}
+                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
+                  >
+                    Proposta
                   </button>
                 </div>
               </article>
@@ -705,6 +713,7 @@ export default function Opportunities() {
       {qualOpen && <QualificacaoNegocio negocio={qualOpen} onClose={() => setQualOpen(null)} />}
       {diagOpen && <DiagnosticoNegocio negocio={diagOpen} onClose={() => setDiagOpen(null)} />}
       {c360Open && <Consulta360Negocio negocioId={c360Open.id} onClose={() => setC360Open(null)} />}
+      {propOpen && <PropostaNegocio negocio={propOpen} onClose={() => setPropOpen(null)} />}
     </div>
   )
 }
