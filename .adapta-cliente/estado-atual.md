@@ -6,9 +6,9 @@
 - etapa: concluida
 - criterio: CA-2-019 — aceite ou recusa registra ator, data, canal, observação e mantém a decisão como humana
 - autorizacao_implementacao: confirmada — 2026-09-11 23:01, owner: "siga o plano"
-- teste_humano: aprovado — 2026-09-11 23:05, owner: "conclua"
-- verificacao_automatica: passou — revalidação independente: v10 aceita (whatsapp) e v12 recusada (email) com ator/data/canal/observação completos, "Proposta BPO" íntegra, preview 200; QA verde v0.0.251–0.0.254
-- aprendizado: capturado (decisão humana = endpoint autenticado com exigência de canal/observação; atomicidade por runInTransaction)
-- ultima_acao: T2.24 concluída com governança (fase.md 24/40, STATUS 60%, changelog 0.0.254) — SPEC-2-004 FECHADA (4/4)
-- proxima_acao: nenhuma — task concluída; próxima leva (SPEC-2-005, T2.25+) aguarda pedido do owner
+- teste_humano: aprovado — 2026-09-11 23:05, owner: "conclua" + "todas passaram"
+- verificacao_automatica: passou — revalidação independente: v10 aceita (whatsapp, com observação) e v12 recusada (email, com observação), ator/data/canal completos; v9 re-provada por API (recusada/ui); "Proposta BPO" íntegra; preview 200; QA verde v0.0.251–0.0.254
+- aprendizado: capturado (decisão humana = endpoint com auth obrigatória + transição de status atômica; rastreio completo em campos dedicados)
+- ultima_acao: T2.24 concluída com governança — SPEC-2-004 FECHADA (4/4), Fase 2: 24/40 (60%)
+- proxima_acao: nenhuma — task concluída; T2.25 (CA-2-020, SPEC-2-005 fila operacional) é a próxima elegível, aguarda pedido do owner
 - atualizado_em: 2026-09-11T23:06:00-03:00
