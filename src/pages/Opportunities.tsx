@@ -227,6 +227,15 @@ export default function Opportunities() {
       (form.status === 'ganho' || form.status === 'perdido')
     )
       return setError('Status "ganho"/"perdido" só valem em etapas finais.')
+    if (form.estagio === 'fechado_perdido' && originalStage !== 'fechado_perdido') {
+      if (!form.proxima_acao_descricao.trim())
+        return setError(
+          'Desqualificação exige a próxima ação: descreva o que acontece a partir daqui.',
+        )
+      if (!form.proxima_acao_em) return setError('Desqualificação exige a data da próxima ação.')
+      if (new Date(form.proxima_acao_em + 'T23:59:59').getTime() < Date.now())
+        return setError('A data da próxima ação deve ser futura.')
+    }
     if (
       editing &&
       (originalStage === 'fechado_ganho' || originalStage === 'fechado_perdido') &&

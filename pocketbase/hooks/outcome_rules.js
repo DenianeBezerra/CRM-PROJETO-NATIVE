@@ -1,4 +1,10 @@
 // Regras de resultado comercial: perda, ganho e reabertura sem estado parcial.
+// T2.14 — CA-2-009: desqualificação registra motivo estruturado, detalhe
+// obrigatório para Outro e próxima ação quando aplicável. Regra homologada:
+// ao desqualificar (fechado_perdido), a oportunidade exige próxima ação com
+// data futura e descrição — a porta de volta fica registrada no CRM.
+// REQUEST hook: roda antes do model hook de permanência — um bloqueio aqui
+// nunca corrompe o histórico (lição T2.13).
 onRecordUpdateRequest((e) => {
   const before = e.record.original()
   const previousStage = before.get('estagio')
@@ -10,6 +16,27 @@ onRecordUpdateRequest((e) => {
     if (!lossReasons.includes(reason)) throw new Error('Perda exige um motivo estruturado.')
     if (reason === 'outro' && !String(e.record.get('motivo_perda_detalhe') || '').trim()) {
       throw new Error('Informe o detalhe do motivo de perda.')
+    }
+    // CA-2-009: próxima ação obrigatória ao desqualificar (nova desqualificação
+    // — voltar a editar um registro já perdido não reexige).
+    if (previousStage !== 'fechado_perdido') {
+      const desc = String(e.record.get('proxima_acao_descricao') || '').trim()
+      const quando = String(e.record.get('proxima_acao_em') || '').trim()
+      if (!desc) {
+        throw new Error(
+          'Desqualificação exige a próxima ação: descreva o que acontece a partir daqui.',
+        )
+      }
+      if (!quando || quando.startsWith('0001-01-01')) {
+        throw new Error('Desqualificação exige a data da próxima ação.')
+      }
+      const quandoMs = Date.parse(quando.replace(' ', 'T'))
+      if (isNaN(quandoMs)) {
+        throw new Error('Data da próxima ação inválida.')
+      }
+      if (quandoMs < Date.now() - 60 * 1000) {
+        throw new Error('A data da próxima ação deve ser futura.')
+      }
     }
   }
 
