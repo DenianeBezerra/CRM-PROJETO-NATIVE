@@ -120,7 +120,8 @@ onRecordUpdate((e) => {
       50,
       0,
     )
-  } catch (_) {
+  } catch (err) {
+    $app.logger().error('Falha ao consultar exceções (avanço)', 'error', String(err))
     excecoes = []
   }
   const agora = Date.now()
@@ -131,6 +132,17 @@ onRecordUpdate((e) => {
       return
     }
   }
+  $app
+    .logger()
+    .error(
+      'Avanço bloqueado (diagnóstico)',
+      'excecoes',
+      String(excecoes.length),
+      'etapaAntes',
+      etapaAntes,
+      'etapaNova',
+      etapaNova,
+    )
 
   throw new Error(
     'Avanço bloqueado: ' +
