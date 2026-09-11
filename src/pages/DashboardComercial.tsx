@@ -50,6 +50,29 @@ const fmtDur = (s: number | null) => {
 }
 const fmtBRL = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+const ORIGEM_LABEL: Record<string, string> = {
+  indicacao: 'Indicação',
+  site: 'Site',
+  redes_sociais: 'Redes sociais',
+  evento: 'Evento',
+  outro: 'Outro',
+}
+
+const ETAPA_LABEL: Record<string, string> = {
+  novo: 'Novo',
+  contato_feito: 'Contato feito',
+  proposta: 'Proposta',
+  fechado_ganho: 'Fechado (ganho)',
+  fechado_perdido: 'Fechado (perdido)',
+}
+
+const STATUS_PROPOSTA_LABEL: Record<string, string> = {
+  rascunho: 'Rascunho',
+  emitida: 'Emitida',
+  aceita: 'Aceita',
+  recusada: 'Recusada',
+}
+
 function Bloco({
   titulo,
   cobertura,
@@ -305,7 +328,7 @@ export default function DashboardComercial() {
                       onClick={() => void abrirDrilldown('leads_por_origem', o)}
                       title="Ver as oportunidades que compõem este número"
                     >
-                      <span className="capitalize">{o.replace('_', ' ')}</span>
+                      <span className="capitalize">{ORIGEM_LABEL[o] || o.replace('_', ' ')}</span>
                       <span className="font-semibold">{v}</span>
                     </li>
                   ))}
@@ -326,7 +349,7 @@ export default function DashboardComercial() {
                       onClick={() => void abrirDrilldown('oportunidades_por_etapa', e)}
                       title="Ver as oportunidades que compõem este número"
                     >
-                      <span>{e}</span>
+                      <span className="capitalize">{ETAPA_LABEL[e] || e}</span>
                       <span className="font-semibold">{v}</span>
                     </li>
                   ))}
@@ -344,7 +367,7 @@ export default function DashboardComercial() {
                 <ul className="text-sm space-y-1">
                   {Object.entries(dados.tempo_por_etapa.por_etapa_segundos).map(([e, s]) => (
                     <li key={e} className="flex justify-between">
-                      <span>{e}</span>
+                      <span className="capitalize">{ETAPA_LABEL[e] || e}</span>
                       <span className="font-semibold">{fmtDur(s)}</span>
                     </li>
                   ))}
@@ -376,7 +399,7 @@ export default function DashboardComercial() {
                   <ul className="pt-1">
                     {Object.entries(dados.propostas_ciclo.por_status).map(([s, v]) => (
                       <li key={s} className="flex justify-between text-xs">
-                        <span className="capitalize">{s}</span>
+                        <span className="capitalize">{STATUS_PROPOSTA_LABEL[s] || s}</span>
                         <span className="font-semibold">{v}</span>
                       </li>
                     ))}
