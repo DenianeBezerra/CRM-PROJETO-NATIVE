@@ -50,7 +50,8 @@ onRecordUpdate((e) => {
     return
   }
 
-  // Perguntas obrigatórias ativas aplicáveis à NOVA etapa sem resposta.
+  // Perguntas obrigatórias ativas aplicáveis à etapa ATUAL (a que está sendo
+  // deixada) ou a todas — sair da etapa sem respondê-las é o avanço bloqueado.
   let perguntas = []
   try {
     perguntas = $app.findRecordsByFilter('perguntas_qualificacao', 'ativa = true', 'ordem', 500, 0)
@@ -60,7 +61,7 @@ onRecordUpdate((e) => {
   }
   const aplicaveis = perguntas.filter(function (p) {
     const a = String(p.get('aplicavel_a') || 'todas')
-    return !!p.get('obrigatoria') && (a === 'todas' || a === etapaNova)
+    return !!p.get('obrigatoria') && (a === 'todas' || a === etapaAntes)
   })
 
   if (aplicaveis.length === 0) {
