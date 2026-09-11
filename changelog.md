@@ -18,6 +18,19 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.229] — 2026-09-11 — T2.18 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-013 fechado: oportunidade ativa persiste responsável e próxima ação futura — ou exceção vigente libera (fila é da SPEC-2-005).
+- Teste humano aprovado pela cliente (2026-09-11 22:34 — "funcionou, conclua e siga a proxima task").
+- Revalidação independente: "Proposta BPO" íntegra (responsável ok, próxima ação 20/10, 1 permanência em `novo`), fixture removida (404), preview 200.
+- Fase 2: 18/40 (45%).
+
+### Notas
+
+- Defeito de integração corrigido: função top-level rejeitada no deploy (scoping do JSVM) — lógica inline nos callbacks (padrão do guia, §2).
+
 ## [0.0.224] — 2026-09-11 — T2.17 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
