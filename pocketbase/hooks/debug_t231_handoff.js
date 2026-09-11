@@ -75,6 +75,29 @@ routerAdd(
         out.permanencias_erro = String(err)
       }
 
+      // 4b) PROVA DE ESCRITA ÚNICA (fix do diagnóstico): cria o handoff aqui
+      // (fora da transação do save do negócio) para isolar se o 400 vem da
+      // transação ou do registro em si. Só roda com ?prova=1.
+      if (e.request.url.query().get('prova') === '1') {
+        try {
+          const colH = $app.findCollectionByNameOrId('handoffs')
+          const recH = new Record(colH)
+          recH.set('negocio', 'ek8vvnaisupsnga')
+          recH.set('origem', 'cfo_as_a_service')
+          recH.set('responsavel_emissor', 'v86kq5x0v4guoym')
+          recH.set('responsavel_receptor', 'v86kq5x0v4guoym')
+          recH.set('status', 'pendente')
+          recH.set('checklist', JSON.stringify([{ item: 'probe', feito: false }]))
+          recH.set('observacao_ganho', 'probe escrita debug T231')
+          recH.set('criado_em', new Date().toISOString().replace('T', ' '))
+          $app.save(recH)
+          out.prova_escrita = 'ok — save do handoff FUNCIONA fora da transacao'
+        } catch (err) {
+          out.prova_escrita = 'FALHOU'
+          out.prova_escrita_erro = String(err)
+        }
+      }
+
       // 5) Registro real: estagio original + versao.
       try {
         const neg = $app.findRecordById('negocios', 'ek8vvnaisupsnga')
