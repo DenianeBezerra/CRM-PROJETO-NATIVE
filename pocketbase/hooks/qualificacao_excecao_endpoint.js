@@ -64,6 +64,31 @@ routerAdd(
       return e.json(500, { error: 'Falha ao registrar a exceção. Liberação não concedida.' })
     }
 
+    // T2.15/CA-2-010: a criação via rota custom não passa pelos request hooks
+    // de CRUD — o evento de auditoria é gravado aqui explicitamente.
+    try {
+      const audit = $app.findCollectionByNameOrId('auditoria')
+      const event = new Record(audit)
+      event.set('entidade', 'excecoes_qualificacao')
+      event.set('registro_id', rec.id)
+      event.set('acao', 'create')
+      event.set('ator_id', actor.id)
+      event.set('ocorrido_em', new Date().toISOString())
+      event.set('estado_anterior', '')
+      event.set(
+        'estado_posterior',
+        JSON.stringify({
+          negocio: negocioId,
+          motivo: motivo,
+          validade: validade,
+          criado_por: actor.id,
+        }),
+      )
+      $app.save(event)
+    } catch (auditErr) {
+      $app.logger().error('Falha ao auditar exceção', 'error', String(auditErr))
+    }
+
     return e.json(200, {
       id: rec.id,
       negocio: negocioId,
