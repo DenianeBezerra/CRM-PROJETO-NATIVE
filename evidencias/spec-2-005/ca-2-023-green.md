@@ -28,5 +28,6 @@ A criação de tarefa com **prazo no passado é rejeitada** (hook T2.27 valida p
 
 ## Limpeza
 
-- Migration 0070 remove as fixtures (tarefa, negócio fixture e 2 exceções, incluindo órfãs) — remoção no nível de modelo (exceções são append-only).
-- Estado final: 0 tarefas, 0 exceções, 1 negócio (real), filas zeradas.
+- Migration 0070 remove as fixtures (tarefa, negócio fixture, permanência e 2 exceções, incluindo órfãs) — remoção no nível de modelo (exceções são append-only). Ordem de deleção respeita as relações obrigatórias: exceções → permanências → negócio (2 falhas de build corrigidas até convergir).
+- Estado final (v0.0.276, QA 5/5 verde): 0 tarefas, 0 exceções, 1 negócio (real), filas zeradas (0/0/0).
+- Lição registrada: limpeza de negócio fixture exige apagar antes exceções e permanências (relações obrigatórias) — ordem: exceções → permanências → negócio.
