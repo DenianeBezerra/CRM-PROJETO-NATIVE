@@ -1,5 +1,11 @@
 # Changelog — CRM Vibratto
 
+## [0.0.343] — 2026-09-12 — T2.37 implementada (CA-2-032, aguardando teste humano)
+
+### Adicionado
+
+- **Baseline de métricas (CA-2-032)**: coleção `baselines` append-only (UNIQUE periodo+versão) + `POST /backend/v1/metricas/baseline` (admin; período explícito obrigatório, cálculo filtrando a origem pelo período, congelamento com versão sequencial — re-execução cria nova versão, nunca sobrescreve) + `GET` de listagem. Período em curso marcado `reproduzivel: false`. **Fix de reprodutibilidade (v0.0.341)**: permanências órfãs (negócio deletado) excluídas e reportadas; permanência aberta em período fechado congela no fim do período — recálculos consecutivos agora produzem valores idênticos. Provas: RED 1 + GREEN 6 + regressão (evidência em `evidencias/spec-2-007/ca-2-032-green.md`). Limpeza: migrations 0100/0101.
+
 ## [0.0.339] — 2026-09-12 — T2.36 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
