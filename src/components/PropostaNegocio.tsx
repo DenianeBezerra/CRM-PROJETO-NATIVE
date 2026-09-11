@@ -11,6 +11,7 @@ type Proposta = {
   status: string
   resumo: string
   motivo_atualizacao?: string
+  emitida_em?: string
   created?: string
 }
 type Oportunidade = { id: string; titulo: string }
@@ -47,6 +48,21 @@ export default function PropostaNegocio({
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [negocio.id])
+
+  const emitir = async (p: Proposta) => {
+    setError('')
+    try {
+      await pb.send(`/backend/v1/propostas/${p.id}/emitir`, { method: 'POST' })
+      toast({ title: `Proposta v${p.versao} emitida`, description: 'Versão congelada.' })
+      await load()
+    } catch (err: unknown) {
+      const response =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+          : undefined
+      setError(response?.data?.message || 'Não foi possível emitir a proposta.')
+    }
+  }
 
   const salvar = async () => {
     setError('')
@@ -157,7 +173,21 @@ export default function PropostaNegocio({
                   <span className="text-sm font-bold text-[#A8862B]">
                     {fmtBRL(Number(v.valor))}
                   </span>
+                  {v.status === 'rascunho' && (
+                    <button
+                      type="button"
+                      onClick={() => void emitir(v)}
+                      className="ml-auto text-xs border rounded px-2 py-1 font-semibold"
+                    >
+                      Emitir
+                    </button>
+                  )}
                 </div>
+                {v.emitida_em && (
+                  <p className="text-xs text-[#6B7280]">
+                    Emitida em {new Date(v.emitida_em.replace(' ', 'T')).toLocaleString('pt-BR')}
+                  </p>
+                )}
                 <p className="text-xs text-[#6B7280]">
                   Validade:{' '}
                   {v.validade
