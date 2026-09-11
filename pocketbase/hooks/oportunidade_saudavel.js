@@ -15,6 +15,23 @@ onRecordCreateRequest((e) => {
   const ehFinal = estagio === 'fechado_ganho' || estagio === 'fechado_perdido'
   if (!ehFinal && !arquivado) {
     const responsavel = String(e.record.get('responsavel') || '').trim()
+
+    // T2.19/CA-2-014: responsável inativo é rejeitado sem estado parcial.
+    if (responsavel) {
+      let respAtivo = true
+      try {
+        const resp = $app.findRecordById('_pb_users_auth_', responsavel)
+        respAtivo = resp.get('active') !== false
+      } catch (_) {
+        throw new Error('Responsável não encontrado.')
+      }
+      if (!respAtivo) {
+        throw new Error(
+          'O responsável informado está inativo. Reative a conta ou escolha outro responsável.',
+        )
+      }
+    }
+
     const quando = String(e.record.get('proxima_acao_em') || '').trim()
 
     const problemas = []
@@ -80,6 +97,23 @@ onRecordUpdateRequest((e) => {
   const ehFinal = estagio === 'fechado_ganho' || estagio === 'fechado_perdido'
   if (!ehFinal && !arquivado) {
     const responsavel = String(e.record.get('responsavel') || '').trim()
+
+    // T2.19/CA-2-014: responsável inativo é rejeitado sem estado parcial.
+    if (responsavel) {
+      let respAtivo = true
+      try {
+        const resp = $app.findRecordById('_pb_users_auth_', responsavel)
+        respAtivo = resp.get('active') !== false
+      } catch (_) {
+        throw new Error('Responsável não encontrado.')
+      }
+      if (!respAtivo) {
+        throw new Error(
+          'O responsável informado está inativo. Reative a conta ou escolha outro responsável.',
+        )
+      }
+    }
+
     const quando = String(e.record.get('proxima_acao_em') || '').trim()
 
     const problemas = []
