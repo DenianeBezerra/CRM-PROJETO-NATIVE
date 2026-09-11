@@ -36,7 +36,8 @@ routerAdd(
     const body = e.requestInfo().body
     let checklist = []
     try {
-      checklist = JSON.parse(String(handoff.get('checklist') || '[]'))
+      const raw = handoff.get('checklist')
+      checklist = typeof raw === 'string' ? JSON.parse(raw || '[]') : raw || []
     } catch (_) {
       checklist = []
     }
