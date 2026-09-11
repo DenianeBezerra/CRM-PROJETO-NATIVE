@@ -31,6 +31,7 @@ onRecordCreateRequest(
   'perguntas_qualificacao',
   'respostas_qualificacao',
   'excecoes_qualificacao',
+  'diagnosticos',
 )
 
 onRecordUpdateRequest(
@@ -62,6 +63,7 @@ onRecordUpdateRequest(
   'perguntas_qualificacao',
   'respostas_qualificacao',
   'excecoes_qualificacao',
+  'diagnosticos',
 )
 
 onRecordDeleteRequest(
@@ -95,4 +97,5 @@ onRecordDeleteRequest(
   'perguntas_qualificacao',
   'respostas_qualificacao',
   'excecoes_qualificacao',
+  'diagnosticos',
 )
