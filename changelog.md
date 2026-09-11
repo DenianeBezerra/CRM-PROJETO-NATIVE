@@ -1,5 +1,15 @@
 # Changelog — CRM Vibratto
 
+## [0.0.335] — 2026-09-12 — T2.35 CONCLUÍDA (teste humano aprovado) — SPEC-2-006 FECHADA (6/6)
+
+### Concluído
+
+- CA-2-030 fechado: visão da oportunidade mostra estado do handoff, pendências abertas e tempo até aceite. Teste humano aprovado pela cliente (2026-09-12 09:20 — "sim, conclua!", execução delegada ao champion).
+- Prova na UI real (browser): card "Handoff" no modal Consulta 360º com badge "Devolvido ao emissor", motivo e "Aguardando reenvio"; blocos existentes íntegros. Print: artifacts/t235_teste_handoff_ui.png.
+- Lição registrada: preview do Skip só atualiza com build development (production não toca o preview).
+- **SPEC-2-006 FECHADA (6/6)**: T2.31–T2.35 concluídas com teste humano aprovado.
+- Fase 2: 35/40 (87,5%).
+
 ## [0.0.333] — 2026-09-12 — T2.35 implementada (CA-2-030, aguardando teste humano)
 
 ### Adicionado

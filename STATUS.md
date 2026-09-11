@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 34 de 40 tasks concluídas (85%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (35/35)**
+**Status:** Fase 2 em execução — 35 de 40 tasks concluídas (87,5%) — **SPEC-2-000 a SPEC-2-006 FECHADAS (41/41)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.34 — CA-2-029, ganho simultâneo cria exatamente um handoff e não sobrescreve decisão (2026-09-12)
-**Próxima task elegível:** T2.35 — CA-2-030 (SPEC-2-006 — visão da oportunidade mostra estado do handoff, pendências abertas e tempo até aceite)
+**Última task concluída:** T2.35 — CA-2-030, visão da oportunidade mostra estado do handoff, pendências abertas e tempo até aceite (2026-09-12) — **fecha SPEC-2-006 (6/6)**
+**Próxima task elegível:** T2.36 — CA-2-031 (SPEC-2-007 — dicionário registra fórmula, fonte, evento inicial/final, fuso, exclusões e dono para cada métrica)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
