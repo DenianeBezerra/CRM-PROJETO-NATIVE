@@ -1,5 +1,23 @@
 # Changelog — CRM Vibratto
 
+## [0.0.187] — 2026-09-11 — T2.13 implementada (CA-2-008, EM CORREÇÃO — GREEN 2 pendente)
+
+### Adicionado
+
+- **Bloqueio de avanço com pendência obrigatória** (CA-2-008): hook server-side em `negocios` bloqueia avanço de etapa quando há perguntas obrigatórias da etapa atual sem resposta; recuo e etapa final não são bloqueados.
+- **Exceção de liberação (admin-only)**: coleção `excecoes_qualificacao` (negócio, motivo ≥ 10 caracteres, validade futura, criado_por) com update/delete bloqueados (append-only); endpoint `POST /backend/v1/qualificacao/{negocio}/excecao`.
+- **UI**: no modal "Qualificar", admin vê "Liberar por exceção" quando há pendências obrigatórias; operador vê aviso de bloqueio.
+
+### Provas por API (v0.0.185)
+
+- RED: avanço bloqueado 400 ✅; operator cria exceção 403 ✅; motivo curto 400 ✅; validade passada 400 ✅.
+- GREEN: exceção válida criada 200 ✅. **Pendente**: avanço liberado pela exceção (GREEN 2) — em correção.
+
+### Corrigido (integração JSVM)
+
+- Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
+- Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
+
 ## [0.0.183] — 2026-09-10 — T2.12 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
