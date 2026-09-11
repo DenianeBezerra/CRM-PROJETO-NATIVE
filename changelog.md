@@ -1,5 +1,14 @@
 # Changelog — CRM Vibratto
 
+## [0.0.317] — 2026-09-12 — T2.32 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-027 fechado: item obrigatório ausente impede aceite e gera pendência com dono e prazo; pendência existente preservada (idempotente); checklist completo aceita com ator/data.
+- Teste humano aprovado pela cliente (2026-09-12 08:39 — "sim, conclua. e siga a proxima").
+- Revalidação independente do zero: RED re-provado (400 com 3 itens pendentes), 401 sem auth, negócio real íntegro, handoff resetado a pendente para o fluxo da T2.33.
+- Fase 2: 32/40 (80%).
+
 ## [0.0.314] — 2026-09-12 — T2.32 implementada (CA-2-027, aguardando teste humano)
 
 ### Adicionado
