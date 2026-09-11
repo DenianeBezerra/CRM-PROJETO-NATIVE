@@ -7,8 +7,8 @@
 - criterio: CA-2-008 — operador não avança com campo obrigatório vazio; administrador só libera por exceção com motivo, validade e auditoria
 - autorizacao_implementacao: confirmada — 2026-09-10 21:21, owner: "Sim, implementar o plano"
 - teste_humano: pendente
-- verificacao_automatica: PARCIAL — RED provados (avanço bloqueado 400; operator 403; motivo curto 400; validade passada 400; exceção válida criada 200). GREEN 2 (avanço liberado pela exceção) FALHANDO: exceção vigente não está liberando o avanço — suspeita de parse de data no JSVM; correção aplicada (replace espaço→T) ainda não validada. Orçamento esgotou antes da revalidação.
+- verificacao_automatica: PARCIAL — RED provados (avanço bloqueado 400; operator 403; motivo curto 400; validade passada 400; exceção válida criada 200; recuo 200). GREEN 2 (avanço liberado pela exceção vigente) FALHANDO — 3 correções tentadas (parse espaço→T v0.0.187, sem sort v0.0.190) sem resolver; hipótese restante: consulta de exceções dentro do model hook do update não enxerga a coleção ou erro silenciado.
 - aprendizado: pendente
-- ultima_acao: negócio da cliente restaurado para estágio "novo" (estado original); exceção de teste vigente (validade 2026-09-30) deixada como fixture para o próximo ciclo
-- proxima_acao: debug do GREEN 2 — validar por que a exceção vigente não libera o avanço (re-testar PATCH novo→contato_feito após v0.0.187; se persistir, inspecionar excecoes.length dentro do hook via log de hooks)
-- atualizado_em: 2026-09-11T00:40:00-03:00
+- ultima_acao: negócio da cliente restaurado para estágio "novo" (estado original, íntegro); exceção de teste vigente (validade 2026-09-30) permanece como fixture do debug
+- proxima_acao: debug do GREEN 2 — instrumentar o hook com $app.logger().error em cada ramo (excecoes.length, validade parseada) e ler os logs de hooks no Skip Cloud; depois re-testar PATCH novo→contato_feito
+- atualizado_em: 2026-09-11T00:55:00-03:00
