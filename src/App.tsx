@@ -91,6 +91,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/painel" element={<Navigate to="/operacional" replace />} />
             <Route
               path="/admin"
               element={

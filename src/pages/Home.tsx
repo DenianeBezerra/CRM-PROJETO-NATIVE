@@ -249,8 +249,8 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-neutral-400" />
-                PocketBase Auth: Ativo
-              </span>
+                Sessão segura ativa
+              </span>{' '}
               <span className="flex items-center gap-1.5">
                 <Briefcase className="w-3.5 h-3.5 text-neutral-400" />
                 Vibratto CRM v2.4

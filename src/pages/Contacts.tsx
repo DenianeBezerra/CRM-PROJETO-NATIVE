@@ -18,13 +18,27 @@ type Cliente = {
 }
 type Empresa = { id: string; nome: string; status?: string }
 
+const STATUS_LABEL: Record<string, string> = {
+  ativo: 'Ativo',
+  inativo: 'Arquivado',
+  prospect: 'Prospect',
+}
+
+const ORIGEM_LABEL: Record<string, string> = {
+  site: 'Site',
+  indicacao: 'Indicação',
+  redes_sociais: 'Redes sociais',
+  evento: 'Evento',
+  outro: 'Outro',
+}
+
 const emptyForm = {
   nome: '',
   empresa: '',
   email: '',
   telefone: '',
   cidade: '',
-  origem: 'outro',
+  origem: '',
   observacoes: '',
   status: 'prospect' as Cliente['status'],
 }
@@ -180,14 +194,14 @@ export default function Contacts() {
                     </p>
                   </div>
                   <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-1 h-fit">
-                    {item.status}
+                    {STATUS_LABEL[item.status || ''] || item.status}
                   </span>
                 </div>
                 <p className="text-sm mt-4">
                   {item.email || 'Sem e-mail'} · {item.telefone || 'Sem telefone'}
                 </p>
                 <p className="text-xs text-[#6B7280] mt-1">
-                  Origem: {item.origem || 'não informada'}
+                  Origem: {ORIGEM_LABEL[item.origem || ''] || item.origem || 'não informada'}
                 </p>
                 <div className="flex gap-2 mt-4">
                   <button
@@ -272,11 +286,12 @@ export default function Contacts() {
                   onChange={(e) => update('origem', e.target.value)}
                   className="mt-1 w-full border rounded-lg px-3 py-2"
                 >
-                  <option>site</option>
-                  <option>indicacao</option>
-                  <option>redes_sociais</option>
-                  <option>evento</option>
-                  <option>outro</option>
+                  <option value="">Selecione</option>
+                  <option value="indicacao">Indicação</option>
+                  <option value="site">Site</option>
+                  <option value="redes_sociais">Redes sociais</option>
+                  <option value="evento">Evento</option>
+                  <option value="outro">Outro</option>
                 </select>
               </label>
             </div>

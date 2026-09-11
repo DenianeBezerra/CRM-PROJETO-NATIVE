@@ -279,13 +279,17 @@ export default function DashboardComercial() {
               />
               <Num
                 label="Primeira resposta (p50)"
-                value={fmtDur(dados.primeira_resposta.p50_segundos)}
+                value={
+                  dados.primeira_resposta.n === 0
+                    ? 'Sem dados no período'
+                    : fmtDur(dados.primeira_resposta.p50_segundos)
+                }
                 n={dados.primeira_resposta.n}
               />
               <Num
-                label="Propostas (N)"
+                label="Propostas no ciclo"
                 value={String(dados.propostas_ciclo.n)}
-                n={fmtBRL(dados.propostas_ciclo.valor_total)}
+                n={dados.propostas_ciclo.n}
               />
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
