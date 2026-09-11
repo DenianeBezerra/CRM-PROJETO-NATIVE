@@ -1,5 +1,17 @@
 # Changelog — CRM Vibratto
 
+- 2026-09-12 · [Deni.Ai] · DEBUG task T2.31: 400 genérico na transição fechado_ganho → causa raiz: model hook exige status='ganho' coerente (PATCH só com estagio rejeitado) → corrigido (PATCH com status junto), provado por API.
+- 2026-09-12 · [Deni.Ai] · Task T2.31 CONCLUÍDA (teste humano aprovado 08:08: "funcionou"): handoff de ganho idempotente com checklist/origem/emissor/receptor; revalidação independente (1 handoff único, idempotência re-provada), fixture de teste removida (0080), QA v0.0.298. Fase 2: 31/40 (77,5%).
+
+## [0.0.298] — 2026-09-12 — T2.31 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-026 fechado: ganho cria handoff idempotente com checklist padrão do onboarding (5 itens), origem, emissor e receptor; re-save não duplica; decisão humana fica para a T2.33.
+- Teste humano aprovado pela cliente (2026-09-12 08:08 — "funcionou", com print das 2 oportunidades ganhas).
+- Revalidação independente: 1 handoff único (Proposta BPO), idempotência re-provada por API (re-save → ainda 1), fixture "T231 ganho v2" removida (0080), preview 200.
+- Fase 2: 31/40 (77,5%).
+
 ## [0.0.295] — 2026-09-12 — T2.31 implementada (CA-2-026, aguardando teste humano)
 
 ### Adicionado
