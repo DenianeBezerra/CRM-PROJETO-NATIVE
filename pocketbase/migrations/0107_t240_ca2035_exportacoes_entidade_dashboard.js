@@ -8,7 +8,7 @@ migrate(
     const campo = col.fields.getByName('entidade')
     if (!campo.values.includes('dashboard_comercial')) {
       campo.values.push('dashboard_comercial')
-      col.save()
+      app.save(col)
     }
   },
   (app) => {
@@ -17,7 +17,7 @@ migrate(
     const idx = campo.values.indexOf('dashboard_comercial')
     if (idx >= 0) {
       campo.values.splice(idx, 1)
-      col.save()
+      app.save(col)
     }
   },
 )

@@ -37,6 +37,26 @@ routerAdd(
       return e.json(400, { error: 'Bloco inválido. Blocos: ' + BLOCOS.join(', ') })
     }
 
+    // Helpers inline (JSVM: funções top-level não são visíveis nos callbacks)
+    const resumoDe = function (d) {
+      // LGPD: só campos comerciais não sensíveis — sem e-mail, telefone ou contato.
+      return {
+        id: d.id,
+        titulo: d.getString('titulo'),
+        estagio: d.getString('estagio') || 'sem_etapa',
+        origem: d.getString('origem') || 'sem_origem',
+        status: d.getString('status') || '',
+        valor: Number(d.get('valor')) || 0,
+        arquivado: d.getBool('arquivado'),
+      }
+    }
+    const findById = function (arr, id) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) return arr[i]
+      }
+      return null
+    }
+
     // ---- Filtros idênticos ao dashboard (mesma validação, mesmo parse) ----
     let msInicio = 0
     let msFim = 0
@@ -348,23 +368,3 @@ routerAdd(
   },
   $apis.requireAuth(),
 )
-
-// ---- Helpers inline (sem funções top-level referenciadas por callbacks) ----
-function resumoDe(d) {
-  // LGPD: só campos comerciais não sensíveis — sem e-mail, telefone ou contato.
-  return {
-    id: d.id,
-    titulo: d.getString('titulo'),
-    estagio: d.getString('estagio') || 'sem_etapa',
-    origem: d.getString('origem') || 'sem_origem',
-    status: d.getString('status') || '',
-    valor: Number(d.get('valor')) || 0,
-    arquivado: d.getBool('arquivado'),
-  }
-}
-function findById(arr, id) {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].id === id) return arr[i]
-  }
-  return null
-}
