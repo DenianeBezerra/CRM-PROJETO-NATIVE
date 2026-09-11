@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 26 de 40 tasks concluídas (65%) — **SPEC-2-000 a SPEC-2-004 FECHADAS (25/25)**
+**Status:** Fase 2 em execução — 27 de 40 tasks concluídas (67,5%) — **SPEC-2-000 a SPEC-2-004 FECHADAS (25/25)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.26 — CA-2-021, configuração de SLA por evento/etapa com unidade, calendário e vigência (2026-09-12)
-**Próxima task elegível:** T2.27 — CA-2-022 (SPEC-2-005 — operador cria, atribui, prioriza e conclui tarefa vinculada com resultado obrigatório)
+**Última task concluída:** T2.27 — CA-2-022, tarefas vinculadas com resultado obrigatório na conclusão (2026-09-12)
+**Próxima task elegível:** T2.28 — CA-2-023 (SPEC-2-005 — filas distintas por tipo, alimentadas por cron e visíveis por papel)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 

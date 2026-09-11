@@ -18,6 +18,12 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.272] — 2026-09-12 — T2.27 CONCLUÍDA (teste humano aprovado)
+
+### Adicionado
+
+- **Tarefas vinculadas (CA-2-022)**: coleção `tarefas` (migration 0066), hook `tarefa_rules.js` e modal `TarefasNegocio` com botão "Tarefas" na oportunidade. Operador cria, atribui, prioriza e conclui tarefa com **resultado obrigatório** (≥ 10 chars) — ator e data da conclusão gravados server-side. Tarefa concluída imutável; delete bloqueado. Provas: RED 8 + GREEN 4 + revalidação independente (evidência em `evidencias/spec-2-005/ca-2-022-green.md`). Fixtures limpas (0067–0069).
+
 ## [0.0.266] — 2026-09-12 — Limpeza de ruídos (pós-T2.26)
 
 ### Removido
