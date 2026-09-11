@@ -1,9 +1,9 @@
 # Status
 
-**Status:** Fase 2 em execução — 33 de 40 tasks concluídas (82,5%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (35/35)** — T2.34 implementada, aguardando teste humano
+**Status:** Fase 2 em execução — 34 de 40 tasks concluídas (85%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (35/35)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T2.34 — CA-2-029 (implementada, no portão de teste humano)
-**Última task concluída:** T2.33 — CA-2-028, decisão do receptor (aceite/devolução com ator, data, motivo e snapshots) (2026-09-12)
+**Task ativa:** nenhuma
+**Última task concluída:** T2.34 — CA-2-029, ganho simultâneo cria exatamente um handoff e não sobrescreve decisão (2026-09-12)
 **Próxima task elegível:** T2.35 — CA-2-030 (SPEC-2-006 — visão da oportunidade mostra estado do handoff, pendências abertas e tempo até aceite)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada

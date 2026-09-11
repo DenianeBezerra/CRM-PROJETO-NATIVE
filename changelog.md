@@ -1,5 +1,14 @@
 # Changelog — CRM Vibratto
 
+## [0.0.330] — 2026-09-12 — T2.34 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-029 fechado: repetição do ganho cria exatamente um handoff e não sobrescreve decisão existente. Teste humano aprovado pela cliente (2026-09-12 09:10 — "sim, conclua e siga a proxima task", execução delegada ao champion).
+- Provas: 2 ciclos completos de re-ganho (reabrir → ganhar, 200+200 cada); handoff único preservado com status `devolvido`, motivo e snapshot (ação + motivo + 5 itens) byte a byte idênticos; oportunidade íntegra em `fechado_ganho`/`ganho`.
+- Causa raiz documentada: model hook `onRecordUpdate` de `negocios` inoperante no runtime (bloco duplicado do hook T2.31 em `comercial_fields_rules.js`, removido) — criação do handoff agora em request hook (v0.0.326).
+- Fase 2: 34/40 (85%).
+
 ## [0.0.327] — 2026-09-12 — T2.34 implementada (CA-2-029, aguardando teste humano)
 
 ### Adicionado
