@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-11T01:14:28.185Z",
+  "generatedAt": "2026-09-11T01:16:14.780Z",
   "collections": [
     {
       "name": "users",
@@ -1454,6 +1454,79 @@
       ],
       "indexes": [
         "CREATE INDEX idx_excecao_negocio ON excecoes_qualificacao (negocio)"
+      ]
+    },
+    {
+      "name": "diagnosticos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "negocio",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "negocios"
+        },
+        {
+          "name": "versao",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "resumo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "pontos_de_dor",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "decisao_envolvida",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "criado_por",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_diag_negocio ON diagnosticos (negocio)"
       ]
     }
   ]
