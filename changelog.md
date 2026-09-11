@@ -1,5 +1,15 @@
 # Changelog — CRM Vibratto
 
+## [0.0.360] — 2026-09-12 — T2.40 implementada (CA-2-035, aguardando teste humano)
+
+### Adicionado
+
+- **Drill-down (CA-2-035)**: `GET /backend/v1/dashboard/comercial/drilldown?bloco=&chave=` + mesmos filtros do dashboard — retorna os registros que compõem o número, recalculados server-side com a MESMA lógica (9 blocos). Payload LGPD: sem e-mail/telefone/contato. UI: linhas clicáveis em Leads por origem, Oportunidades por etapa e Perdas → modal com o N e os registros.
+- **Exportação agregada**: `GET /backend/v1/dashboard/comercial/export` — CSV (BOM UTF-8) das agregações exibidas (bloco;chave;valor;n_denominador), mesmos filtros, neutralização CSV injection (OWASP T2.03) em todo campo textual, trilha append-only em `exportacoes` (entidade `dashboard_comercial`, migration 0107). Botão "Exportar CSV" no dashboard.
+- Provas: RED 4 (401×2, bloco inválido 400, período invertido 400) + GREEN 7 (todas as contagens do drill-down = N do dashboard; CSV = números do dashboard campo a campo; filtro origem=site consistente) + neutralização `'=SOMA(1+1)` provada + regressão 200×3. Evidência em `evidencias/spec-2-007/ca-2-035-green.md`.
+- Fix durante provas: migration 0107 (`app.save(col)` em vez de `col.save()`) e helpers inline no hook (scoping JSVM). Limpeza: migration 0108 (negócio de prova `=SOMA(1+1)` e aceites de contraste removidos).
+- **Última task da Fase 2** — concluída a T2.40 com teste aprovado, a fase fecha em 40/40.
+
 ## [0.0.354] — 2026-09-12 — T2.39 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
