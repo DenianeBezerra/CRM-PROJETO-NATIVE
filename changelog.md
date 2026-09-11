@@ -1,5 +1,11 @@
 # Changelog — CRM Vibratto
 
+## [0.0.337] — 2026-09-12 — T2.36 implementada (CA-2-031, aguardando teste humano)
+
+### Adicionado
+
+- **Dicionário de métricas (CA-2-031)**: coleção `dicionario_metricas` append-only (create/update admin-only, delete bloqueado) + seed com as 5 métricas existentes (fórmulas e exclusões extraídas do código real, nada inventado) + endpoint `GET /backend/v1/metricas/dicionario` (leitura autenticada) + tela admin `/admin/dicionario` com link na home. Cada métrica registra fórmula, fonte, evento inicial/final, fuso (America/Sao_Paulo), exclusões e dono. Provas: RED 1 + GREEN 4 + regressão (evidência em `evidencias/spec-2-007/ca-2-031-green.md`).
+
 ## [0.0.335] — 2026-09-12 — T2.35 CONCLUÍDA (teste humano aprovado) — SPEC-2-006 FECHADA (6/6)
 
 ### Concluído
