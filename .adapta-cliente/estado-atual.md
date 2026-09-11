@@ -1,15 +1,15 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T2.27
+- task_id: T2.28
 - champion: Deni.Ai (executor das tasks de Engenharia de produto da Fase 2)
 - spec: SPEC-2-005 (arquivo ausente em 04-fase-atual/specs/; critério de origem = tabela da fase.md)
 - etapa: concluida
-- criterio: CA-2-022 — operador cria, atribui, prioriza e conclui tarefa vinculada com resultado obrigatório
-- autorizacao_implementacao: confirmada — 2026-09-12 07:03, owner: "Sim, implementar o plano"
-- teste_humano: aprovado — 2026-09-12 07:08, owner: "aprovado"
-- verificacao_automatica: passou — revalidação independente (regras ativas, conclusão grava ator/data, negócio real íntegro) + limpeza 0069; 0 tarefas na base
-- evidencia: evidencias/spec-2-005/ca-2-022-green.md
-- aprendizado: capturado (fixtures RED também precisam limpeza — cobrir TODAS as fixtures das provas)
-- ultima_acao: T2.27 concluída (fase 27/40 = 67,5%, changelog 0.0.272)
-- proxima_acao: nenhuma — task concluída; T2.28 (CA-2-023, filas distintas) é a próxima elegível, aguarda pedido do owner
-- atualizado_em: 2026-09-12T07:12:00-03:00
+- criterio: CA-2-023 — tarefas vencidas, oportunidades sem próxima ação e exceções aparecem em filas distintas e reproduzíveis
+- autorizacao_implementacao: confirmada — 2026-09-12 07:11, owner: "sim"
+- teste_humano: aprovado — 2026-09-12 07:15, owner: "Aprovado" (print do painel com as 3 filas zeradas)
+- verificacao_automatica: passou — revalidação independente (filas 0/0/0 coerentes com a base, operator sem fila de exceções, negócio real íntegro com ação futura 20/10)
+- evidencia: evidencias/spec-2-005/ca-2-023-green.md
+- aprendizado: capturado (ordem de limpeza de negócio fixture: exceções → permanências → negócio)
+- ultima_acao: T2.28 concluída — SPEC-2-005 FECHADA (4/4), fase 28/40 = 70%, changelog 0.0.278
+- proxima_acao: nenhuma — task concluída; T2.29 (CA-2-024, pausa/reabertura/usuário inativo/concorrência) é a próxima elegível, aguarda pedido do owner
+- atualizado_em: 2026-09-12T07:20:00-03:00

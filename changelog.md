@@ -18,6 +18,13 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.278] — 2026-09-12 — T2.28 CONCLUÍDA (teste humano aprovado) — SPEC-2-005 FECHADA
+
+### Adicionado
+
+- **Filas operacionais distintas (CA-2-023)**: endpoint `GET /backend/v1/filas/operacionais` com 3 filas de critérios explícitos e reproduzíveis — tarefas vencidas (aberta + prazo passado; operator vê as suas), oportunidades sem próxima ação (ativa sem ação futura e sem exceção vigente, mesmo critério do hook T2.18) e exceções vigentes (admin-only). Seção "Filas distintas" no painel Operacional. Provas: RED 1 + GREEN 6 + reprodutibilidade (2 consultas idênticas) + 401 sem auth (evidência em `evidencias/spec-2-005/ca-2-023-green.md`). Fixtures limpas (0070).
+- **SPEC-2-005 FECHADA (T2.25–T2.28, 4/4)**: SLA, fila de propostas vencidas, tarefas e filas distintas. Fase 2: 28/40 (70%).
+
 ## [0.0.272] — 2026-09-12 — T2.27 CONCLUÍDA (teste humano aprovado)
 
 ### Adicionado
