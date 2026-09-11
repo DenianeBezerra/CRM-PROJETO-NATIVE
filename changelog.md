@@ -1,5 +1,17 @@
 # Changelog — CRM Vibratto
 
+## [0.0.314] — 2026-09-12 — T2.32 implementada (CA-2-027, aguardando teste humano)
+
+### Adicionado
+
+- **Aceite de handoff com bloqueio de obrigatório (CA-2-027)**: endpoint `POST /backend/v1/handoffs/{id}/aceite` — item obrigatório do checklist pendente impede o aceite e gera pendência com dono (receptor) e prazo (data futura obrigatória); checklist completo aceita com ator/data server-side; pendência existente é preservada (idempotente); 401 sem auth. Campos novos em `handoffs` (0081: `pendencias`, `aceito_por`, `aceito_em`); obrigatórios marcados em handoffs pré-existentes (0082). Provas: RED 3 + GREEN 2 + idempotência (evidência em `evidencias/spec-2-006/ca-2-027-green.md`).
+
+### Corrigido (durante as provas)
+
+- Aceite passava com checklist incompleto (handoffs pré-flag `obrigatorio`) — 0082.
+- Parse de campo JSON no JSVM: chega como array de char codes; iterar direto retorna lixo — fix `JSON.parse(String(raw))` (v0.0.307–0.0.309).
+- Pendência sobrescrita na re-tentativa — preservada (v0.0.311).
+
 - 2026-09-12 · [Deni.Ai] · DEBUG task T2.31: 400 genérico na transição fechado_ganho → causa raiz: model hook exige status='ganho' coerente (PATCH só com estagio rejeitado) → corrigido (PATCH com status junto), provado por API.
 - 2026-09-12 · [Deni.Ai] · Task T2.31 CONCLUÍDA (teste humano aprovado 08:08: "funcionou"): handoff de ganho idempotente com checklist/origem/emissor/receptor; revalidação independente (1 handoff único, idempotência re-provada), fixture de teste removida (0080), QA v0.0.298. Fase 2: 31/40 (77,5%).
 
