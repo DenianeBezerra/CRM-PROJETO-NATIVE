@@ -1,5 +1,6 @@
 // Captura append-only de alterações do CRM.
-// Escopo deliberado: clientes, negocios, etapas_negocio e interacoes.
+// Escopo: clientes, negocios, etapas_negocio, interacoes + (T2.15/CA-2-010)
+// perguntas_qualificacao, respostas_qualificacao e excecoes_qualificacao.
 // T2.01/CA-2-036: exclusões (admin-only) também geram evento append-only.
 
 onRecordCreateRequest(
@@ -27,6 +28,9 @@ onRecordCreateRequest(
   'negocios',
   'etapas_negocio',
   'interacoes',
+  'perguntas_qualificacao',
+  'respostas_qualificacao',
+  'excecoes_qualificacao',
 )
 
 onRecordUpdateRequest(
@@ -55,6 +59,9 @@ onRecordUpdateRequest(
   'negocios',
   'etapas_negocio',
   'interacoes',
+  'perguntas_qualificacao',
+  'respostas_qualificacao',
+  'excecoes_qualificacao',
 )
 
 onRecordDeleteRequest(
@@ -85,4 +92,7 @@ onRecordDeleteRequest(
   'negocios',
   'etapas_negocio',
   'interacoes',
+  'perguntas_qualificacao',
+  'respostas_qualificacao',
+  'excecoes_qualificacao',
 )
