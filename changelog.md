@@ -18,6 +18,23 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.212] — 2026-09-11 — T2.15 implementada (CA-2-010, aguardando teste humano)
+
+### Adicionado
+
+- **Auditoria da qualificação** (CA-2-010): `perguntas_qualificacao`, `respostas_qualificacao` e `excecoes_qualificacao` agora geram eventos append-only com ator, data e snapshots (create/update/delete).
+- Endpoint de exceção grava evento de auditoria explicitamente (rota custom não passa pelos request hooks de CRUD).
+- Tentativa negada (avanço bloqueado / desqualificação sem próxima ação) registra trilha estruturada com ator, etapas e motivo.
+
+### DÚVIDA (para o consultor)
+
+- Evento 'negado' na coleção `auditoria`: no JSVM v0.36, qualquer `$app.save` em request hook participa da transação do request — um evento gravado antes do erro é revertido pelo rollback (provado por API com 3 mecanismos: throw, e.json(400), e.badRequestError). O JSVM não expõe hook de erro. Trilha provisória em log estruturado (Skip preserva). Alternativa definitiva: rota custom de avanço de etapa fora da transação CRUD — requer decisão de produto.
+
+### Notas
+
+- Evidências: `evidencias/spec-2-002/ca-2-010-green.md`. Limpeza: migration 0048.
+- 2026-09-11 · [Deni.Ai] · DEBUG task T2.15: evento 'negado' não sobrevivia ao rollback da transação → causa raiz documentada (JSVM v0.36, transação do request) → trilha em log estruturado + dúvida registrada para o consultor.
+
 ## [0.0.204] — 2026-09-11 — T2.14 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído

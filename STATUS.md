@@ -16,7 +16,7 @@
 | T2.12 | Operador salva qualificação válida e visualiza percentual e pendências de completude      | ✅ Concluída — 2026-09-10 (teste aprovado) |
 | T2.13 | Campo obrigatório bloqueia avanço; exceção de liberação com motivo, validade e auditoria  | ✅ Concluída — 2026-09-11 (teste aprovado) |
 | T2.14 | Desqualificação com motivo estruturado e detalhe obrigatório para Outro                   | ✅ Concluída — 2026-09-11 (teste aprovado) |
-| T2.15 | Alterações e exceções na auditoria com ator, data e snapshots, inclusive tentativa negada | ☐ Planejada                                |
+| T2.15 | Alterações e exceções na auditoria com ator, data e snapshots, inclusive tentativa negada | ☐ Implementada — aguardando teste humano   |
 
 ## Evidência da T2.12 (concluída — teste humano aprovado em 2026-09-10)
 
