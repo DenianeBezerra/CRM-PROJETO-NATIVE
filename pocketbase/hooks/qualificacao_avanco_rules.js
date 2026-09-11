@@ -1,27 +1,30 @@
 // T2.13 — CA-2-008: operador não avança com campo obrigatório vazio;
 // administrador libera por exceção com motivo, validade e auditoria.
 //
-// Regra server-side (model hook onRecordUpdate em negocios):
-// - se a etapa está avançando (ordem da nova etapa > ordem da atual) e
-//   existe exceção vigente (não expirada) para o negócio → libera;
-// - senão, se existem perguntas obrigatórias aplicáveis à etapa atual
-//   sem resposta → bloqueia, listando as pendências;
-// - voltar de etapa ou mover para etapa final (fechado_*) não é bloqueado
-//   aqui (fechamento tem regras próprias — outcome_rules/comercial_fields).
+// REQUEST hook (onRecordUpdateRequest em negocios) — roda ANTES do model hook
+// stage_dwell_history: quando o avanço é bloqueado, o histórico de permanência
+// nunca é tocado (a versão model hook deixava permanência fantasma a cada
+// bloqueio, corrompendo o histórico e travando avanços futuros).
+//
+// Regras:
+// - avanço real = ordem da etapa sobe e destino não é etapa final;
+// - exceção vigente (não expirada) para o negócio libera o avanço;
+// - perguntas obrigatórias ativas aplicáveis à etapa atual sem resposta
+//   bloqueiam, listando as pendências;
+// - voltar de etapa ou ir para fechado_* não é bloqueado aqui
+//   (fechamento tem regras próprias — outcome_rules/comercial_fields).
 //
 // Lições JSVM aplicadas: sem bind params (interpolação direta de IDs),
-// findFirstRecordByFilter sem sort, sort de respostas usa respondido_em
-// (a coleção não tem "created" como campo sortável — lição T2.12),
-// datas do PocketBase normalizadas de " " para "T" antes do Date.parse.
+// sort de respostas usa respondido_em (lição T2.12), datas do PocketBase
+// normalizadas de " " para "T" antes do Date.parse (lição T2.04).
 
-onRecordUpdate((e) => {
+onRecordUpdateRequest((e) => {
   const etapaNova = String(e.record.get('estagio') || '').trim()
   const etapaAntes = String(e.record.original().get('estagio') || '').trim()
 
   // Só interessa quando a etapa está mudando.
   if (!etapaNova || etapaNova === etapaAntes) {
-    e.next()
-    return
+    return e.next()
   }
 
   // Ordens das etapas (etapas_negocio; fallback fixo se coleção vazia).
@@ -48,8 +51,7 @@ onRecordUpdate((e) => {
   // Avanço real = ordem aumentou e não é etapa final.
   const ehFinal = etapaNova === 'fechado_ganho' || etapaNova === 'fechado_perdido'
   if (ehFinal || ordemNova === undefined || ordemAntes === undefined || ordemNova <= ordemAntes) {
-    e.next()
-    return
+    return e.next()
   }
 
   // 1) Exceção vigente libera o avanço ANTES de qualquer outra verificação.
@@ -71,10 +73,8 @@ onRecordUpdate((e) => {
     // Datas do PocketBase vêm como "2026-09-30 00:00:00.000Z" (espaço) —
     // normalizar para "T" antes do Date.parse (lição T2.04).
     const validade = Date.parse(String(excecoes[i].get('validade') || '').replace(' ', 'T'))
-    console.log('T213 excecao ' + excecoes[i].id + ' validade=' + validade + ' agora=' + agora)
     if (!isNaN(validade) && validade >= agora) {
-      e.next()
-      return
+      return e.next()
     }
   }
 
@@ -93,8 +93,7 @@ onRecordUpdate((e) => {
   })
 
   if (aplicaveis.length === 0) {
-    e.next()
-    return
+    return e.next()
   }
 
   let respostas = []
@@ -135,11 +134,8 @@ onRecordUpdate((e) => {
   }
 
   if (pendentes.length === 0) {
-    e.next()
-    return
+    return e.next()
   }
-
-  console.log('T213 bloqueio: pendentes=' + pendentes.length + ' excecoes=' + excecoes.length)
 
   throw new Error(
     'Avanço bloqueado: ' +
