@@ -1,5 +1,13 @@
 # Changelog — CRM Vibratto
 
+## [0.0.345] — 2026-09-12 — T2.37 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-032 fechado: baseline calculado para período explícito, congelado com versão e reproduzível pela consulta de origem. Teste humano aprovado pela cliente (2026-09-12 09:31 — "sim, traga evidencias. Conclua e siga para a proxima", execução delegada ao champion).
+- Provas do teste: baseline v1 (período 2026-09-01..12) → re-execução criou v2 sem sobrescrever (v1 congelada intacta, valores idênticos) → período invertido rejeitado com mensagem clara. Nota: `reproduzivel=false` no período com fim hoje é comportamento correto (período em curso).
+- Fase 2: 37/40 (92,5%).
+
 ## [0.0.343] — 2026-09-12 — T2.37 implementada (CA-2-032, aguardando teste humano)
 
 ### Adicionado
