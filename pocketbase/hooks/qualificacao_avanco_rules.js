@@ -137,6 +137,33 @@ onRecordUpdateRequest((e) => {
     return e.next()
   }
 
+  // T2.15/CA-2-010: tentativa negada gera evento append-only na auditoria
+  // (ator, data, etapa anterior, etapa tentada e motivo da negativa).
+  try {
+    const actor = e.auth
+    if (actor) {
+      const audit = $app.findCollectionByNameOrId('auditoria')
+      const event = new Record(audit)
+      event.set('entidade', 'negocios')
+      event.set('registro_id', e.record.id)
+      event.set('acao', 'negado')
+      event.set('ator_id', actor.id)
+      event.set('ocorrido_em', new Date().toISOString())
+      event.set('estado_anterior', JSON.stringify({ estagio: etapaAntes }))
+      event.set(
+        'estado_posterior',
+        JSON.stringify({
+          estagio_tentado: etapaNova,
+          motivo:
+            'Avanço bloqueado: ' + pendentes.length + ' pergunta(s) obrigatória(s) sem resposta.',
+        }),
+      )
+      $app.save(event)
+    }
+  } catch (auditErr) {
+    $app.logger().error('Falha ao registrar tentativa negada', 'error', String(auditErr))
+  }
+
   throw new Error(
     'Avanço bloqueado: ' +
       pendentes.length +

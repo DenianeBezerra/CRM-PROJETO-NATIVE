@@ -22,22 +22,45 @@ onRecordUpdateRequest((e) => {
     if (previousStage !== 'fechado_perdido') {
       const desc = String(e.record.get('proxima_acao_descricao') || '').trim()
       const quando = String(e.record.get('proxima_acao_em') || '').trim()
+      let motivoNegativa = ''
       if (!desc) {
-        throw new Error(
-          'Desqualificação exige a próxima ação: descreva o que acontece a partir daqui.',
-        )
+        motivoNegativa = 'Desqualificação exige a próxima ação: descreva o que acontece a partir daqui.'
+      } else if (!quando || quando.startsWith('0001-01-01')) {
+        motivoNegativa = 'Desqualificação exige a data da próxima ação.'
+      } else {
+        const quandoMs = Date.parse(quando.replace(' ', 'T'))
+        if (isNaN(quandoMs)) {
+          motivoNegativa = 'Data da próxima ação inválida.'
+        } else if (quandoMs < Date.now() - 60 * 1000) {
+          motivoNegativa = 'A data da próxima ação deve ser futura.'
+        }
       }
-      if (!quando || quando.startsWith('0001-01-01')) {
-        throw new Error('Desqualificação exige a data da próxima ação.')
-      }
-      const quandoMs = Date.parse(quando.replace(' ', 'T'))
-      if (isNaN(quandoMs)) {
-        throw new Error('Data da próxima ação inválida.')
-      }
-      if (quandoMs < Date.now() - 60 * 1000) {
-        throw new Error('A data da próxima ação deve ser futura.')
+      if (motivoNegativa) {
+        // T2.15/CA-2-010: tentativa negada gera evento append-only.
+        try {
+          const actor = e.auth
+          if (actor) {
+            const audit = $app.findCollectionByNameOrId('auditoria')
+            const event = new Record(audit)
+            event.set('entidade', 'negocios')
+            event.set('registro_id', e.record.id)
+            event.set('acao', 'negado')
+            event.set('ator_id', actor.id)
+            event.set('ocorrido_em', new Date().toISOString())
+            event.set('estado_anterior', JSON.stringify({ estagio: previousStage }))
+            event.set(
+              'estado_posterior',
+              JSON.stringify({ estagio_tentado: nextStage, motivo: motivoNegativa }),
+            )
+            $app.save(event)
+          }
+        } catch (auditErr) {
+          $app.logger().error('Falha ao registrar tentativa negada', 'error', String(auditErr))
+        }
+        throw new Error(motivoNegativa)
       }
     }
+  }    }
   }
 
   if (nextStage === 'fechado_ganho') {
