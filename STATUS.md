@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 38 de 40 tasks concluídas (95%) — **SPEC-2-000 a SPEC-2-006 FECHADAS (41/41)**
+**Status:** Fase 2 em execução — 39 de 40 tasks concluídas (97,5%) — **SPEC-2-000 a SPEC-2-006 FECHADAS (41/41); SPEC-2-007 em execução (4/5)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.38 — CA-2-033, dashboard comercial com N e filtros consistentes (2026-09-12)
-**Próxima task elegível:** T2.39 — CA-2-034 (SPEC-2-007 — dado ausente aparece como cobertura incompleta e não é removido silenciosamente do denominador)
+**Última task concluída:** T2.39 — CA-2-034, dado ausente aparece como cobertura incompleta e não é removido silenciosamente do denominador (2026-09-12, teste humano aprovado)
+**Próxima task elegível:** T2.40 — CA-2-035 (SPEC-2-007 — drill-down e exportação agregada correspondem aos números exibidos, neutralizam fórmulas e respeitam RBAC/LGPD) — ÚLTIMA task da Fase 2
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
