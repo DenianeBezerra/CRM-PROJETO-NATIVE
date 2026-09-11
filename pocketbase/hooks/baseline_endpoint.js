@@ -97,6 +97,7 @@ routerAdd(
       $app.logger().error('T237 falha ao consultar permanencias', 'error', String(err))
     }
     const totaisEtapa = {}
+    let permanenciasOrfas = 0
     for (const p of perms) {
       const etapa = p.getString('etapa')
       const entrou = new Date(String(p.get('entrou_em') || '').replace(' ', 'T')).getTime()
@@ -108,8 +109,25 @@ routerAdd(
         if (Number.isFinite(entrou) && Number.isFinite(saiu)) {
           segundos = Math.max(0, Math.floor((saiu - entrou) / 1000))
         }
-      } else if (Number.isFinite(entrou)) {
-        segundos = Math.max(0, Math.floor((Date.now() - entrou) / 1000))
+      } else {
+        // T2.37 — permanência aberta só é reprodutível se o negócio existe e o
+        // período está fechado: aberta conta "até agora" (muda a cada leitura).
+        // Órfãs (negócio deletado) são EXCLUÍDAS e reportadas — nunca somadas.
+        let negocioExiste = false
+        try {
+          $app.findRecordById('negocios', p.getString('negocio'))
+          negocioExiste = true
+        } catch (_) {
+          negocioExiste = false
+        }
+        if (!negocioExiste) {
+          permanenciasOrfas++
+          continue
+        }
+        if (emCurso || !Number.isFinite(entrou)) {
+          continue // aberta + período em curso = não reproduzível; excluída do congelamento
+        }
+        segundos = Math.max(0, Math.floor((msFim - entrou) / 1000))
       }
       totaisEtapa[etapa] = (totaisEtapa[etapa] || 0) + segundos
     }
@@ -117,6 +135,7 @@ routerAdd(
       chave: 'tempo_por_etapa',
       fonte: 'permanencias_negocio (entrou_em no período)',
       valores: totaisEtapa,
+      permanencias_orfas_excluidas: permanenciasOrfas,
     })
 
     // 3) propostas emitidas no período
