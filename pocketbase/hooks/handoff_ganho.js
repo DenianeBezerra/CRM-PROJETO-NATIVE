@@ -8,8 +8,15 @@
 //   sobrescreve decisão existente (status/aceite preservados).
 // Lições JSVM: lógica inline no callback, datas PB " " → "T".
 onRecordUpdate((e) => {
-  const antes = String(e.record.original().get('estagio') || '')
-  const depois = String(e.record.get('estagio') || '')
+  let antes = ''
+  let depois = ''
+  try {
+    antes = String(e.record.original().get('estagio') || '')
+    depois = String(e.record.get('estagio') || '')
+  } catch (err) {
+    $app.logger().error('T231 falha ao ler estagios', 'error', String(err))
+    return e.next()
+  }
   if (depois !== 'fechado_ganho' || antes === 'fechado_ganho') return e.next()
 
   const negocioId = e.record.id
@@ -50,7 +57,12 @@ onRecordUpdate((e) => {
   rec.set('checklist', JSON.stringify(checklistPadrao))
   rec.set('observacao_ganho', observacao)
   rec.set('criado_em', new Date().toISOString().replace('T', ' '))
-  $app.save(rec)
+  try {
+    $app.save(rec)
+  } catch (err) {
+    // Falha na criação do handoff NÃO pode quebrar o ganho — loga e segue.
+    $app.logger().error('T231 falha ao criar handoff', 'error', String(err))
+  }
 
   $app.logger().info('T231 handoff criado no ganho', 'negocio', negocioId, 'emissor', ator)
   e.next()
