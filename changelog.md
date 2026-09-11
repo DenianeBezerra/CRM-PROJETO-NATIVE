@@ -18,6 +18,15 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.220] — 2026-09-11 — T2.16 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-011 fechado: operador cria versão de diagnóstico com núcleo mínimo (resumo ≥ 20 caracteres) e vínculo inequívoco à oportunidade; versão sequencial calculada no servidor.
+- Teste humano aprovado pela cliente (2026-09-11 22:21 — "funcionou, todas as rtapas passaram"; v5 criada pela UI).
+- Revalidação independente: 5 versões no histórico, auditoria cobre diagnosticos, "Proposta BPO" íntegra em `novo`, preview 200.
+- Fase 2: 16/40 (40%).
+
 ## [0.0.214] — 2026-09-11 — T2.15 CONCLUÍDA (teste humano aprovado) — SPEC-2-002 FECHADA
 
 ### Concluído

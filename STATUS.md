@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 15 de 40 tasks concluídas (37,5%) — **SPEC-2-000, SPEC-2-001 e SPEC-2-002 FECHADAS (15/15)**
+**Status:** Fase 2 em execução — 16 de 40 tasks concluídas (40%) — **SPEC-2-000, SPEC-2-001 e SPEC-2-002 FECHADAS (15/15)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.15 — CA-2-010, auditoria de alterações e exceções da qualificação com ator, data e snapshots (2026-09-11)
-**Próxima task elegível:** T2.16 (SPEC-2-003 — ver fase.md; primeira task da leva seguinte)
+**Última task concluída:** T2.16 — CA-2-011, operador cria versão de diagnóstico com núcleo mínimo e vínculo inequívoco (2026-09-11)
+**Próxima task elegível:** T2.17 — CA-2-012 (SPEC-2-003 — edição preserva versão anterior, ator, data e motivo da atualização)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
