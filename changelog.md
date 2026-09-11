@@ -1,5 +1,13 @@
 # Changelog — CRM Vibratto
 
+## [0.0.350] — 2026-09-12 — T2.38 CONCLUÍDA (teste humano aprovado)
+
+### Concluído
+
+- CA-2-033 fechado: dashboard com leads por origem/período, oportunidades por etapa, primeira resposta, tempo por etapa, propostas/ciclo, conversão, perdas e filas — N explícito e filtros consistentes. Teste humano aprovado pela cliente (2026-09-12 09:45 — "pode concluir e seguir", execução delegada ao champion).
+- Prova na UI real (browser): visão completa (N=1, conversão 100%), filtro Site zera todos os blocos, filtro Indicação restaura; prints em artifacts/t238_dashboard_todas|site|indicacao.png.
+- Fase 2: 38/40 (95%).
+
 ## [0.0.348] — 2026-09-12 — T2.38 implementada (CA-2-033, aguardando teste humano)
 
 ### Adicionado
