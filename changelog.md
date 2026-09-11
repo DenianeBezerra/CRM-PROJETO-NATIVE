@@ -18,6 +18,19 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.214] — 2026-09-11 — T2.15 CONCLUÍDA (teste humano aprovado) — SPEC-2-002 FECHADA
+
+### Concluído
+
+- CA-2-010 fechado: alterações e exceções da qualificação na auditoria com ator, data e snapshots.
+- Teste humano aprovado pela cliente (2026-09-11 22:09 — "todas as etapas passaram, conclua e siga a proxima etapa"; print: qualificação 100%, 1 de 1 respondidas).
+- Revalidação independente: resposta do operator auditada (evento create com ator e data), exceção provada por API (evento com ator e snapshot), perguntas/respostas/exceções cobertas.
+- **SPEC-2-002 FECHADA (5/5)** — Fase 2: 15/40 (37,5%).
+
+### Limitação documentada
+
+- Evento 'negado' na coleção `auditoria` é tecnicamente inviável no JSVM v0.36 (save em request hook participa da transação e é revertido pelo rollback — provado com 3 mecanismos). Trilha em log estruturado; alternativa definitiva (rota custom de avanço) registrada como DÚVIDA para o consultor.
+
 ## [0.0.212] — 2026-09-11 — T2.15 implementada (CA-2-010, aguardando teste humano)
 
 ### Adicionado
