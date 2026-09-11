@@ -37,30 +37,30 @@ onRecordUpdateRequest((e) => {
         }
       }
       if (motivoNegativa) {
-        // T2.15/CA-2-010: tentativa negada gera evento append-only.
-        // Grava o evento e responde 400 SEM chamar e.next(): a transação do
-        // save nunca abre, então o evento não é revertido pelo rollback.
-        try {
-          const actor = e.auth
-          if (actor) {
-            const audit = $app.findCollectionByNameOrId('auditoria')
-            const event = new Record(audit)
-            event.set('entidade', 'negocios')
-            event.set('registro_id', e.record.id)
-            event.set('acao', 'negado')
-            event.set('ator_id', actor.id)
-            event.set('ocorrido_em', new Date().toISOString())
-            event.set('estado_anterior', JSON.stringify({ estagio: previousStage }))
-            event.set(
-              'estado_posterior',
-              JSON.stringify({ estagio_tentado: nextStage, motivo: motivoNegativa }),
-            )
-            $app.save(event)
-          }
-        } catch (auditErr) {
-          $app.logger().error('Falha ao registrar tentativa negada', 'error', String(auditErr))
-        }
-        return e.json(400, { message: motivoNegativa })
+        // T2.15/CA-2-010: trilha da tentativa negada em log estruturado.
+        // LIMITAÇÃO TÉCNICA (documentada): em request hook do JSVM v0.36,
+        // qualquer $app.save participa da transação do request — um evento
+        // gravado antes do erro é revertido pelo rollback (provado por API).
+        $app
+          .logger()
+          .error(
+            'T2.15 tentativa negada',
+            'entidade',
+            'negocios',
+            'registro_id',
+            e.record.id,
+            'ator_id',
+            e.auth ? e.auth.id : '',
+            'etapa_anterior',
+            previousStage,
+            'etapa_tentada',
+            nextStage,
+            'motivo',
+            motivoNegativa,
+            'quando',
+            new Date().toISOString(),
+          )
+        throw new Error(motivoNegativa)
       }
     }
   }

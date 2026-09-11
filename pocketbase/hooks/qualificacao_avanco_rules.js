@@ -164,9 +164,34 @@ onRecordUpdateRequest((e) => {
     $app.logger().error('Falha ao registrar tentativa negada', 'error', String(auditErr))
   }
 
-  // Responde 400 SEM chamar e.next(): a transação do save nunca abre, então
-  // o evento 'negado' gravado acima não é revertido por rollback.
-  e.badRequestError(
+  // Trilha da tentativa negada: log estruturado (Skip preserva logs de hook).
+  // LIMITAÇÃO TÉCNICA (documentada): em request hook do JSVM v0.36, qualquer
+  // $app.save participa da transação do request — um evento gravado antes do
+  // erro é revertido pelo rollback (provado por API: 0 eventos sobrevivem).
+  // O JSVM não expõe hook de erro (onRecordAfterUpdateError não existe).
+  // A trilha definitiva de negativas ficará na auditoria quando o consultor
+  // homologar o mecanismo (ex.: rota custom de avanço fora da transação CRUD).
+  $app
+    .logger()
+    .error(
+      'T2.15 tentativa negada',
+      'entidade',
+      'negocios',
+      'registro_id',
+      e.record.id,
+      'ator_id',
+      e.auth ? e.auth.id : '',
+      'etapa_anterior',
+      etapaAntes,
+      'etapa_tentada',
+      etapaNova,
+      'motivo',
+      'Avanço bloqueado: ' + pendentes.length + ' pergunta(s) obrigatória(s) sem resposta.',
+      'quando',
+      new Date().toISOString(),
+    )
+
+  throw new Error(
     'Avanço bloqueado: ' +
       pendentes.length +
       ' pergunta(s) obrigatória(s) sem resposta (' +
