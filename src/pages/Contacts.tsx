@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, Search, Pencil, Archive, RotateCcw, X } from 'lucide-react'
+import { ArrowLeft, Plus, Search, Pencil, Archive, RotateCcw, X, Building2 } from 'lucide-react'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
 
@@ -54,6 +54,9 @@ export default function Contacts() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [filtroStatus, setFiltroStatus] = useState<'ativos' | 'arquivados' | 'todos'>('ativos')
+  const [novaEmpresa, setNovaEmpresa] = useState('')
+  const [criandoEmpresa, setCriandoEmpresa] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -82,12 +85,15 @@ export default function Contacts() {
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return items.filter(
-      (x) =>
-        !q ||
-        [x.nome, x.empresa_nome, x.email, x.telefone].some((v) => v?.toLowerCase().includes(q)),
-    )
-  }, [items, search])
+    return items.filter((x) => {
+      const statusOk =
+        filtroStatus === 'todos' ||
+        (filtroStatus === 'arquivados' ? x.status === 'inativo' : x.status !== 'inativo')
+      if (!statusOk) return false
+      if (!q) return true
+      return [x.nome, x.empresa_nome, x.email, x.telefone].some((v) => v?.toLowerCase().includes(q))
+    })
+  }, [items, search, filtroStatus])
 
   const update = (key: keyof typeof form, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -136,6 +142,31 @@ export default function Contacts() {
     toast({ title: status === 'inativo' ? 'Contato arquivado' : 'Contato restaurado' })
   }
 
+  const criarEmpresaInline = async () => {
+    const nome = novaEmpresa.trim()
+    if (nome.length < 2) return setError('Informe o nome da nova empresa (mín. 2 caracteres).')
+    setError('')
+    setCriandoEmpresa(true)
+    try {
+      const existente = empresas.find((e) => e.nome.toLowerCase() === nome.toLowerCase())
+      if (existente) {
+        update('empresa', existente.id)
+        setNovaEmpresa('')
+        toast({ title: 'Empresa existente selecionada', description: existente.nome })
+        return
+      }
+      const criada = await pb.collection('empresas').create<Empresa>({ nome })
+      setEmpresas((prev) => [...prev, criada].sort((a, b) => a.nome.localeCompare(b.nome)))
+      update('empresa', criada.id)
+      setNovaEmpresa('')
+      toast({ title: 'Empresa criada', description: `${criada.nome} vinculada ao contato.` })
+    } catch {
+      setError('Não foi possível criar a empresa. Tente novamente.')
+    } finally {
+      setCriandoEmpresa(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -166,14 +197,39 @@ export default function Contacts() {
             Cadastre e mantenha a base comercial sem apagar histórico.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-white border rounded-xl px-4 py-3 mb-5">
+        <div className="flex flex-wrap items-center gap-3 bg-white border rounded-xl px-4 py-3 mb-5">
           <Search className="w-4 h-4 text-[#6B7280]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nome, empresa, e-mail ou telefone"
-            className="bg-transparent outline-none w-full"
+            className="bg-transparent outline-none w-full min-w-[200px] flex-1"
           />
+          <div className="flex gap-1 rounded-lg bg-[#F7F5F1] border p-1">
+            {(
+              [
+                ['ativos', 'Ativos'],
+                ['arquivados', 'Arquivados'],
+                ['todos', 'Todos'],
+              ] as const
+            ).map(([valor, rotulo]) => (
+              <button
+                key={valor}
+                type="button"
+                onClick={() => setFiltroStatus(valor)}
+                className={`text-xs rounded-md px-3 py-1.5 font-medium transition-colors ${
+                  filtroStatus === valor
+                    ? 'bg-[#0A0A0A] text-white'
+                    : 'text-[#6B7280] hover:text-[#0A0A0A]'
+                }`}
+              >
+                {rotulo}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs text-[#6B7280] whitespace-nowrap">
+            {visible.length} contato{visible.length === 1 ? '' : 's'}
+          </span>
         </div>
         {error && !showForm && (
           <p className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
@@ -182,6 +238,34 @@ export default function Contacts() {
         )}
         {loading ? (
           <p>Carregando contatos...</p>
+        ) : visible.length === 0 ? (
+          <div className="bg-white border rounded-xl p-10 text-center">
+            <Building2 className="w-10 h-10 text-[#C9A227] mx-auto mb-3" />
+            <p className="font-semibold text-lg">
+              {search
+                ? `Nenhum contato encontrado para "${search}"`
+                : filtroStatus === 'arquivados'
+                  ? 'Nenhum contato arquivado'
+                  : 'Nenhum contato ainda'}
+            </p>
+            <p className="text-sm text-[#6B7280] mt-1 mb-4">
+              {search
+                ? 'Tente outro termo ou limpe a busca.'
+                : 'Cadastre o primeiro contato para começar sua base comercial.'}
+            </p>
+            {!search && (
+              <button
+                onClick={() => {
+                  setForm(emptyForm)
+                  setEditing(null)
+                  setShowForm(true)
+                }}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 font-semibold text-sm"
+              >
+                <Plus className="w-4 h-4" /> Novo contato
+              </button>
+            )}
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {visible.map((item) => (
@@ -279,6 +363,25 @@ export default function Contacts() {
                   ))}
                 </select>
               </label>
+              <div className="text-sm font-medium">
+                <span className="block">Nova empresa (cria e vincula)</span>
+                <div className="flex gap-2 mt-1">
+                  <input
+                    value={novaEmpresa}
+                    onChange={(e) => setNovaEmpresa(e.target.value)}
+                    placeholder="Ex.: Felicidade Collective"
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void criarEmpresaInline()}
+                    disabled={criandoEmpresa || !novaEmpresa.trim()}
+                    className="shrink-0 border border-[#A8862B] text-[#A8862B] rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[#A8862B]/10 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {criandoEmpresa ? 'Criando...' : '+ Criar'}
+                  </button>
+                </div>
+              </div>
               <label className="text-sm font-medium">
                 Origem
                 <select

@@ -100,6 +100,11 @@ const emptyForm = {
 
 export default function Opportunities() {
   const navigate = useNavigate()
+  useEffect(() => {
+    const fechar = () => setMenuAberto(null)
+    document.addEventListener('click', fechar)
+    return () => document.removeEventListener('click', fechar)
+  }, [])
   const { toast } = useToast()
   const [items, setItems] = useState<Oportunidade[]>([])
   const [clients, setClients] = useState<Cliente[]>([])
@@ -112,6 +117,7 @@ export default function Opportunities() {
   const [showForm, setShowForm] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [menuAberto, setMenuAberto] = useState<string | null>(null)
   const load = async () => {
     setLoading(true)
     try {
@@ -338,6 +344,31 @@ export default function Opportunities() {
         )}
         {loading ? (
           <p>Carregando oportunidades...</p>
+        ) : visible.length === 0 ? (
+          <div className="bg-white border rounded-xl p-10 text-center">
+            <p className="font-semibold text-lg">
+              {search
+                ? `Nenhuma oportunidade encontrada para "${search}"`
+                : 'Nenhuma oportunidade ainda'}
+            </p>
+            <p className="text-sm text-[#6B7280] mt-1 mb-4">
+              {search
+                ? 'Tente outro termo ou limpe a busca.'
+                : 'Registre a primeira oportunidade para ativar o pipeline comercial.'}
+            </p>
+            {!search && (
+              <button
+                onClick={() => {
+                  setForm(emptyForm)
+                  setEditing(null)
+                  setShowForm(true)
+                }}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 font-semibold text-sm"
+              >
+                <Plus className="w-4 h-4" /> Nova oportunidade
+              </button>
+            )}
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {visible.map((item) => (
@@ -379,10 +410,10 @@ export default function Opportunities() {
                     : '—'}
                   {item.tags ? ` · Tags: ${item.tags}` : ''}
                 </p>
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-2 mt-4 items-center">
                   <button
                     onClick={() => openEdit(item)}
-                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
+                    className="text-xs flex items-center gap-1 border border-[#C9A227]/50 bg-[#F7F5F1] rounded px-2.5 py-1.5 font-semibold"
                   >
                     <Pencil className="w-3 h-3" /> Editar
                   </button>
@@ -398,24 +429,46 @@ export default function Opportunities() {
                   >
                     Diagnóstico
                   </button>
-                  <button
-                    onClick={() => setC360Open(item)}
-                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
-                  >
-                    Consulta 360º
-                  </button>
-                  <button
-                    onClick={() => setPropOpen(item)}
-                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
-                  >
-                    Proposta
-                  </button>
-                  <button
-                    onClick={() => setTarOpen(item)}
-                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
-                  >
-                    Tarefas
-                  </button>
+                  <div className="relative ml-auto" data-menu-oportunidade>
+                    <button
+                      onClick={() => setMenuAberto(menuAberto === item.id ? null : item.id)}
+                      className="text-xs flex items-center gap-1 border rounded px-2 py-1 font-semibold"
+                      aria-label="Mais ações"
+                    >
+                      Mais ⌄
+                    </button>
+                    {menuAberto === item.id && (
+                      <div className="absolute right-0 top-full mt-1 bg-white border rounded-lg shadow-lg py-1 z-20 min-w-[160px]">
+                        <button
+                          onClick={() => {
+                            setMenuAberto(null)
+                            setC360Open(item)
+                          }}
+                          className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                        >
+                          Consulta 360º
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuAberto(null)
+                            setPropOpen(item)
+                          }}
+                          className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                        >
+                          Proposta
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuAberto(null)
+                            setTarOpen(item)
+                          }}
+                          className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                        >
+                          Tarefas
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </article>
             ))}
