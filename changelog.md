@@ -1,5 +1,11 @@
 # Changelog — CRM Vibratto
 
+## [0.0.348] — 2026-09-12 — T2.38 implementada (CA-2-033, aguardando teste humano)
+
+### Adicionado
+
+- **Dashboard comercial (CA-2-033)**: endpoint `GET /backend/v1/dashboard/comercial` com 9 blocos (leads por origem, oportunidades por etapa, primeira resposta p50/p90, tempo por etapa, propostas/ciclo, conversão, perdas por motivo, filas, cobertura) — N explícito em cada número e filtros de período/origem aplicados consistentemente a todos os blocos. Página `/dashboard` com filtros e N visível + link na home. Provas: RED 1 + GREEN 5 + regressão (evidência em `evidencias/spec-2-007/ca-2-033-green.md`).
+
 ## [0.0.345] — 2026-09-12 — T2.37 CONCLUÍDA (teste humano aprovado)
 
 ### Concluído
