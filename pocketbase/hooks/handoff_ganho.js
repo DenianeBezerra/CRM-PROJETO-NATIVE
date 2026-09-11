@@ -1,0 +1,57 @@
+// T2.31 — CA-2-026: ganho cria handoff idempotente.
+// MODEL hook onRecordUpdate em negocios (dentro da transação do save):
+// - dispara quando estagio vira 'fechado_ganho';
+// - cria o handoff com checklist padrão do onboarding Vibratto, origem
+//   (serviço da oportunidade), emissor (ator do ganho) e receptor
+//   (responsável da oportunidade — ajustável na T2.33);
+// - IDEMPOTENTE: se já existe handoff para o negócio, não duplica e NÃO
+//   sobrescreve decisão existente (status/aceite preservados).
+// Lições JSVM: lógica inline no callback, datas PB " " → "T".
+onRecordUpdate((e) => {
+  const antes = String(e.record.original().get('estagio') || '')
+  const depois = String(e.record.get('estagio') || '')
+  if (depois !== 'fechado_ganho' || antes === 'fechado_ganho') return e.next()
+
+  const negocioId = e.record.id
+  const ator = e.auth ? e.auth.id : ''
+  const origem = String(e.record.get('servico') || 'outro') || 'outro'
+  const receptor = String(e.record.get('responsavel') || '') || ator
+  const observacao = String(e.record.get('observacao_ganho') || '')
+
+  // Checklist padrão do onboarding Vibratto (3 frentes).
+  const checklistPadrao = [
+    { item: 'Contrato assinado e arquivado', feito: false },
+    { item: 'Documentos fiscais e societários recebidos', feito: false },
+    { item: 'Acessos aos sistemas do cliente (Omie/Conta Azul/Nibo)', feito: false },
+    { item: 'Reunião de kickoff agendada', feito: false },
+    { item: 'Escopo e rotinas transferidos para a operação', feito: false },
+  ]
+
+  // Idempotência: UNIQUE negocio — se já existe, preserva.
+  let existente = []
+  try {
+    existente = $app.findRecordsByFilter('handoffs', 'negocio = "' + negocioId + '"', '', 1, 0)
+  } catch (err) {
+    $app.logger().error('T231 falha ao checar handoff existente', 'error', String(err))
+    throw new Error('Falha ao verificar handoff existente.')
+  }
+  if (existente.length > 0) {
+    // Não duplica, não sobrescreve decisão (status/aceite preservados).
+    return e.next()
+  }
+
+  const col = $app.findCollectionByNameOrId('handoffs')
+  const rec = new Record(col)
+  rec.set('negocio', negocioId)
+  rec.set('origem', origem)
+  rec.set('responsavel_emissor', ator)
+  rec.set('responsavel_receptor', receptor)
+  rec.set('status', 'pendente')
+  rec.set('checklist', JSON.stringify(checklistPadrao))
+  rec.set('observacao_ganho', observacao)
+  rec.set('criado_em', new Date().toISOString().replace('T', ' '))
+  $app.save(rec)
+
+  $app.logger().info('T231 handoff criado no ganho', 'negocio', negocioId, 'emissor', ator)
+  e.next()
+}, 'negocios')
