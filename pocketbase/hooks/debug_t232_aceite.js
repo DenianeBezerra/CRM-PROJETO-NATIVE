@@ -15,9 +15,11 @@ routerAdd(
     out.status = String(h.get('status'))
     const raw = h.get('checklist')
     out.raw_tipo = typeof raw
+    out.raw_amostra = String(JSON.stringify(raw)).slice(0, 120)
     let checklist = []
     try {
-      const rawStr = typeof raw === 'string' ? raw : raw ? JSON.stringify(raw) : '[]'
+      const rawStr = typeof raw === 'string' ? raw : String(raw)
+      out.rawStr_amostra = rawStr.slice(0, 120)
       checklist = JSON.parse(rawStr)
     } catch (err) {
       out.parse_erro = String(err)
