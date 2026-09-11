@@ -24,7 +24,8 @@ onRecordUpdateRequest((e) => {
       const quando = String(e.record.get('proxima_acao_em') || '').trim()
       let motivoNegativa = ''
       if (!desc) {
-        motivoNegativa = 'Desqualificação exige a próxima ação: descreva o que acontece a partir daqui.'
+        motivoNegativa =
+          'Desqualificação exige a próxima ação: descreva o que acontece a partir daqui.'
       } else if (!quando || quando.startsWith('0001-01-01')) {
         motivoNegativa = 'Desqualificação exige a data da próxima ação.'
       } else {
@@ -60,7 +61,6 @@ onRecordUpdateRequest((e) => {
         throw new Error(motivoNegativa)
       }
     }
-  }    }
   }
 
   if (nextStage === 'fechado_ganho') {
