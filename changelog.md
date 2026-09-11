@@ -18,6 +18,12 @@
 - Hook checava obrigatórias da etapa NOVA; correto é da etapa ATUAL (a que está sendo deixada) — v0.0.185.
 - Parse de validade: datas PB vêm com espaço ("2026-09-30 00:00:00.000Z"); Date.parse do JSVM exige "T" — v0.0.187 (revalidação pendente).
 
+## [0.0.282] — 2026-09-12 — T2.29 CONCLUÍDA (teste humano aprovado)
+
+### Adicionado
+
+- **Ciclo de vida consistente (CA-2-024)**: pausa estruturada (`motivo_pausa` obrigatório ≥ 10 chars, proibida em etapa final), reabertura auditável (`justificativa_reabertura` obrigatória, não aponta para status final), guard de responsável inativo em toda transição e **concorrência otimista** (`versao_registro` incrementado server-side; update stale rejeitado). Migration 0071 + hook `negocio_ciclo_rules.js`. Provas: RED 5 + GREEN 7 + revalidação independente (evidência em `evidencias/spec-2-005/ca-2-024-green.md`). Fixtures limpas (0072).
+
 ## [0.0.278] — 2026-09-12 — T2.28 CONCLUÍDA (teste humano aprovado) — SPEC-2-005 FECHADA
 
 ### Adicionado

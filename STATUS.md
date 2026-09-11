@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 2 em execução — 28 de 40 tasks concluídas (70%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (29/29)**
+**Status:** Fase 2 em execução — 29 de 40 tasks concluídas (72,5%) — **SPEC-2-000 a SPEC-2-005 FECHADAS (29/29)**
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma
-**Última task concluída:** T2.28 — CA-2-023, filas operacionais distintas e reproduzíveis (2026-09-12) — fecha SPEC-2-005
-**Próxima task elegível:** T2.29 — CA-2-024 (SPEC-2-005 — pausa, reabertura, usuário inativo e duas atualizações concorrentes preservam consistência e auditoria)
+**Última task concluída:** T2.29 — CA-2-024, pausa/reabertura/usuário inativo/concorrência com consistência e auditoria (2026-09-12)
+**Próxima task elegível:** T2.30 — CA-2-025 (SPEC-2-005 — operador vê somente ações/registros permitidos; administrador consulta configuração e trilha completa)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app
 **Produção:** não publicada
 
