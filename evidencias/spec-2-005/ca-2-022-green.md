@@ -32,5 +32,6 @@
 
 ## Limpeza
 
-- Migration 0067 remove a fixture de prova (tarefa concluída é imutável por request hook; remoção no nível de modelo).
-- Estado final: 0 tarefas na base, negócio real íntegro.
+- Migrations 0067 + 0068 removem as duas fixtures de prova (a concluída do GREEN e a aberta das provas RED R6/R7 — remoção no nível de modelo, pois request hooks bloqueiam delete/update).
+- Estado final (v0.0.270, QA 5/5 verde): 0 tarefas na base, negócio "Proposta BPO" íntegro em `novo`.
+- Lição registrada: fixtures de prova RED (não concluídas) também precisam de limpeza — cobrir TODAS as fixtures criadas durante as provas, não só a do fluxo GREEN.
