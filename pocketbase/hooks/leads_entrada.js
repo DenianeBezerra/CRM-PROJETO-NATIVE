@@ -63,12 +63,25 @@ routerAdd('POST', '/backend/v1/entrada/publico', (e) => {
     return e.json(400, { error: 'O consentimento LGPD é obrigatório para enviar.' })
   }
   // Rate limit por IP/hora (config limite_entrada_por_ip_hora, padrão 3).
+  // IP: realIp() → X-Forwarded-For (proxy/ingress) → 'desconhecido'.
+  // Sem IP identificável o limite NÃO bloqueia (fail-open, registrado em log) —
+  // evita bloquear todos os visitantes atrás de um único proxy.
   var ip = ''
   try {
-    ip = e.realIp()
+    ip = String(e.realIp() || '').trim()
   } catch (_) {
     ip = ''
   }
+  if (!ip) {
+    try {
+      ip = String(e.request.getHeader('X-Forwarded-For') || '')
+        .split(',')[0]
+        .trim()
+    } catch (_) {
+      ip = ''
+    }
+  }
+  var ipKey = ip || 'desconhecido'
   var limite = 3
   try {
     var cfgs = $app.findRecordsByFilter(
@@ -83,20 +96,26 @@ routerAdd('POST', '/backend/v1/entrada/publico', (e) => {
       if (Number.isFinite(v) && v >= 1) limite = v
     }
   } catch (_) {}
-  try {
-    var umaHoraAtras = new Date(Date.now() - 3600000).toISOString().replace('T', ' ')
-    var recentes = $app.findRecordsByFilter(
-      'leads_entrada',
-      'ip = {:ip} && created > {:desde}',
-      '-created',
-      100,
-      0,
-      { ip: ip, desde: umaHoraAtras },
-    )
-    if (recentes.length >= limite) {
-      return e.json(429, { error: 'Muitos envios deste endereço. Tente novamente mais tarde.' })
+  if (ipKey !== 'desconhecido') {
+    try {
+      var umaHoraAtras = new Date(Date.now() - 3600000).toISOString().replace('T', ' ')
+      var recentes = $app.findRecordsByFilter(
+        'leads_entrada',
+        'ip = {:ip} && created > {:desde}',
+        '-created',
+        100,
+        0,
+        { ip: ipKey, desde: umaHoraAtras },
+      )
+      if (recentes.length >= limite) {
+        return e.json(429, { error: 'Muitos envios deste endereço. Tente novamente mais tarde.' })
+      }
+    } catch (errLim) {
+      $app.logger().warn('T307 rate limit falhou (fail-open)', 'err', String(errLim))
     }
-  } catch (_) {}
+  } else {
+    $app.logger().warn('T307 envio sem IP identificável — limite não aplicado neste envio')
+  }
 
   var col
   try {
