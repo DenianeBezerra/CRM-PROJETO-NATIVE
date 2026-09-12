@@ -164,7 +164,7 @@ routerAdd(
 routerAdd('GET', '/backend/v1/whatsapp/interacoes', (e) => {
   var actor = e.auth
   if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
-  var negocioId = String(e.request.query().get('negocio') || '').trim()
+  var negocioId = String(e.request.url.query().get('negocio') || '').trim()
   if (!negocioId) return e.json(400, { error: 'Informe a oportunidade (?negocio=).' })
   var regs
   try {
