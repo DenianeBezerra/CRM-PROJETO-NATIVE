@@ -7,7 +7,7 @@ import {
   Pencil,
   Plus,
   Search,
-  UserTie,
+  UserCog,
   X,
   CircleDot,
 } from 'lucide-react'
@@ -122,7 +122,7 @@ const servicoIcone: Record<string, React.ComponentType<{ className?: string }>> 
   bpo_financeiro: Briefcase,
   tesouraria: LineChart,
   controladoria: Calculator,
-  cfo_as_a_service: UserTie,
+  cfo_as_a_service: UserCog,
   outro: CircleDot,
 }
 const statusOptions = [
