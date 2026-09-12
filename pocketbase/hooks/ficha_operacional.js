@@ -9,53 +9,54 @@
 // REGRA DE OURO: nenhum campo aceita credencial — validação server-side rejeita
 // valores com padrão de senha/token; campos item_cofre só aceitam identificadores.
 // Acesso: admin tudo; operator só fichas onde é responsavel_principal ou reserva.
-// Runtime goja: lógica inline em cada callback (AP-0200); datas PB " " → "T".
+// Runtime goja: AP-0200 — helpers INLINE em cada callback (escopo não compartilha).
 
-// Padrões de credencial — bloqueados em QUALQUER campo de texto.
-var PADROES_CREDENCIAL = function () {
-  return [
-    /senha\s*[:=]/i,
-    /password\s*[:=]/i,
-    /token\s*[:=]/i,
-    /chave\s*de\s*acesso/i,
-    /api[_\s-]?key\s*[:=]/i,
-    /Bearer\s+[A-Za-z0-9\-_.]{20,}/,
-    /[A-Za-z0-9+/]{40,}={0,2}/, // base64 longo (possível segredo)
-  ]
-}
-
-var temCredencial = function (obj) {
-  var pads = PADROES_CREDENCIAL()
-  for (var chave in obj) {
-    var v = obj[chave]
-    if (typeof v !== 'string') continue
-    for (var i = 0; i < pads.length; i++) {
-      if (pads[i].test(v)) return chave
-    }
-  }
-  return null
-}
-
-var fichaDeEmpresa = function (empresaId) {
-  var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
-    e: empresaId,
-  })
-  return fs.length ? fs[0] : null
-}
-
-var podeVer = function (actor, ficha) {
-  if (String(actor.get('role') || '') === 'admin') return true
-  return (
-    String(ficha.get('responsavel_principal') || '') === actor.id ||
-    String(ficha.get('responsavel_reserva') || '') === actor.id
-  )
-}
-
-// ---- GET ficha completa (com listas) ----
 routerAdd(
   'GET',
   '/backend/v1/fichas/{empresaId}',
   (e) => {
+    var PADROES_CREDENCIAL = [
+      /senha\s*[:=]/i,
+      /password\s*[:=]/i,
+      /token\s*[:=]/i,
+      /chave\s*de\s*acesso/i,
+      /api[_\s-]?key\s*[:=]/i,
+      /Bearer\s+[A-Za-z0-9\-_.]{20,}/,
+      /[A-Za-z0-9+/]{40,}={0,2}/,
+    ]
+    var temCredencial = function (obj) {
+      for (var chave in obj) {
+        var v = obj[chave]
+        if (typeof v !== 'string') continue
+        for (var i = 0; i < PADROES_CREDENCIAL.length; i++) {
+          if (PADROES_CREDENCIAL[i].test(v)) return chave
+        }
+      }
+      return null
+    }
+    var fichaDeEmpresa = function (empresaId) {
+      var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
+        e: empresaId,
+      })
+      return fs.length ? fs[0] : null
+    }
+    var podeVer = function (actor, ficha) {
+      if (String(actor.get('role') || '') === 'admin') return true
+      return (
+        String(ficha.get('responsavel_principal') || '') === actor.id ||
+        String(ficha.get('responsavel_reserva') || '') === actor.id
+      )
+    }
+    var nomeUsuarioSafe = function (id) {
+      if (!id) return 'não atribuído'
+      try {
+        return String(
+          $app.findRecordById('_pb_users_auth_', String(id)).get('name') || 'não atribuído',
+        )
+      } catch (_) {
+        return 'não atribuído'
+      }
+    }
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     var ficha = fichaDeEmpresa(e.request.pathValue('empresaId'))
@@ -117,24 +118,15 @@ routerAdd(
       }
     } catch (_) {}
 
-    var nomeUsuario = function (id) {
-      if (!id) return ''
-      try {
-        return String($app.findRecordById('_pb_users_auth_', String(id)).get('name') || '')
-      } catch (_) {
-        return ''
-      }
-    }
-
     return e.json(200, {
       id: ficha.id,
       empresa: String(ficha.get('empresa') || ''),
       status_operacional: String(ficha.get('status_operacional') || ''),
       data_inicio_operacao: String(ficha.get('data_inicio_operacao') || ''),
       responsavel_principal: String(ficha.get('responsavel_principal') || ''),
-      responsavel_principal_nome: nomeUsuario(ficha.get('responsavel_principal')),
+      responsavel_principal_nome: nomeUsuarioSafe(ficha.get('responsavel_principal')),
       responsavel_reserva: String(ficha.get('responsavel_reserva') || ''),
-      responsavel_reserva_nome: nomeUsuario(ficha.get('responsavel_reserva')),
+      responsavel_reserva_nome: nomeUsuarioSafe(ficha.get('responsavel_reserva')),
       servicos_contratados: String(ficha.get('servicos_contratados') || ''),
       fora_do_escopo: String(ficha.get('fora_do_escopo') || ''),
       volume_referencia_pagamentos: ficha.get('volume_referencia_pagamentos'),
@@ -161,11 +153,35 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- POST criar ficha (admin) ----
 routerAdd(
   'POST',
   '/backend/v1/fichas',
   (e) => {
+    var PADROES_CREDENCIAL = [
+      /senha\s*[:=]/i,
+      /password\s*[:=]/i,
+      /token\s*[:=]/i,
+      /chave\s*de\s*acesso/i,
+      /api[_\s-]?key\s*[:=]/i,
+      /Bearer\s+[A-Za-z0-9\-_.]{20,}/,
+      /[A-Za-z0-9+/]{40,}={0,2}/,
+    ]
+    var temCredencial = function (obj) {
+      for (var chave in obj) {
+        var v = obj[chave]
+        if (typeof v !== 'string') continue
+        for (var i = 0; i < PADROES_CREDENCIAL.length; i++) {
+          if (PADROES_CREDENCIAL[i].test(v)) return chave
+        }
+      }
+      return null
+    }
+    var fichaDeEmpresa = function (empresaId) {
+      var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
+        e: empresaId,
+      })
+      return fs.length ? fs[0] : null
+    }
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     if (String(actor.get('role') || '') !== 'admin') {
@@ -194,8 +210,8 @@ routerAdd(
     var col = $app.findCollectionByNameOrId('fichas_operacionais')
     var rec = new Record(col)
     rec.set('empresa', empresaId)
-    if (body.status_operacional) rec.set('status_operacional', String(body.status_operacional))
     var campos = [
+      'status_operacional',
       'data_inicio_operacao',
       'responsavel_principal',
       'responsavel_reserva',
@@ -253,7 +269,6 @@ routerAdd(
     } catch (err) {
       return e.json(400, { error: 'Falha ao salvar ficha: ' + String(err) })
     }
-    // Auditoria
     try {
       var audit = $app.findCollectionByNameOrId('auditoria')
       var ev = new Record(audit)
@@ -271,11 +286,262 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- PATCH atualizar ficha (auth; versiona procedimento) ----
 routerAdd(
   'PATCH',
   '/backend/v1/fichas/{id}',
   (e) => {
+    var PADROES_CREDENCIAL = [
+      /senha\s*[:=]/i,
+      /password\s*[:=]/i,
+      /token\s*[:=]/i,
+      /chave\s*de\s*acesso/i,
+      /api[_\s-]?key\s*[:=]/i,
+      /Bearer\s+[A-Za-z0-9\-_.]{20,}/,
+      /[A-Za-z0-9+/]{40,}={0,2}/,
+    ]
+    var temCredencial = function (obj) {
+      for (var chave in obj) {
+        var v = obj[chave]
+        if (typeof v !== 'string') continue
+        for (var i = 0; i < PADROES_CREDENCIAL.length; i++) {
+          if (PADROES_CREDENCIAL[i].test(v)) return chave
+        }
+      }
+      return null
+    }
+    var fichaDeEmpresa = function (empresaId) {
+      var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
+        e: empresaId,
+      })
+      return fs.length ? fs[0] : null
+    }
+    var podeVer = function (actor, ficha) {
+      if (String(actor.get('role') || '') === 'admin') return true
+      return (
+        String(ficha.get('responsavel_principal') || '') === actor.id ||
+        String(ficha.get('responsavel_reserva') || '') === actor.id
+      )
+    }
+    var nomeUsuarioSafe = function (id) {
+      if (!id) return 'não atribuído'
+      try {
+        return String(
+          $app.findRecordById('_pb_users_auth_', String(id)).get('name') || 'não atribuído',
+        )
+      } catch (_) {
+        return 'não atribuído'
+      }
+    }
+    var gerarProcedimento = function (ficha, servico) {
+      var L = []
+      var nomeEmpresa = ''
+      try {
+        nomeEmpresa = String(
+          $app.findRecordById('empresas', String(ficha.get('empresa') || '')).get('nome') || '',
+        )
+      } catch (_) {}
+      L.push('PROCEDIMENTO OPERACIONAL — ' + servico.toUpperCase())
+      L.push('Cliente: ' + nomeEmpresa)
+      L.push('Gerado automaticamente pela Ficha Operacional do CRM Vibratto.')
+      L.push('Status operacional: ' + String(ficha.get('status_operacional') || 'não informado'))
+      L.push('')
+      L.push('RESPONSABILIDADE')
+      L.push('- Analista titular: ' + nomeUsuarioSafe(ficha.get('responsavel_principal')))
+      L.push('- Analista reserva: ' + nomeUsuarioSafe(ficha.get('responsavel_reserva')))
+      L.push('- Fora do escopo: ' + String(ficha.get('fora_do_escopo') || 'não informado'))
+      L.push('')
+      if (servico === 'contas_a_pagar') {
+        L.push('CONTAS A PAGAR')
+        L.push(
+          '- Periodicidade da projeção: ' +
+            String(ficha.get('periodicidade_projecao') || 'não informada'),
+        )
+        L.push('- Dias de referência: ' + String(ficha.get('dias_referencia') || 'não informados'))
+        L.push('- Janela coberta: ' + String(ficha.get('janela_coberta') || 'não informada'))
+        L.push('- Contas fixas: ' + String(ficha.get('regra_conta_fixa') || 'não informado'))
+        L.push(
+          '- Contas variáveis (exigem autorização prévia): ' +
+            String(ficha.get('regra_conta_variavel') || 'não informado'),
+        )
+        L.push(
+          '- Autoriza a projeção: ' + String(ficha.get('autoriza_projecao') || 'não informado'),
+        )
+        L.push(
+          '- Canal de autorização: ' + String(ficha.get('canal_autorizacao') || 'não informado'),
+        )
+        L.push(
+          '- Prazo de resposta esperado: ' +
+            (ficha.get('prazo_resposta_horas') || 'não informado') +
+            ' horas',
+        )
+        L.push(
+          '- Antecipação de pagamento: ' +
+            (ficha.get('antecipacao_pagamento') === true ? 'sim' : 'não'),
+        )
+        L.push(
+          '- Destino dos comprovantes: ' +
+            String(ficha.get('destino_comprovantes') || 'não informado'),
+        )
+        L.push(
+          '- Estrutura adicional: ' + String(ficha.get('estrutura_adicional') || 'não informada'),
+        )
+        L.push(
+          '- Controle externo do cliente: ' +
+            String(ficha.get('controle_externo_cliente') || 'nenhum'),
+        )
+      }
+      if (servico === 'faturamento') {
+        L.push('FATURAMENTO')
+        L.push(
+          '- Origem da informação: ' + String(ficha.get('origem_informacao') || 'não informada'),
+        )
+        L.push(
+          '- Dia de envio do relatório: ' +
+            String(ficha.get('dia_envio_relatorio') || 'não informado'),
+        )
+        L.push('- Aprova o relatório: ' + String(ficha.get('aprova_relatorio') || 'não informado'))
+        L.push('- Dia de emissão: ' + String(ficha.get('dia_emissao') || 'não informado'))
+        L.push('- Rotas de emissão: ' + String(ficha.get('rotas_emissao') || 'não informadas'))
+        L.push('- Regra da rota: ' + String(ficha.get('regra_rota') || 'não informada'))
+        L.push(
+          '- Destinatários da nota: ' + String(ficha.get('destinatarios_nota') || 'não informados'),
+        )
+        L.push(
+          '- Cancelar previsão após emissão: ' +
+            (ficha.get('cancelar_previsao') === true ? 'sim' : 'não'),
+        )
+        L.push('- Destino das notas: ' + String(ficha.get('destino_notas') || 'não informado'))
+        L.push(
+          '- Prazo de validação final: ' +
+            String(ficha.get('prazo_validacao_final') || 'não informado'),
+        )
+        L.push('- Regra de cobrança: ' + String(ficha.get('regra_cobranca') || 'não informada'))
+      }
+      if (servico === 'conciliacao') {
+        L.push('CONCILIAÇÃO')
+        L.push('- Frequência: ' + String(ficha.get('frequencia_conciliacao') || 'não informada'))
+        L.push('- Responsável: ' + nomeUsuarioSafe(ficha.get('responsavel_conciliacao')))
+        L.push('- Origem do extrato: ' + String(ficha.get('origem_extrato') || 'não informada'))
+        L.push(
+          '- Destino dos comprovantes: ' +
+            String(ficha.get('destino_comprovantes_conc') || 'não informado'),
+        )
+        L.push('- Controle externo: ' + String(ficha.get('controle_externo_conc') || 'nenhum'))
+      }
+      if (servico === 'fechamento') {
+        L.push('FECHAMENTO MENSAL')
+        L.push('- Contabilidade: ' + String(ficha.get('contabilidade_nome') || 'não informada'))
+        L.push('- Contato: ' + String(ficha.get('contabilidade_contato') || 'não informado'))
+        L.push('- Formato de entrega: ' + String(ficha.get('formato_entrega') || 'não informado'))
+        L.push('- Canal de entrega: ' + String(ficha.get('canal_entrega') || 'não informado'))
+        L.push('- Prazo de entrega: ' + String(ficha.get('prazo_entrega') || 'não informado'))
+        L.push(
+          '- Documentos exigidos: ' + String(ficha.get('documentos_exigidos') || 'não informados'),
+        )
+        L.push(
+          '- Particularidades: ' + String(ficha.get('particularidades_fechamento') || 'nenhuma'),
+        )
+      }
+      if (servico === 'tesouraria' || servico === 'controladoria') {
+        L.push(servico.toUpperCase())
+        L.push('- Serviço contratado; parâmetros específicos conforme contrato e rotina acordada.')
+      }
+      L.push('')
+      L.push('SISTEMA DE GESTÃO')
+      L.push('- Sistema: ' + String(ficha.get('sistema') || 'não informado'))
+      L.push(
+        '- Empresa no sistema: ' +
+          String(ficha.get('identificacao_empresa_sistema') || 'não informada'),
+      )
+      L.push(
+        '- Credenciais: NUNCA neste documento — usar o cofre de senhas (identificador: ' +
+          String(ficha.get('item_cofre_sistema') || 'não informado') +
+          ')',
+      )
+      L.push('')
+      L.push('CONTAS BANCÁRIAS OPERADAS')
+      try {
+        var bs = $app.findRecordsByFilter('ficha_bancos', 'ficha = {:f}', '-created', 50, 0, {
+          f: ficha.id,
+        })
+        if (bs.length === 0) L.push('- Nenhuma conta cadastrada.')
+        for (var b = 0; b < bs.length; b++) {
+          L.push(
+            '- ' +
+              String(bs[b].get('apelido_conta') || '') +
+              ' (' +
+              String(bs[b].get('banco') || '') +
+              ') — finalidade: ' +
+              String(bs[b].get('finalidade') || '') +
+              '; aprova no banco: ' +
+              String(bs[b].get('quem_aprova_no_banco') || 'não informado') +
+              '; cofre: ' +
+              String(bs[b].get('item_cofre') || 'não informado'),
+          )
+        }
+      } catch (_) {
+        L.push('- (falha ao listar contas)')
+      }
+      L.push('')
+      L.push('CANAIS DE ENTRADA')
+      try {
+        var cs = $app.findRecordsByFilter('ficha_canais', 'ficha = {:f}', '-created', 50, 0, {
+          f: ficha.id,
+        })
+        if (cs.length === 0) L.push('- Nenhum canal cadastrado.')
+        for (var c2 = 0; c2 < cs.length; c2++) {
+          L.push(
+            '- ' +
+              String(cs[c2].get('tipo_canal') || '') +
+              ': ' +
+              String(cs[c2].get('identificacao') || '') +
+              ' — verificação ' +
+              String(cs[c2].get('frequencia_verificacao') || 'não informada') +
+              ' — finalidade: ' +
+              String(cs[c2].get('finalidade') || ''),
+          )
+        }
+      } catch (_) {
+        L.push('- (falha ao listar canais)')
+      }
+      L.push('')
+      L.push('PESSOAS DO CLIENTE')
+      try {
+        var ps = $app.findRecordsByFilter(
+          'ficha_pessoas',
+          'ficha = {:f} && ativo = true',
+          '-created',
+          50,
+          0,
+          { f: ficha.id },
+        )
+        if (ps.length === 0) L.push('- Nenhuma pessoa cadastrada.')
+        for (var p2 = 0; p2 < ps.length; p2++) {
+          var cn = ''
+          try {
+            cn = String(
+              $app.findRecordById('clientes', String(ps[p2].get('contato') || '')).get('nome') ||
+                '',
+            )
+          } catch (_) {}
+          L.push(
+            '- ' +
+              cn +
+              ' — papel: ' +
+              String(ps[p2].get('papel_operacional') || '') +
+              ' — canal: ' +
+              String(ps[p2].get('canal_preferencial') || ''),
+          )
+        }
+      } catch (_) {
+        L.push('- (falha ao listar pessoas)')
+      }
+      L.push('')
+      L.push(
+        'Este procedimento é gerado a partir da Ficha Operacional. Altere o cadastro, não o documento.',
+      )
+      return L.join('\n')
+    }
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     var ficha
@@ -364,7 +630,6 @@ routerAdd(
     } catch (err) {
       return e.json(400, { error: 'Falha ao salvar: ' + String(err) })
     }
-    // Auditoria com campos alterados
     try {
       var audit = $app.findCollectionByNameOrId('auditoria')
       var ev = new Record(audit)
@@ -377,13 +642,11 @@ routerAdd(
       ev.set('estado_posterior', JSON.stringify({ campos_alterados: alterados }))
       $app.save(ev)
     } catch (_) {}
-    // Versionamento: regenera procedimento dos serviços afetados
     try {
       var servicos = String(ficha.get('servicos_contratados') || '').split(',')
       for (var s = 0; s < servicos.length; s++) {
         var servico = servicos[s].trim()
         if (!servico) continue
-        // última versão deste serviço
         var ultimas = $app.findRecordsByFilter(
           'ficha_versions',
           'ficha = {:f} && servico = {:s}',
@@ -412,216 +675,262 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- Gerador de procedimento (texto legível por serviço) ----
-var gerarProcedimento = function (ficha, servico) {
-  var L = []
-  var nomeEmpresa = ''
-  try {
-    nomeEmpresa = String(
-      $app.findRecordById('empresas', String(ficha.get('empresa') || '')).get('nome') || '',
-    )
-  } catch (_) {}
-  L.push('PROCEDIMENTO OPERACIONAL — ' + servico.toUpperCase())
-  L.push('Cliente: ' + nomeEmpresa)
-  L.push('Gerado automaticamente pela Ficha Operacional do CRM Vibratto.')
-  L.push('Status operacional: ' + String(ficha.get('status_operacional') || 'não informado'))
-  L.push('')
-  L.push('RESPONSABILIDADE')
-  L.push('- Analista titular: ' + nomeUsuarioSafe(ficha.get('responsavel_principal')))
-  L.push('- Analista reserva: ' + nomeUsuarioSafe(ficha.get('responsavel_reserva')))
-  L.push('- Fora do escopo: ' + String(ficha.get('fora_do_escopo') || 'não informado'))
-  L.push('')
-  if (servico === 'contas_a_pagar') {
-    L.push('CONTAS A PAGAR')
-    L.push(
-      '- Periodicidade da projeção: ' +
-        String(ficha.get('periodicidade_projecao') || 'não informada'),
-    )
-    L.push('- Dias de referência: ' + String(ficha.get('dias_referencia') || 'não informados'))
-    L.push('- Janela coberta: ' + String(ficha.get('janela_coberta') || 'não informada'))
-    L.push('- Contas fixas: ' + String(ficha.get('regra_conta_fixa') || 'não informado'))
-    L.push(
-      '- Contas variáveis (exigem autorização prévia): ' +
-        String(ficha.get('regra_conta_variavel') || 'não informado'),
-    )
-    L.push('- Autoriza a projeção: ' + String(ficha.get('autoriza_projecao') || 'não informado'))
-    L.push('- Canal de autorização: ' + String(ficha.get('canal_autorizacao') || 'não informado'))
-    L.push(
-      '- Prazo de resposta esperado: ' +
-        (ficha.get('prazo_resposta_horas') || 'não informado') +
-        ' horas',
-    )
-    L.push(
-      '- Antecipação de pagamento: ' +
-        (ficha.get('antecipacao_pagamento') === true ? 'sim' : 'não'),
-    )
-    L.push(
-      '- Destino dos comprovantes: ' + String(ficha.get('destino_comprovantes') || 'não informado'),
-    )
-    L.push('- Estrutura adicional: ' + String(ficha.get('estrutura_adicional') || 'não informada'))
-    L.push(
-      '- Controle externo do cliente: ' + String(ficha.get('controle_externo_cliente') || 'nenhum'),
-    )
-  }
-  if (servico === 'faturamento') {
-    L.push('FATURAMENTO')
-    L.push('- Origem da informação: ' + String(ficha.get('origem_informacao') || 'não informada'))
-    L.push(
-      '- Dia de envio do relatório: ' + String(ficha.get('dia_envio_relatorio') || 'não informado'),
-    )
-    L.push('- Aprova o relatório: ' + String(ficha.get('aprova_relatorio') || 'não informado'))
-    L.push('- Dia de emissão: ' + String(ficha.get('dia_emissao') || 'não informado'))
-    L.push('- Rotas de emissão: ' + String(ficha.get('rotas_emissao') || 'não informadas'))
-    L.push('- Regra da rota: ' + String(ficha.get('regra_rota') || 'não informada'))
-    L.push(
-      '- Destinatários da nota: ' + String(ficha.get('destinatarios_nota') || 'não informados'),
-    )
-    L.push(
-      '- Cancelar previsão após emissão: ' +
-        (ficha.get('cancelar_previsao') === true ? 'sim' : 'não'),
-    )
-    L.push('- Destino das notas: ' + String(ficha.get('destino_notas') || 'não informado'))
-    L.push(
-      '- Prazo de validação final: ' +
-        String(ficha.get('prazo_validacao_final') || 'não informado'),
-    )
-    L.push('- Regra de cobrança: ' + String(ficha.get('regra_cobranca') || 'não informada'))
-  }
-  if (servico === 'conciliacao') {
-    L.push('CONCILIAÇÃO')
-    L.push('- Frequência: ' + String(ficha.get('frequencia_conciliacao') || 'não informada'))
-    L.push('- Responsável: ' + nomeUsuarioSafe(ficha.get('responsavel_conciliacao')))
-    L.push('- Origem do extrato: ' + String(ficha.get('origem_extrato') || 'não informada'))
-    L.push(
-      '- Destino dos comprovantes: ' +
-        String(ficha.get('destino_comprovantes_conc') || 'não informado'),
-    )
-    L.push('- Controle externo: ' + String(ficha.get('controle_externo_conc') || 'nenhum'))
-  }
-  if (servico === 'fechamento') {
-    L.push('FECHAMENTO MENSAL')
-    L.push('- Contabilidade: ' + String(ficha.get('contabilidade_nome') || 'não informada'))
-    L.push('- Contato: ' + String(ficha.get('contabilidade_contato') || 'não informado'))
-    L.push('- Formato de entrega: ' + String(ficha.get('formato_entrega') || 'não informado'))
-    L.push('- Canal de entrega: ' + String(ficha.get('canal_entrega') || 'não informado'))
-    L.push('- Prazo de entrega: ' + String(ficha.get('prazo_entrega') || 'não informado'))
-    L.push('- Documentos exigidos: ' + String(ficha.get('documentos_exigidos') || 'não informados'))
-    L.push('- Particularidades: ' + String(ficha.get('particularidades_fechamento') || 'nenhuma'))
-  }
-  if (servico === 'tesouraria' || servico === 'controladoria') {
-    L.push(servico.toUpperCase())
-    L.push('- Serviço contratado; parâmetros específicos conforme contrato e rotina acordada.')
-  }
-  L.push('')
-  L.push('SISTEMA DE GESTÃO')
-  L.push('- Sistema: ' + String(ficha.get('sistema') || 'não informado'))
-  L.push(
-    '- Empresa no sistema: ' +
-      String(ficha.get('identificacao_empresa_sistema') || 'não informada'),
-  )
-  L.push(
-    '- Credenciais: NUNCA neste documento — usar o cofre de senhas (identificador: ' +
-      String(ficha.get('item_cofre_sistema') || 'não informado') +
-      ')',
-  )
-  L.push('')
-  L.push('CONTAS BANCÁRIAS OPERADAS')
-  try {
-    var bs = $app.findRecordsByFilter('ficha_bancos', 'ficha = {:f}', '-created', 50, 0, {
-      f: ficha.id,
-    })
-    if (bs.length === 0) L.push('- Nenhuma conta cadastrada.')
-    for (var b = 0; b < bs.length; b++) {
-      L.push(
-        '- ' +
-          String(bs[b].get('apelido_conta') || '') +
-          ' (' +
-          String(bs[b].get('banco') || '') +
-          ') — finalidade: ' +
-          String(bs[b].get('finalidade') || '') +
-          '; aprova no banco: ' +
-          String(bs[b].get('quem_aprova_no_banco') || 'não informado') +
-          '; cofre: ' +
-          String(bs[b].get('item_cofre') || 'não informado'),
-      )
-    }
-  } catch (_) {
-    L.push('- (falha ao listar contas)')
-  }
-  L.push('')
-  L.push('CANAIS DE ENTRADA')
-  try {
-    var cs = $app.findRecordsByFilter('ficha_canais', 'ficha = {:f}', '-created', 50, 0, {
-      f: ficha.id,
-    })
-    if (cs.length === 0) L.push('- Nenhum canal cadastrado.')
-    for (var c2 = 0; c2 < cs.length; c2++) {
-      L.push(
-        '- ' +
-          String(cs[c2].get('tipo_canal') || '') +
-          ': ' +
-          String(cs[c2].get('identificacao') || '') +
-          ' — verificação ' +
-          String(cs[c2].get('frequencia_verificacao') || 'não informada') +
-          ' — finalidade: ' +
-          String(cs[c2].get('finalidade') || ''),
-      )
-    }
-  } catch (_) {
-    L.push('- (falha ao listar canais)')
-  }
-  L.push('')
-  L.push('PESSOAS DO CLIENTE')
-  try {
-    var ps = $app.findRecordsByFilter(
-      'ficha_pessoas',
-      'ficha = {:f} && ativo = true',
-      '-created',
-      50,
-      0,
-      { f: ficha.id },
-    )
-    if (ps.length === 0) L.push('- Nenhuma pessoa cadastrada.')
-    for (var p2 = 0; p2 < ps.length; p2++) {
-      var cn = ''
-      try {
-        cn = String(
-          $app.findRecordById('clientes', String(ps[p2].get('contato') || '')).get('nome') || '',
-        )
-      } catch (_) {}
-      L.push(
-        '- ' +
-          cn +
-          ' — papel: ' +
-          String(ps[p2].get('papel_operacional') || '') +
-          ' — canal: ' +
-          String(ps[p2].get('canal_preferencial') || ''),
-      )
-    }
-  } catch (_) {
-    L.push('- (falha ao listar pessoas)')
-  }
-  L.push('')
-  L.push(
-    'Este procedimento é gerado a partir da Ficha Operacional. Altere o cadastro, não o documento.',
-  )
-  return L.join('\n')
-}
-
-var nomeUsuarioSafe = function (id) {
-  if (!id) return 'não atribuído'
-  try {
-    return String($app.findRecordById('_pb_users_auth_', String(id)).get('name') || 'não atribuído')
-  } catch (_) {
-    return 'não atribuído'
-  }
-}
-
-// ---- GET procedimento vigente (gera on-the-fly; não persiste) ----
 routerAdd(
   'GET',
   '/backend/v1/fichas/{empresaId}/procedimento',
   (e) => {
+    var PADROES_CREDENCIAL = [
+      /senha\s*[:=]/i,
+      /password\s*[:=]/i,
+      /token\s*[:=]/i,
+      /chave\s*de\s*acesso/i,
+      /api[_\s-]?key\s*[:=]/i,
+      /Bearer\s+[A-Za-z0-9\-_.]{20,}/,
+      /[A-Za-z0-9+/]{40,}={0,2}/,
+    ]
+    var temCredencial = function (obj) {
+      for (var chave in obj) {
+        var v = obj[chave]
+        if (typeof v !== 'string') continue
+        for (var i = 0; i < PADROES_CREDENCIAL.length; i++) {
+          if (PADROES_CREDENCIAL[i].test(v)) return chave
+        }
+      }
+      return null
+    }
+    var fichaDeEmpresa = function (empresaId) {
+      var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
+        e: empresaId,
+      })
+      return fs.length ? fs[0] : null
+    }
+    var podeVer = function (actor, ficha) {
+      if (String(actor.get('role') || '') === 'admin') return true
+      return (
+        String(ficha.get('responsavel_principal') || '') === actor.id ||
+        String(ficha.get('responsavel_reserva') || '') === actor.id
+      )
+    }
+    var nomeUsuarioSafe = function (id) {
+      if (!id) return 'não atribuído'
+      try {
+        return String(
+          $app.findRecordById('_pb_users_auth_', String(id)).get('name') || 'não atribuído',
+        )
+      } catch (_) {
+        return 'não atribuído'
+      }
+    }
+    var gerarProcedimento = function (ficha, servico) {
+      var L = []
+      var nomeEmpresa = ''
+      try {
+        nomeEmpresa = String(
+          $app.findRecordById('empresas', String(ficha.get('empresa') || '')).get('nome') || '',
+        )
+      } catch (_) {}
+      L.push('PROCEDIMENTO OPERACIONAL — ' + servico.toUpperCase())
+      L.push('Cliente: ' + nomeEmpresa)
+      L.push('Gerado automaticamente pela Ficha Operacional do CRM Vibratto.')
+      L.push('Status operacional: ' + String(ficha.get('status_operacional') || 'não informado'))
+      L.push('')
+      L.push('RESPONSABILIDADE')
+      L.push('- Analista titular: ' + nomeUsuarioSafe(ficha.get('responsavel_principal')))
+      L.push('- Analista reserva: ' + nomeUsuarioSafe(ficha.get('responsavel_reserva')))
+      L.push('- Fora do escopo: ' + String(ficha.get('fora_do_escopo') || 'não informado'))
+      L.push('')
+      if (servico === 'contas_a_pagar') {
+        L.push('CONTAS A PAGAR')
+        L.push(
+          '- Periodicidade da projeção: ' +
+            String(ficha.get('periodicidade_projecao') || 'não informada'),
+        )
+        L.push('- Dias de referência: ' + String(ficha.get('dias_referencia') || 'não informados'))
+        L.push('- Janela coberta: ' + String(ficha.get('janela_coberta') || 'não informada'))
+        L.push('- Contas fixas: ' + String(ficha.get('regra_conta_fixa') || 'não informado'))
+        L.push(
+          '- Contas variáveis (exigem autorização prévia): ' +
+            String(ficha.get('regra_conta_variavel') || 'não informado'),
+        )
+        L.push(
+          '- Autoriza a projeção: ' + String(ficha.get('autoriza_projecao') || 'não informado'),
+        )
+        L.push(
+          '- Canal de autorização: ' + String(ficha.get('canal_autorizacao') || 'não informado'),
+        )
+        L.push(
+          '- Prazo de resposta esperado: ' +
+            (ficha.get('prazo_resposta_horas') || 'não informado') +
+            ' horas',
+        )
+        L.push(
+          '- Antecipação de pagamento: ' +
+            (ficha.get('antecipacao_pagamento') === true ? 'sim' : 'não'),
+        )
+        L.push(
+          '- Destino dos comprovantes: ' +
+            String(ficha.get('destino_comprovantes') || 'não informado'),
+        )
+        L.push(
+          '- Estrutura adicional: ' + String(ficha.get('estrutura_adicional') || 'não informada'),
+        )
+        L.push(
+          '- Controle externo do cliente: ' +
+            String(ficha.get('controle_externo_cliente') || 'nenhum'),
+        )
+      }
+      if (servico === 'faturamento') {
+        L.push('FATURAMENTO')
+        L.push(
+          '- Origem da informação: ' + String(ficha.get('origem_informacao') || 'não informada'),
+        )
+        L.push(
+          '- Dia de envio do relatório: ' +
+            String(ficha.get('dia_envio_relatorio') || 'não informado'),
+        )
+        L.push('- Aprova o relatório: ' + String(ficha.get('aprova_relatorio') || 'não informado'))
+        L.push('- Dia de emissão: ' + String(ficha.get('dia_emissao') || 'não informado'))
+        L.push('- Rotas de emissão: ' + String(ficha.get('rotas_emissao') || 'não informadas'))
+        L.push('- Regra da rota: ' + String(ficha.get('regra_rota') || 'não informada'))
+        L.push(
+          '- Destinatários da nota: ' + String(ficha.get('destinatarios_nota') || 'não informados'),
+        )
+        L.push(
+          '- Cancelar previsão após emissão: ' +
+            (ficha.get('cancelar_previsao') === true ? 'sim' : 'não'),
+        )
+        L.push('- Destino das notas: ' + String(ficha.get('destino_notas') || 'não informado'))
+        L.push(
+          '- Prazo de validação final: ' +
+            String(ficha.get('prazo_validacao_final') || 'não informado'),
+        )
+        L.push('- Regra de cobrança: ' + String(ficha.get('regra_cobranca') || 'não informada'))
+      }
+      if (servico === 'conciliacao') {
+        L.push('CONCILIAÇÃO')
+        L.push('- Frequência: ' + String(ficha.get('frequencia_conciliacao') || 'não informada'))
+        L.push('- Responsável: ' + nomeUsuarioSafe(ficha.get('responsavel_conciliacao')))
+        L.push('- Origem do extrato: ' + String(ficha.get('origem_extrato') || 'não informada'))
+        L.push(
+          '- Destino dos comprovantes: ' +
+            String(ficha.get('destino_comprovantes_conc') || 'não informado'),
+        )
+        L.push('- Controle externo: ' + String(ficha.get('controle_externo_conc') || 'nenhum'))
+      }
+      if (servico === 'fechamento') {
+        L.push('FECHAMENTO MENSAL')
+        L.push('- Contabilidade: ' + String(ficha.get('contabilidade_nome') || 'não informada'))
+        L.push('- Contato: ' + String(ficha.get('contabilidade_contato') || 'não informado'))
+        L.push('- Formato de entrega: ' + String(ficha.get('formato_entrega') || 'não informado'))
+        L.push('- Canal de entrega: ' + String(ficha.get('canal_entrega') || 'não informado'))
+        L.push('- Prazo de entrega: ' + String(ficha.get('prazo_entrega') || 'não informado'))
+        L.push(
+          '- Documentos exigidos: ' + String(ficha.get('documentos_exigidos') || 'não informados'),
+        )
+        L.push(
+          '- Particularidades: ' + String(ficha.get('particularidades_fechamento') || 'nenhuma'),
+        )
+      }
+      if (servico === 'tesouraria' || servico === 'controladoria') {
+        L.push(servico.toUpperCase())
+        L.push('- Serviço contratado; parâmetros específicos conforme contrato e rotina acordada.')
+      }
+      L.push('')
+      L.push('SISTEMA DE GESTÃO')
+      L.push('- Sistema: ' + String(ficha.get('sistema') || 'não informado'))
+      L.push(
+        '- Empresa no sistema: ' +
+          String(ficha.get('identificacao_empresa_sistema') || 'não informada'),
+      )
+      L.push(
+        '- Credenciais: NUNCA neste documento — usar o cofre de senhas (identificador: ' +
+          String(ficha.get('item_cofre_sistema') || 'não informado') +
+          ')',
+      )
+      L.push('')
+      L.push('CONTAS BANCÁRIAS OPERADAS')
+      try {
+        var bs = $app.findRecordsByFilter('ficha_bancos', 'ficha = {:f}', '-created', 50, 0, {
+          f: ficha.id,
+        })
+        if (bs.length === 0) L.push('- Nenhuma conta cadastrada.')
+        for (var b = 0; b < bs.length; b++) {
+          L.push(
+            '- ' +
+              String(bs[b].get('apelido_conta') || '') +
+              ' (' +
+              String(bs[b].get('banco') || '') +
+              ') — finalidade: ' +
+              String(bs[b].get('finalidade') || '') +
+              '; aprova no banco: ' +
+              String(bs[b].get('quem_aprova_no_banco') || 'não informado') +
+              '; cofre: ' +
+              String(bs[b].get('item_cofre') || 'não informado'),
+          )
+        }
+      } catch (_) {
+        L.push('- (falha ao listar contas)')
+      }
+      L.push('')
+      L.push('CANAIS DE ENTRADA')
+      try {
+        var cs = $app.findRecordsByFilter('ficha_canais', 'ficha = {:f}', '-created', 50, 0, {
+          f: ficha.id,
+        })
+        if (cs.length === 0) L.push('- Nenhum canal cadastrado.')
+        for (var c2 = 0; c2 < cs.length; c2++) {
+          L.push(
+            '- ' +
+              String(cs[c2].get('tipo_canal') || '') +
+              ': ' +
+              String(cs[c2].get('identificacao') || '') +
+              ' — verificação ' +
+              String(cs[c2].get('frequencia_verificacao') || 'não informada') +
+              ' — finalidade: ' +
+              String(cs[c2].get('finalidade') || ''),
+          )
+        }
+      } catch (_) {
+        L.push('- (falha ao listar canais)')
+      }
+      L.push('')
+      L.push('PESSOAS DO CLIENTE')
+      try {
+        var ps = $app.findRecordsByFilter(
+          'ficha_pessoas',
+          'ficha = {:f} && ativo = true',
+          '-created',
+          50,
+          0,
+          { f: ficha.id },
+        )
+        if (ps.length === 0) L.push('- Nenhuma pessoa cadastrada.')
+        for (var p2 = 0; p2 < ps.length; p2++) {
+          var cn = ''
+          try {
+            cn = String(
+              $app.findRecordById('clientes', String(ps[p2].get('contato') || '')).get('nome') ||
+                '',
+            )
+          } catch (_) {}
+          L.push(
+            '- ' +
+              cn +
+              ' — papel: ' +
+              String(ps[p2].get('papel_operacional') || '') +
+              ' — canal: ' +
+              String(ps[p2].get('canal_preferencial') || ''),
+          )
+        }
+      } catch (_) {
+        L.push('- (falha ao listar pessoas)')
+      }
+      L.push('')
+      L.push(
+        'Este procedimento é gerado a partir da Ficha Operacional. Altere o cadastro, não o documento.',
+      )
+      return L.join('\n')
+    }
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     var ficha = fichaDeEmpresa(e.request.pathValue('empresaId'))
@@ -630,7 +939,6 @@ routerAdd(
     var servico = String(e.request.url.query().get('servico') || '').trim()
     var servicos = String(ficha.get('servicos_contratados') || '').split(',')
     if (!servico) {
-      // sem ?servico= → retorna todos os contratados
       var todos = {}
       for (var i = 0; i < servicos.length; i++) {
         var s = servicos[i].trim()
@@ -646,11 +954,23 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- GET histórico de versões ----
 routerAdd(
   'GET',
   '/backend/v1/fichas/{empresaId}/versoes',
   (e) => {
+    var fichaDeEmpresa = function (empresaId) {
+      var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
+        e: empresaId,
+      })
+      return fs.length ? fs[0] : null
+    }
+    var podeVer = function (actor, ficha) {
+      if (String(actor.get('role') || '') === 'admin') return true
+      return (
+        String(ficha.get('responsavel_principal') || '') === actor.id ||
+        String(ficha.get('responsavel_reserva') || '') === actor.id
+      )
+    }
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     var ficha = fichaDeEmpresa(e.request.pathValue('empresaId'))
