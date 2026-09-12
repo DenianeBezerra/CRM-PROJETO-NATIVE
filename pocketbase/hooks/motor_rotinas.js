@@ -5,200 +5,186 @@
 //   POST /backend/v1/obrigacoes/{id}/baixa       — baixa em 1 toque (auth)
 //   POST /backend/v1/obrigacoes/baixa-lote       — baixa em lote por ids (auth)
 //   POST /backend/v1/obrigacoes/{id}/bloquear    — bloqueia com motivo obrigatório (auth)
-//   GET  /backend/v1/excecoes                    — lista exceções (auth; ?status=aberta|resolvida|todas)
-// Cron diário 06:05 BRT (09:05 UTC) executa o motor.
+//   GET  /backend/v1/excecoes                    — lista exceções (auth)
+// Cron diário 06:05 BRT (09:05 UTC).
 // NENHUMA rota cria obrigação manualmente — CA-3-042.
-// Runtime goja: gerarMotor/avaliarAtrasos INLINE em cada escopo que as usa (AP-0200).
-
-// Feriados nacionais fixos 2026 (MM-DD) — municipais ficam como decisão pendente.
-var FERIADOS_FIXOS = [
-  '01-01',
-  '04-21',
-  '05-01',
-  '06-11',
-  '09-07',
-  '10-12',
-  '11-02',
-  '11-15',
-  '11-20',
-  '12-25',
-]
-
-var ehDiaUtil = function (d) {
-  var dow = d.getUTCDay()
-  if (dow === 0 || dow === 6) return false
-  var mmdd = ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2)
-  return FERIADOS_FIXOS.indexOf(mmdd) < 0
-}
-
-// Antecipa para o dia útil anterior quando cai em não útil.
-var ajustarDiaUtil = function (d) {
-  var guard = 0
-  while (!ehDiaUtil(d) && guard < 30) {
-    d.setUTCDate(d.getUTCDate() - 1)
-    guard++
-  }
-  return d
-}
-
-var dataISO = function (d) {
-  return d.toISOString().slice(0, 10) + ' 00:00:00.000Z'
-}
-
-// Calcula as datas do ciclo para um serviço, a partir dos parâmetros da ficha.
-var datasDoCiclo = function (ficha, servico, hoje) {
-  var datas = []
-  var periodicidade = String(ficha.get('periodicidade_projecao') || '')
-  var diasRef = String(ficha.get('dias_referencia') || '').toLowerCase()
-  if (servico === 'contas_a_pagar' && periodicidade) {
-    if (periodicidade === 'semanal') {
-      var alvoDow = -1
-      if (diasRef.indexOf('segunda') >= 0) alvoDow = 1
-      else if (diasRef.indexOf('terça') >= 0 || diasRef.indexOf('terca') >= 0) alvoDow = 2
-      else if (diasRef.indexOf('quarta') >= 0) alvoDow = 3
-      else if (diasRef.indexOf('quinta') >= 0) alvoDow = 4
-      else if (diasRef.indexOf('sexta') >= 0) alvoDow = 5
-      if (alvoDow >= 0) {
-        var d1 = new Date(hoje.getTime())
-        while (d1.getUTCDay() !== alvoDow || d1.getTime() <= hoje.getTime()) {
-          d1.setUTCDate(d1.getUTCDate() + 1)
-        }
-        var d2 = new Date(d1.getTime())
-        d2.setUTCDate(d2.getUTCDate() + 7)
-        datas.push(ajustarDiaUtil(new Date(d1.getTime())))
-        datas.push(ajustarDiaUtil(new Date(d2.getTime())))
-      }
-    } else if (
-      periodicidade === 'quinzenal' ||
-      periodicidade === 'decendial' ||
-      periodicidade === 'mensal'
-    ) {
-      var nums = diasRef.match(/\d{1,2}/g) || []
-      var passou = []
-      for (var i = 0; i < nums.length; i++) {
-        var dia = parseInt(nums[i], 10)
-        if (dia >= 1 && dia <= 31) passou.push(dia)
-      }
-      passou.sort(function (a, b) {
-        return a - b
-      })
-      var mesAtual = hoje.getUTCMonth()
-      var anoAtual = hoje.getUTCFullYear()
-      var candidatos = []
-      for (var m = 0; m < 2; m++) {
-        var mes = mesAtual + m
-        var ano = anoAtual
-        if (mes > 11) {
-          mes -= 12
-          ano++
-        }
-        for (var j = 0; j < passou.length; j++) {
-          var dd = new Date(Date.UTC(ano, mes, passou[j]))
-          if (dd.getTime() > hoje.getTime()) candidatos.push(dd)
-        }
-      }
-      candidatos.sort(function (a, b) {
-        return a.getTime() - b.getTime()
-      })
-      for (var k = 0; k < candidatos.length && k < 2; k++) {
-        datas.push(ajustarDiaUtil(new Date(candidatos[k].getTime())))
-      }
-    }
-  }
-  if (servico === 'faturamento') {
-    var diaEm = String(ficha.get('dia_emissao') || '').toLowerCase()
-    var numsF = diaEm.match(/\d{1,2}/g) || []
-    var diasF = []
-    for (var fi = 0; fi < numsF.length; fi++) {
-      var df = parseInt(numsF[fi], 10)
-      if (df >= 1 && df <= 31) diasF.push(df)
-    }
-    diasF.sort(function (a, b) {
-      return a - b
-    })
-    var candF = []
-    for (var fm = 0; fm < 2; fm++) {
-      var mesF = hoje.getUTCMonth() + fm
-      var anoF = hoje.getUTCFullYear()
-      if (mesF > 11) {
-        mesF -= 12
-        anoF++
-      }
-      for (var fj = 0; fj < diasF.length; fj++) {
-        var ddf = new Date(Date.UTC(anoF, mesF, diasF[fj]))
-        if (ddf.getTime() > hoje.getTime()) candF.push(ddf)
-      }
-    }
-    candF.sort(function (a, b) {
-      return a.getTime() - b.getTime()
-    })
-    for (var fk = 0; fk < candF.length && fk < 2; fk++) {
-      datas.push(ajustarDiaUtil(new Date(candF[fk].getTime())))
-    }
-  }
-  if (servico === 'conciliacao') {
-    var freq = String(ficha.get('frequencia_conciliacao') || '')
-    if (freq === 'diaria') {
-      var dC1 = new Date(hoje.getTime())
-      dC1.setUTCDate(dC1.getUTCDate() + 1)
-      var dC2 = new Date(hoje.getTime())
-      dC2.setUTCDate(dC2.getUTCDate() + 2)
-      datas.push(ajustarDiaUtil(dC1), ajustarDiaUtil(dC2))
-    } else if (freq === 'semanal') {
-      var dS1 = new Date(hoje.getTime())
-      dS1.setUTCDate(dS1.getUTCDate() + 7)
-      var dS2 = new Date(hoje.getTime())
-      dS2.setUTCDate(dS2.getUTCDate() + 14)
-      datas.push(ajustarDiaUtil(dS1), ajustarDiaUtil(dS2))
-    }
-  }
-  if (servico === 'fechamento') {
-    var prazoE = String(ficha.get('prazo_entrega') || '').toLowerCase()
-    var numsP = prazoE.match(/\d{1,2}/g) || []
-    if (numsP.length > 0) {
-      var diaP = parseInt(numsP[0], 10)
-      var mesP = hoje.getUTCMonth() + 1
-      var anoP = hoje.getUTCFullYear()
-      if (mesP > 11) {
-        mesP -= 12
-        anoP++
-      }
-      datas.push(ajustarDiaUtil(new Date(Date.UTC(anoP, mesP, diaP))))
-    }
-  }
-  return datas
-}
-
-// Tipos de obrigação gerados por serviço (cap. 4.1 do doc da CEO).
-var tiposPorServico = function (servico) {
-  if (servico === 'contas_a_pagar')
-    return ['coleta_canal', 'lancamento', 'projecao', 'envio_autorizacao', 'cadastro_banco']
-  if (servico === 'faturamento') return ['relatorio_faturamento', 'emissao_nota', 'entrega_nota']
-  if (servico === 'conciliacao') return ['conciliacao']
-  if (servico === 'fechamento') return ['fechamento', 'entrega_contabilidade']
-  return []
-}
-
-// Offset em dias entre data_prevista e cada tipo (fluxo do processo).
-var offsetTipo = function (tipo) {
-  if (tipo === 'coleta_canal') return -3
-  if (tipo === 'lancamento') return -2
-  if (tipo === 'projecao') return -1
-  if (tipo === 'envio_autorizacao') return -1
-  if (tipo === 'cadastro_banco') return 0
-  if (tipo === 'relatorio_faturamento') return -3
-  if (tipo === 'emissao_nota') return 0
-  if (tipo === 'entrega_nota') return 1
-  if (tipo === 'conciliacao') return 0
-  if (tipo === 'fechamento') return -5
-  if (tipo === 'entrega_contabilidade') return 0
-  return 0
-}
+// AP-0200 TOTAL: TODOS os helpers vivem DENTRO de cada escopo (callback/cron) —
+// helpers top-level não são visíveis em funções aninhadas no runtime goja.
 
 routerAdd(
   'POST',
   '/backend/v1/obrigacoes/gerar',
   (e) => {
+    var FERIADOS_FIXOS = [
+      '01-01',
+      '04-21',
+      '05-01',
+      '06-11',
+      '09-07',
+      '10-12',
+      '11-02',
+      '11-15',
+      '11-20',
+      '12-25',
+    ]
+    var ehDiaUtil = function (d) {
+      var dow = d.getUTCDay()
+      if (dow === 0 || dow === 6) return false
+      var mmdd = ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2)
+      return FERIADOS_FIXOS.indexOf(mmdd) < 0
+    }
+    var ajustarDiaUtil = function (d) {
+      var guard = 0
+      while (!ehDiaUtil(d) && guard < 30) {
+        d.setUTCDate(d.getUTCDate() - 1)
+        guard++
+      }
+      return d
+    }
+    var dataISO = function (d) {
+      return d.toISOString().slice(0, 10) + ' 00:00:00.000Z'
+    }
+    var datasDoCiclo = function (ficha, servico, hoje) {
+      var datas = []
+      var periodicidade = String(ficha.get('periodicidade_projecao') || '')
+      var diasRef = String(ficha.get('dias_referencia') || '').toLowerCase()
+      if (servico === 'contas_a_pagar' && periodicidade) {
+        if (periodicidade === 'semanal') {
+          var alvoDow = -1
+          if (diasRef.indexOf('segunda') >= 0) alvoDow = 1
+          else if (diasRef.indexOf('terça') >= 0 || diasRef.indexOf('terca') >= 0) alvoDow = 2
+          else if (diasRef.indexOf('quarta') >= 0) alvoDow = 3
+          else if (diasRef.indexOf('quinta') >= 0) alvoDow = 4
+          else if (diasRef.indexOf('sexta') >= 0) alvoDow = 5
+          if (alvoDow >= 0) {
+            var d1 = new Date(hoje.getTime())
+            while (d1.getUTCDay() !== alvoDow || d1.getTime() <= hoje.getTime()) {
+              d1.setUTCDate(d1.getUTCDate() + 1)
+            }
+            var d2 = new Date(d1.getTime())
+            d2.setUTCDate(d2.getUTCDate() + 7)
+            datas.push(ajustarDiaUtil(new Date(d1.getTime())))
+            datas.push(ajustarDiaUtil(new Date(d2.getTime())))
+          }
+        } else {
+          var nums = diasRef.match(/\d{1,2}/g) || []
+          var passou = []
+          for (var i = 0; i < nums.length; i++) {
+            var dia = parseInt(nums[i], 10)
+            if (dia >= 1 && dia <= 31) passou.push(dia)
+          }
+          passou.sort(function (a, b) {
+            return a - b
+          })
+          var mesAtual = hoje.getUTCMonth()
+          var anoAtual = hoje.getUTCFullYear()
+          var candidatos = []
+          for (var m = 0; m < 2; m++) {
+            var mes = mesAtual + m
+            var ano = anoAtual
+            if (mes > 11) {
+              mes -= 12
+              ano++
+            }
+            for (var j = 0; j < passou.length; j++) {
+              var dd = new Date(Date.UTC(ano, mes, passou[j]))
+              if (dd.getTime() > hoje.getTime()) candidatos.push(dd)
+            }
+          }
+          candidatos.sort(function (a, b) {
+            return a.getTime() - b.getTime()
+          })
+          for (var k = 0; k < candidatos.length && k < 2; k++) {
+            datas.push(ajustarDiaUtil(new Date(candidatos[k].getTime())))
+          }
+        }
+      }
+      if (servico === 'faturamento') {
+        var diaEm = String(ficha.get('dia_emissao') || '').toLowerCase()
+        var numsF = diaEm.match(/\d{1,2}/g) || []
+        var diasF = []
+        for (var fi = 0; fi < numsF.length; fi++) {
+          var df = parseInt(numsF[fi], 10)
+          if (df >= 1 && df <= 31) diasF.push(df)
+        }
+        diasF.sort(function (a, b) {
+          return a - b
+        })
+        var candF = []
+        for (var fm = 0; fm < 2; fm++) {
+          var mesF = hoje.getUTCMonth() + fm
+          var anoF = hoje.getUTCFullYear()
+          if (mesF > 11) {
+            mesF -= 12
+            anoF++
+          }
+          for (var fj = 0; fj < diasF.length; fj++) {
+            var ddf = new Date(Date.UTC(anoF, mesF, diasF[fj]))
+            if (ddf.getTime() > hoje.getTime()) candF.push(ddf)
+          }
+        }
+        candF.sort(function (a, b) {
+          return a.getTime() - b.getTime()
+        })
+        for (var fk = 0; fk < candF.length && fk < 2; fk++) {
+          datas.push(ajustarDiaUtil(new Date(candF[fk].getTime())))
+        }
+      }
+      if (servico === 'conciliacao') {
+        var freq = String(ficha.get('frequencia_conciliacao') || '')
+        if (freq === 'diaria') {
+          var dC1 = new Date(hoje.getTime())
+          dC1.setUTCDate(dC1.getUTCDate() + 1)
+          var dC2 = new Date(hoje.getTime())
+          dC2.setUTCDate(dC2.getUTCDate() + 2)
+          datas.push(ajustarDiaUtil(dC1), ajustarDiaUtil(dC2))
+        } else if (freq === 'semanal') {
+          var dS1 = new Date(hoje.getTime())
+          dS1.setUTCDate(dS1.getUTCDate() + 7)
+          var dS2 = new Date(hoje.getTime())
+          dS2.setUTCDate(dS2.getUTCDate() + 14)
+          datas.push(ajustarDiaUtil(dS1), ajustarDiaUtil(dS2))
+        }
+      }
+      if (servico === 'fechamento') {
+        var prazoE = String(ficha.get('prazo_entrega') || '').toLowerCase()
+        var numsP = prazoE.match(/\d{1,2}/g) || []
+        if (numsP.length > 0) {
+          var diaP = parseInt(numsP[0], 10)
+          var mesP = hoje.getUTCMonth() + 1
+          var anoP = hoje.getUTCFullYear()
+          if (mesP > 11) {
+            mesP -= 12
+            anoP++
+          }
+          datas.push(ajustarDiaUtil(new Date(Date.UTC(anoP, mesP, diaP))))
+        }
+      }
+      return datas
+    }
+    var tiposPorServico = function (servico) {
+      if (servico === 'contas_a_pagar')
+        return ['coleta_canal', 'lancamento', 'projecao', 'envio_autorizacao', 'cadastro_banco']
+      if (servico === 'faturamento')
+        return ['relatorio_faturamento', 'emissao_nota', 'entrega_nota']
+      if (servico === 'conciliacao') return ['conciliacao']
+      if (servico === 'fechamento') return ['fechamento', 'entrega_contabilidade']
+      return []
+    }
+    var offsetTipo = function (tipo) {
+      if (tipo === 'coleta_canal') return -3
+      if (tipo === 'lancamento') return -2
+      if (tipo === 'projecao') return -1
+      if (tipo === 'envio_autorizacao') return -1
+      if (tipo === 'cadastro_banco') return 0
+      if (tipo === 'relatorio_faturamento') return -3
+      if (tipo === 'emissao_nota') return 0
+      if (tipo === 'entrega_nota') return 1
+      if (tipo === 'conciliacao') return 0
+      if (tipo === 'fechamento') return -5
+      if (tipo === 'entrega_contabilidade') return 0
+      return 0
+    }
     var gerarMotor = function () {
       var geradas = 0
       var ignoradas = 0
@@ -234,7 +220,6 @@ routerAdd(
           substituicao = true
         }
         if (!responsavel) continue
-
         var servicos = String(ficha.get('servicos_contratados') || '').split(',')
         for (var s = 0; s < servicos.length; s++) {
           var servico = servicos[s].trim()
@@ -259,9 +244,7 @@ routerAdd(
                 '',
                 1,
                 0,
-                {
-                  c: cicloChave,
-                },
+                { c: cicloChave },
               )
               if (existentes.length > 0) {
                 ignoradas++
@@ -291,7 +274,6 @@ routerAdd(
       }
       return { geradas: geradas, ignoradas: ignoradas }
     }
-
     var avaliarAtrasos = function () {
       var marcadas = 0
       var excecoesNovas = 0
@@ -346,7 +328,6 @@ routerAdd(
       }
       return { marcadas: marcadas, excecoes: excecoesNovas }
     }
-
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     if (String(actor.get('role') || '') !== 'admin') {
@@ -642,6 +623,175 @@ routerAdd(
 )
 
 cronAdd('obrigacoes_motor', '5 9 * * *', () => {
+  var FERIADOS_FIXOS = [
+    '01-01',
+    '04-21',
+    '05-01',
+    '06-11',
+    '09-07',
+    '10-12',
+    '11-02',
+    '11-15',
+    '11-20',
+    '12-25',
+  ]
+  var ehDiaUtil = function (d) {
+    var dow = d.getUTCDay()
+    if (dow === 0 || dow === 6) return false
+    var mmdd = ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2)
+    return FERIADOS_FIXOS.indexOf(mmdd) < 0
+  }
+  var ajustarDiaUtil = function (d) {
+    var guard = 0
+    while (!ehDiaUtil(d) && guard < 30) {
+      d.setUTCDate(d.getUTCDate() - 1)
+      guard++
+    }
+    return d
+  }
+  var dataISO = function (d) {
+    return d.toISOString().slice(0, 10) + ' 00:00:00.000Z'
+  }
+  var datasDoCiclo = function (ficha, servico, hoje) {
+    var datas = []
+    var periodicidade = String(ficha.get('periodicidade_projecao') || '')
+    var diasRef = String(ficha.get('dias_referencia') || '').toLowerCase()
+    if (servico === 'contas_a_pagar' && periodicidade) {
+      if (periodicidade === 'semanal') {
+        var alvoDow = -1
+        if (diasRef.indexOf('segunda') >= 0) alvoDow = 1
+        else if (diasRef.indexOf('terça') >= 0 || diasRef.indexOf('terca') >= 0) alvoDow = 2
+        else if (diasRef.indexOf('quarta') >= 0) alvoDow = 3
+        else if (diasRef.indexOf('quinta') >= 0) alvoDow = 4
+        else if (diasRef.indexOf('sexta') >= 0) alvoDow = 5
+        if (alvoDow >= 0) {
+          var d1 = new Date(hoje.getTime())
+          while (d1.getUTCDay() !== alvoDow || d1.getTime() <= hoje.getTime()) {
+            d1.setUTCDate(d1.getUTCDate() + 1)
+          }
+          var d2 = new Date(d1.getTime())
+          d2.setUTCDate(d2.getUTCDate() + 7)
+          datas.push(ajustarDiaUtil(new Date(d1.getTime())))
+          datas.push(ajustarDiaUtil(new Date(d2.getTime())))
+        }
+      } else {
+        var nums = diasRef.match(/\d{1,2}/g) || []
+        var passou = []
+        for (var i = 0; i < nums.length; i++) {
+          var dia = parseInt(nums[i], 10)
+          if (dia >= 1 && dia <= 31) passou.push(dia)
+        }
+        passou.sort(function (a, b) {
+          return a - b
+        })
+        var mesAtual = hoje.getUTCMonth()
+        var anoAtual = hoje.getUTCFullYear()
+        var candidatos = []
+        for (var m = 0; m < 2; m++) {
+          var mes = mesAtual + m
+          var ano = anoAtual
+          if (mes > 11) {
+            mes -= 12
+            ano++
+          }
+          for (var j = 0; j < passou.length; j++) {
+            var dd = new Date(Date.UTC(ano, mes, passou[j]))
+            if (dd.getTime() > hoje.getTime()) candidatos.push(dd)
+          }
+        }
+        candidatos.sort(function (a, b) {
+          return a.getTime() - b.getTime()
+        })
+        for (var k = 0; k < candidatos.length && k < 2; k++) {
+          datas.push(ajustarDiaUtil(new Date(candidatos[k].getTime())))
+        }
+      }
+    }
+    if (servico === 'faturamento') {
+      var diaEm = String(ficha.get('dia_emissao') || '').toLowerCase()
+      var numsF = diaEm.match(/\d{1,2}/g) || []
+      var diasF = []
+      for (var fi = 0; fi < numsF.length; fi++) {
+        var df = parseInt(numsF[fi], 10)
+        if (df >= 1 && df <= 31) diasF.push(df)
+      }
+      diasF.sort(function (a, b) {
+        return a - b
+      })
+      var candF = []
+      for (var fm = 0; fm < 2; fm++) {
+        var mesF = hoje.getUTCMonth() + fm
+        var anoF = hoje.getUTCFullYear()
+        if (mesF > 11) {
+          mesF -= 12
+          anoF++
+        }
+        for (var fj = 0; fj < diasF.length; fj++) {
+          var ddf = new Date(Date.UTC(anoF, mesF, diasF[fj]))
+          if (ddf.getTime() > hoje.getTime()) candF.push(ddf)
+        }
+      }
+      candF.sort(function (a, b) {
+        return a.getTime() - b.getTime()
+      })
+      for (var fk = 0; fk < candF.length && fk < 2; fk++) {
+        datas.push(ajustarDiaUtil(new Date(candF[fk].getTime())))
+      }
+    }
+    if (servico === 'conciliacao') {
+      var freq = String(ficha.get('frequencia_conciliacao') || '')
+      if (freq === 'diaria') {
+        var dC1 = new Date(hoje.getTime())
+        dC1.setUTCDate(dC1.getUTCDate() + 1)
+        var dC2 = new Date(hoje.getTime())
+        dC2.setUTCDate(dC2.getUTCDate() + 2)
+        datas.push(ajustarDiaUtil(dC1), ajustarDiaUtil(dC2))
+      } else if (freq === 'semanal') {
+        var dS1 = new Date(hoje.getTime())
+        dS1.setUTCDate(dS1.getUTCDate() + 7)
+        var dS2 = new Date(hoje.getTime())
+        dS2.setUTCDate(dS2.getUTCDate() + 14)
+        datas.push(ajustarDiaUtil(dS1), ajustarDiaUtil(dS2))
+      }
+    }
+    if (servico === 'fechamento') {
+      var prazoE = String(ficha.get('prazo_entrega') || '').toLowerCase()
+      var numsP = prazoE.match(/\d{1,2}/g) || []
+      if (numsP.length > 0) {
+        var diaP = parseInt(numsP[0], 10)
+        var mesP = hoje.getUTCMonth() + 1
+        var anoP = hoje.getUTCFullYear()
+        if (mesP > 11) {
+          mesP -= 12
+          anoP++
+        }
+        datas.push(ajustarDiaUtil(new Date(Date.UTC(anoP, mesP, diaP))))
+      }
+    }
+    return datas
+  }
+  var tiposPorServico = function (servico) {
+    if (servico === 'contas_a_pagar')
+      return ['coleta_canal', 'lancamento', 'projecao', 'envio_autorizacao', 'cadastro_banco']
+    if (servico === 'faturamento') return ['relatorio_faturamento', 'emissao_nota', 'entrega_nota']
+    if (servico === 'conciliacao') return ['conciliacao']
+    if (servico === 'fechamento') return ['fechamento', 'entrega_contabilidade']
+    return []
+  }
+  var offsetTipo = function (tipo) {
+    if (tipo === 'coleta_canal') return -3
+    if (tipo === 'lancamento') return -2
+    if (tipo === 'projecao') return -1
+    if (tipo === 'envio_autorizacao') return -1
+    if (tipo === 'cadastro_banco') return 0
+    if (tipo === 'relatorio_faturamento') return -3
+    if (tipo === 'emissao_nota') return 0
+    if (tipo === 'entrega_nota') return 1
+    if (tipo === 'conciliacao') return 0
+    if (tipo === 'fechamento') return -5
+    if (tipo === 'entrega_contabilidade') return 0
+    return 0
+  }
   var gerarMotor = function () {
     var geradas = 0
     var ignoradas = 0
@@ -677,7 +827,6 @@ cronAdd('obrigacoes_motor', '5 9 * * *', () => {
         substituicao = true
       }
       if (!responsavel) continue
-
       var servicos = String(ficha.get('servicos_contratados') || '').split(',')
       for (var s = 0; s < servicos.length; s++) {
         var servico = servicos[s].trim()
@@ -702,9 +851,7 @@ cronAdd('obrigacoes_motor', '5 9 * * *', () => {
               '',
               1,
               0,
-              {
-                c: cicloChave,
-              },
+              { c: cicloChave },
             )
             if (existentes.length > 0) {
               ignoradas++
@@ -734,7 +881,6 @@ cronAdd('obrigacoes_motor', '5 9 * * *', () => {
     }
     return { geradas: geradas, ignoradas: ignoradas }
   }
-
   var avaliarAtrasos = function () {
     var marcadas = 0
     var excecoesNovas = 0
@@ -789,7 +935,6 @@ cronAdd('obrigacoes_motor', '5 9 * * *', () => {
     }
     return { marcadas: marcadas, excecoes: excecoesNovas }
   }
-
   var r1 = gerarMotor()
   var r2 = avaliarAtrasos()
   $app
