@@ -5,3 +5,4 @@
 - 2026-09-13T08:55:00-03:00 · task T3.04 · capturado · AP-2026-09-13-0850-agent-browser-menu-click.md — clique sintético do agent-browser não dispara handler de item de menu; validar com eval element.click() antes de debugar produto
 - 2026-09-13T09:20:00-03:00 · task T3.06 · capturado · AP-2026-09-13-0920-jsvm-cron-scoping.md — função top-level não é visível em callback de cron/router; QA do Skip bloqueia e a lógica deve ser inline
 - 2026-09-13T10:06:00-03:00 · task T3.07 · capturado · AP-2026-09-13-1006-jsvm-header-ip.md — header HTTP em request hook JSVM via e.request.header.get (não getHeader); provar por API antes de depender em regra de segurança
+- 2026-09-13T10:50:00-03:00 · task T3.07-correção D2/D5 · capturado · AP-2026-09-13-0920-jsvm-cron-scoping.md (reincidente) — constante top-level referenciada em callback de cron bloqueada pelo QA do Skip pela 2ª vez; regra consolidada: NUNCA declarar constantes no escopo top-level de hooks JSVM

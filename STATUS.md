@@ -6,6 +6,7 @@
 **Última task concluída:** T3.07 — Porta 1, formulário público de entrada (2026-09-13 10:06, teste humano aprovado pela CEO — "muito bom, validado!")
 **Próxima leva:** fila de trabalho pessoal + comentários/menções → painel por papel + metas → relatórios agendados → perfis/visibilidade/backup → V.ia estágio 1 → catálogo (sequência acordada do backlog Etapa 3)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — formulário público em /entrada
+**Versão atual:** v0.0.459 (QA verde)
 **Produção:** não publicada (decisão da cliente)
 
 ## Composição da Fase 3 (em execução)
@@ -36,5 +37,5 @@ Dedup por e-mail provado por API e no teste humano. Instagram, agenda, pós-vend
 
 - **D6 — notificação de lead quente**: inicialmente somente a Deniane (CEO).
 - **D8 — agenda na tela final do formulário**: Calendly; fica para depois (fora do recorte atual).
-- **D2 — relato livre**: opcional, com mínimo de 30 caracteres se preenchido (decisão da CEO, 13/09 — rejeitado o mínimo de 120 chars por custo de conversão; revisável com dado real de uso).
-- **D5 — retenção de leads que não fecharam**: 24 meses da coleta ou do último contato, o que for mais recente; eliminação dos dados de identificação ao fim do prazo (decisão da CEO, 13/09).
+- **D2 — relato livre**: opcional, com mínimo de 30 caracteres se preenchido (decisão da CEO, 13/09 — rejeitado o mínimo de 120 chars por custo de conversão; revisável com dado real de uso). **IMPLEMENTADA** (v0.0.455–0.0.459): validação server-side + contador no UI.
+- **D5 — retenção de leads que não fecharam**: 24 meses da coleta ou do último contato, o que for mais recente; eliminação dos dados de identificação ao fim do prazo (decisão da CEO, 13/09). **IMPLEMENTADA** (v0.0.456–0.0.459): cron diário 03:00 + execução manual admin (`POST /backend/v1/entrada/retencao/executar`); provada com fixture retroativa (removidos:1, leads reais intactos).
