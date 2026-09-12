@@ -68,6 +68,8 @@ const canalOptions = [
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'site', label: 'Site' },
   { value: 'google', label: 'Google' },
+  { value: 'pagina_captura', label: 'Página de captura' },
+  { value: 'comunidade', label: 'Comunidade' },
   { value: 'evento', label: 'Evento' },
   { value: 'indicacao', label: 'Indicação' },
   { value: 'trafego_pago', label: 'Tráfego pago' },

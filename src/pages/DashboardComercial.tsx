@@ -64,9 +64,12 @@ const ORIGEM_LABEL: Record<string, string> = {
 const CANAL_LABEL: Record<string, string> = {
   instagram: 'Instagram',
   linkedin: 'LinkedIn',
+  tiktok: 'TikTok',
   whatsapp: 'WhatsApp',
   site: 'Site',
   google: 'Google',
+  pagina_captura: 'Página de captura',
+  comunidade: 'Comunidade',
   evento: 'Evento',
   indicacao: 'Indicação',
   trafego_pago: 'Tráfego pago',
