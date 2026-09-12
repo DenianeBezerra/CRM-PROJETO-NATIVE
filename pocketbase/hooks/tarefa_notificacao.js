@@ -22,7 +22,19 @@ onRecordCreate((e) => {
     n.set('lida', false)
     $app.save(n)
   } catch (err) {
-    $app.logger().warn('T308 notificação de tarefa falhou', 'err', String(err))
+    // Diagnóstico: erro visível em auditoria (sem acesso a logs por API).
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var ev = new Record(audit)
+      ev.set('entidade', 'debug_t308')
+      ev.set('registro_id', e.record.id)
+      ev.set('acao', 'erro_notificacao')
+      ev.set('ator_id', '')
+      ev.set('ocorrido_em', new Date().toISOString())
+      ev.set('estado_anterior', '')
+      ev.set('estado_posterior', String(err).slice(0, 500))
+      $app.save(ev)
+    } catch (_) {}
   }
   e.next()
 }, 'tarefas')
