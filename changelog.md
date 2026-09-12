@@ -1,113 +1,24 @@
 # Changelog — CRM Vibratto
 
-## [0.0.360] — 2026-09-12 — T2.40 implementada (CA-2-035, aguardando teste humano)
+## [0.0.452] — 2026-09-13 — T3.07 CONCLUÍDA (teste humano aprovado pela CEO)
+
+- 2026-09-13 · [Deni.Ai] · Task T3.07 concluída: Porta 1 — formulário público de entrada (SPEC-3-006, CA-3-018/019/020). Formulário `/entrada` sem login (90–120s, mobile-first, 3 blocos: identificação + qualificação + roteamento por sintoma), coleção `leads_entrada` append-only (0149), score 0–92 server-side com temperatura (quente ≥60 / morno 35–59 / frio <35), dedup por e-mail (negócio aberto <90 dias), rate limit por IP/hora (429 provado), honeypot silencioso, tempo mínimo 20s, UTM + origem declarada, LGPD duplo com versão LGPD-V1-2026-09, enriquecimento BrasilAPI informativo (falha não bloqueia), endpoint de vincular (contato + oportunidade saudável, re-vinculação 400). Provas RED 6 / GREEN 5 por API em evidencias/spec-3-006/; revalidação do zero na conclusão (401 sem auth; 400 sem consentimento/dor). Teste humano aprovado pela CEO em 2026-09-13 10:06 — "muito bom, validado!" (UI completa no celular: envio, LGPD, campos, confirmação). Limpeza 0150–0152 verificada (base 0 provas). Governança: fase.md T3.06/T3.07 ✅ (corrige linha T3.06 que ainda constava como aguardando teste), STATUS 8/N, controle.md + AP-2026-09-13-1006-jsvm-header-ip.md (leitura de header HTTP em request hook JSVM: e.request.header.get, não getHeader; provar por API antes de depender em regra de segurança).
+- Aprendizado: AP-2026-09-13-1006-jsvm-header-ip.md (header HTTP em request hook JSVM).
+
+## [0.0.451] — 2026-09-13 — T3.07 Porta 1 implementada (CA-3-018/019/020, aguardando teste humano)
 
 ### Adicionado
 
-- **Drill-down (CA-2-035)**: `GET /backend/v1/dashboard/comercial/drilldown?bloco=&chave=` + mesmos filtros do dashboard — retorna os registros que compõem o número, recalculados server-side com a MESMA lógica (9 blocos). Payload LGPD: sem e-mail/telefone/contato. UI: linhas clicáveis em Leads por origem, Oportunidades por etapa e Perdas → modal com o N e os registros.
-- **Exportação agregada**: `GET /backend/v1/dashboard/comercial/export` — CSV (BOM UTF-8) das agregações exibidas (bloco;chave;valor;n_denominador), mesmos filtros, neutralização CSV injection (OWASP T2.03) em todo campo textual, trilha append-only em `exportacoes` (entidade `dashboard_comercial`, migration 0107). Botão "Exportar CSV" no dashboard.
-- Provas: RED 4 (401×2, bloco inválido 400, período invertido 400) + GREEN 7 (todas as contagens do drill-down = N do dashboard; CSV = números do dashboard campo a campo; filtro origem=site consistente) + neutralização `'=SOMA(1+1)` provada + regressão 200×3. Evidência em `evidencias/spec-2-007/ca-2-035-green.md`.
-- Fix durante provas: migration 0107 (`app.save(col)` em vez de `col.save()`) e helpers inline no hook (scoping JSVM). Limpeza: migration 0108 (negócio de prova `=SOMA(1+1)` e aceites de contraste removidos).
-- **Última task da Fase 2** — concluída a T2.40 com teste aprovado, a fase fecha em 40/40.
+- **Formulário público de entrada (Porta 1)**: página `/entrada` (sem login, 90–120s, mobile-first) em 3 blocos — identificação (nome, e-mail, WhatsApp, decisor, CNPJ com máscara + enriquecimento BrasilAPI informativo, falha NÃO bloqueia), qualificação (faturamento, CNPJs do grupo, colaboradores, regime, ERP, quem cuida do financeiro) e roteamento por sintoma (dor principal, dores secundárias, relato, urgência, sonho 12 meses).
+- **Coleção `leads_entrada`** (migration 0149, append-only — delete bloqueado): token, contato, qualificação, score (0–92 server-side), temperatura (quente ≥60 / morno 35–59 / frio <35), UTM (json), origem declarada, IP, LGPD duplo (consentimento obrigatório + opt-in marketing opcional), vínculo à oportunidade no dedup.
+- **Hook `leads_entrada.js`**: `GET/POST /backend/v1/entrada/publico` (público), `GET /backend/v1/entrada/leads` (auth, filtro por temperatura), `POST /backend/v1/entrada/leads/{id}/vincular` (auth — cria contato dedup por e-mail + oportunidade saudável na primeira etapa ativa, responsável = ator, próxima ação +7 dias, canal derivado do UTM, `entrada_origem=formulario_entrada`).
+- **Captura técnica**: honeypot (campo `website`), tempo mínimo 20s, rate limit por IP/hora (config `limite_entrada_por_ip_hora`, padrão 3; IP via realIp → X-Forwarded-For → Cf-Connecting-Ip; sem IP = fail-open com log), dedup por e-mail (negócio aberto <90 dias → registro `vinculado` + evento na oportunidade, sem criar duplicado).
+- **Auditoria**: todo envio e vínculo geram evento em `auditoria` com snapshot mínimo (sem conteúdo do relato).
+- Campo `entrada_origem` adicionado a `negocios` (0149).
 
-## [0.0.354] — 2026-09-12 — T2.39 CONCLUÍDA (teste humano aprovado)
+### Provas (evidencias/spec-3-006/)
 
-### Concluído
-
-- CA-2-034 fechado: dado ausente aparece como cobertura incompleta e não é removido silenciosamente do denominador. Teste humano aprovado pela cliente (2026-09-12 ~10:00 — "perfeito, siga", execução delegada ao champion).
-- Prova na UI real (browser): bloco "Cobertura incompleta" com avisos "permanecem no denominador" (3 de 3 / 2 de 3 / 1 de 3), badges COBERTURA 1/3 e 1/2, `sem_etapa: 1` explícito, conversão "50% (N=2)" com 3 oportunidades; filtro Origem = Site recalcula todos os avisos sobre o denominador filtrado (2 de 2, N=1). Prints em artifacts/t239_dashboard_cobertura_geral|filtro_site.png.
-- Limpeza pós-teste: migration 0105 remove as fixtures da prova (proposta de contraste + negócio/permanência/proposta da 0104); migration 0106 remove o negócio órfão criado via API durante a prova GREEN (nascido após a 0104 rodar, fora do alcance do down dela). Base final: 2 negócios (real "Proposta BPO" + fixture arquivada da T2.38) — dashboard recalculado (avisos 2 de 2, conversão 50% N=2).
-- Fase 2: 39/40 (97,5%). SPEC-2-007: 4/5.
-
-## [0.0.350] — 2026-09-12 — T2.38 CONCLUÍDA (teste humano aprovado)
-
-### Concluído
-
-- CA-2-033 fechado: dashboard com leads por origem/período, oportunidades por etapa, primeira resposta, tempo por etapa, propostas/ciclo, conversão, perdas e filas — N explícito e filtros consistentes. Teste humano aprovado pela cliente (2026-09-12 09:45 — "pode concluir e seguir", execução delegada ao champion).
-- Prova na UI real (browser): visão completa (N=1, conversão 100%), filtro Site zera todos os blocos, filtro Indicação restaura; prints em artifacts/t238_dashboard_todas|site|indicacao.png.
-- Fase 2: 38/40 (95%).
-
-## [0.0.348] — 2026-09-12 — T2.38 implementada (CA-2-033, aguardando teste humano)
-
-### Adicionado
-
-- **Dashboard comercial (CA-2-033)**: endpoint `GET /backend/v1/dashboard/comercial` com 9 blocos (leads por origem, oportunidades por etapa, primeira resposta p50/p90, tempo por etapa, propostas/ciclo, conversão, perdas por motivo, filas, cobertura) — N explícito em cada número e filtros de período/origem aplicados consistentemente a todos os blocos. Página `/dashboard` com filtros e N visível + link na home. Provas: RED 1 + GREEN 5 + regressão (evidência em `evidencias/spec-2-007/ca-2-033-green.md`).
-
-## [0.0.345] — 2026-09-12 — T2.37 CONCLUÍDA (teste humano aprovado)
-
-### Concluído
-
-- CA-2-032 fechado: baseline calculado para período explícito, congelado com versão e reproduzível pela consulta de origem. Teste humano aprovado pela cliente (2026-09-12 09:31 — "sim, traga evidencias. Conclua e siga para a proxima", execução delegada ao champion).
-- Provas do teste: baseline v1 (período 2026-09-01..12) → re-execução criou v2 sem sobrescrever (v1 congelada intacta, valores idênticos) → período invertido rejeitado com mensagem clara. Nota: `reproduzivel=false` no período com fim hoje é comportamento correto (período em curso).
-- Fase 2: 37/40 (92,5%).
-
-## [0.0.343] — 2026-09-12 — T2.37 implementada (CA-2-032, aguardando teste humano)
-
-### Adicionado
-
-- **Baseline de métricas (CA-2-032)**: coleção `baselines` append-only (UNIQUE periodo+versão) + `POST /backend/v1/metricas/baseline` (admin; período explícito obrigatório, cálculo filtrando a origem pelo período, congelamento com versão sequencial — re-execução cria nova versão, nunca sobrescreve) + `GET` de listagem. Período em curso marcado `reproduzivel: false`. **Fix de reprodutibilidade (v0.0.341)**: permanências órfãs (negócio deletado) excluídas e reportadas; permanência aberta em período fechado congela no fim do período — recálculos consecutivos agora produzem valores idênticos. Provas: RED 1 + GREEN 6 + regressão (evidência em `evidencias/spec-2-007/ca-2-032-green.md`). Limpeza: migrations 0100/0101.
-
-## [0.0.339] — 2026-09-12 — T2.36 CONCLUÍDA (teste humano aprovado)
-
-### Concluído
-
-- CA-2-031 fechado: dicionário registra fórmula, fonte, evento inicial/final, fuso, exclusões e dono para cada métrica. Teste humano aprovado pela cliente (2026-09-12 09:26 — "sim, concluir e seguir", execução delegada ao champion).
-- Prova na UI real (browser): tela /admin/dicionario com os 5 cards completos; prints em artifacts/t236_dicionario_topo|meio|fim.png.
-- Fase 2: 36/40 (90%).
-
-## [0.0.337] — 2026-09-12 — T2.36 implementada (CA-2-031, aguardando teste humano)
-
-### Adicionado
-
-- **Dicionário de métricas (CA-2-031)**: coleção `dicionario_metricas` append-only (create/update admin-only, delete bloqueado) + seed com as 5 métricas existentes (fórmulas e exclusões extraídas do código real, nada inventado) + endpoint `GET /backend/v1/metricas/dicionario` (leitura autenticada) + tela admin `/admin/dicionario` com link na home. Cada métrica registra fórmula, fonte, evento inicial/final, fuso (America/Sao_Paulo), exclusões e dono. Provas: RED 1 + GREEN 4 + regressão (evidência em `evidencias/spec-2-007/ca-2-031-green.md`).
-
-## [0.0.335] — 2026-09-12 — T2.35 CONCLUÍDA (teste humano aprovado) — SPEC-2-006 FECHADA (6/6)
-
-### Concluído
-
-- CA-2-030 fechado: visão da oportunidade mostra estado do handoff, pendências abertas e tempo até aceite. Teste humano aprovado pela cliente (2026-09-12 09:20 — "sim, conclua!", execução delegada ao champion).
-- Prova na UI real (browser): card "Handoff" no modal Consulta 360º com badge "Devolvido ao emissor", motivo e "Aguardando reenvio"; blocos existentes íntegros. Print: artifacts/t235_teste_handoff_ui.png.
-- Lição registrada: preview do Skip só atualiza com build development (production não toca o preview).
-- **SPEC-2-006 FECHADA (6/6)**: T2.31–T2.35 concluídas com teste humano aprovado.
-- Fase 2: 35/40 (87,5%).
-
-## [0.0.333] — 2026-09-12 — T2.35 implementada (CA-2-030, aguardando teste humano)
-
-### Adicionado
-
-- **Handoff na visão da oportunidade (CA-2-030)**: bloco `handoff` no `GET /backend/v1/negocios/{id}/consulta-360` — estado (pendente/aceito/devolvido/nenhum, explícito), pendências abertas (item/dono/prazo, só as não resolvidas), tempo até aceite (aceito = calculado; pendente = decorrido; devolvido = null, aguardando reenvio) e contexto (criado_em, decidido_em, motivo_devolucao). Card "Handoff" no modal Consulta 360º com badge colorido, tempo formatado e lista de pendências. Provas: RED 1 + GREEN 4 + regressão (evidência em `evidencias/spec-2-006/ca-2-030-green.md`). Fixtures 0095/0096 limpas.
-
-## [0.0.330] — 2026-09-12 — T2.34 CONCLUÍDA (teste humano aprovado)
-
-### Concluído
-
-- CA-2-029 fechado: repetição do ganho cria exatamente um handoff e não sobrescreve decisão existente. Teste humano aprovado pela cliente (2026-09-12 09:10 — "sim, conclua e siga a proxima task", execução delegada ao champion).
-- Provas: 2 ciclos completos de re-ganho (reabrir → ganhar, 200+200 cada); handoff único preservado com status `devolvido`, motivo e snapshot (ação + motivo + 5 itens) byte a byte idênticos; oportunidade íntegra em `fechado_ganho`/`ganho`.
-- Causa raiz documentada: model hook `onRecordUpdate` de `negocios` inoperante no runtime (bloco duplicado do hook T2.31 em `comercial_fields_rules.js`, removido) — criação do handoff agora em request hook (v0.0.326).
-- Fase 2: 34/40 (85%).
-
-## [0.0.327] — 2026-09-12 — T2.34 implementada (CA-2-029, aguardando teste humano)
-
-### Adicionado
-
-- **Ganho simultâneo com handoff único (CA-2-029)**: criação do handoff movida para request hook (`onRecordUpdateRequest` em `negocios`) — o model hook parou de disparar no runtime (RED provado: 8+ ganhos, 0 handoffs; causa: bloco duplicado do hook T2.31 em `comercial_fields_rules.js`, removido). Idempotência reforçada: check prévio + índice UNIQUE (`handoffs.negocio`); ganho simultâneo cria exatamente um handoff; re-ganho após decisão preserva status/motivo/snapshot byte a byte; falha de criação não quebra o ganho. Provas: RED (causa raiz) + GREEN 4 + segurança (evidência em `evidencias/spec-2-006/ca-2-029-green.md`).
-
-### Corrigido (durante as provas)
-
-- Hook de ganho inoperante (handoff nunca mais era criado desde 11/09) — request hook v0.0.326.
-
-## [0.0.322] — 2026-09-12 — T2.33 CONCLUÍDA (teste humano aprovado)
-
-### Concluído
-
-- CA-2-028 fechado: receptor aceita ou devolve o handoff; decisão registra ator, data, motivo (devolução) e snapshot do checklist/pendências; decisão só sobre handoff pendente; 401 sem auth.
-- Teste humano aprovado pela cliente (2026-09-12 08:56 — "validado", com prints da oportunidade "Proposta BPO").
-- Revalidação independente do zero: RED 4 re-provado (400 sem motivo, 400 ação inválida, 401, 400 re-decisão) + GREEN 1 re-provado (devolução com ator/data/motivo/snapshot) + idempotência; negócio real "Proposta BPO" íntegro.
-- Migração 0093 restaurou o handoff real para `pendente` (checklist padrão, sem resíduo de decisão) — pronto para o fluxo da T2.34.
-- Fase 2: 33/40 (82,5%).
-
-## [0.0.320] — 2026-09-12 — T2.33 implementada (CA-2-028, aguardando teste humano)
-
-### Adicionado
-
-- **Decisão do receptor com snapshot (CA-2-028)**: endpoint `POST /backend/v1/handoffs/{id}/decisao` — `acao: "devolver"` exige motivo ≥ 10 chars e grava ator, data, motivo e snapshot do checklist/pendências; `acao: "aceitar"` mantém as regras da T2.32 (obrigatório pendente bloqueia) e grava snapshot no aceite. Decisão só sobre handoff pendente (idempotente por estado); 401 sem auth. Campos novos (0090: `devolvido_por`, `devolvido_em`, `motivo_devolucao`, `snapshot_decisao`). Provas: RED 4 + GREEN 2 + idempotência (evidência em `evidencias/spec-2-006/ca-2-028-green.md`).
+- RED 5: sem consentimento 400; tempo <20s 400; CNPJ inválido 400; GET leads sem auth 401; vincular sem auth 401; re-vincular 400.
+- GREEN: envio válido 200 (score 92, quente); lista por temperatura 200; vincular 200 (contato + oportunidade criados); rate limit 429 no 4º envio do mesmo IP; honeypot 200 silencioso sem registro.
+- Fixes no caminho: leitura de IP no JSVM (`e.request.header.get`, não `getHeader`) — 2 iterações provadas por API.
+- Limpeza: migrations 0150/0151/0152 — base final verificada por API: 0 leads_entrada, 0 contatos de prova, 0 negócios de prova.
