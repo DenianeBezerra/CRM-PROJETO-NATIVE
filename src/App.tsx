@@ -18,6 +18,7 @@ import FormularioPublico from './pages/FormularioPublico'
 import EntradaPublica from './pages/EntradaPublica'
 import MeuDia from './pages/MeuDia'
 import PainelDirecao from './pages/PainelDirecao'
+import FichaOperacional from './pages/FichaOperacional'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -149,6 +150,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PainelDirecao />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ficha-operacional"
+              element={
+                <ProtectedRoute>
+                  <FichaOperacional />
                 </ProtectedRoute>
               }
             />

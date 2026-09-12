@@ -361,7 +361,7 @@ export default function FichaOperacional() {
   }
 
   const set = (campo: keyof Ficha, valor: unknown) =>
-    setFicha((f) => (f ? { ...f, [campo]: valor } as Ficha : f))
+    setFicha((f) => (f ? ({ ...f, [campo]: valor } as Ficha) : f))
 
   const servicosContratados = (ficha?.servicos_contratados || '').split(',').filter(Boolean)
 
@@ -564,9 +564,7 @@ export default function FichaOperacional() {
                 {/* Bloco 5 — contas a pagar */}
                 {servicosContratados.includes('contas_a_pagar') && (
                   <section className="p-5 rounded-xl bg-white border border-[#E5E7EB]">
-                    <h2 className="font-playfair font-bold text-base mb-3">
-                      5 · Contas a pagar
-                    </h2>
+                    <h2 className="font-playfair font-bold text-base mb-3">5 · Contas a pagar</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Select
                         label="Periodicidade da projeção"
@@ -881,7 +879,9 @@ export default function FichaOperacional() {
                           <p className="font-semibold">
                             {p.contato_nome || p.contato}{' '}
                             {!p.ativo && (
-                              <span className="text-[10px] text-red-700 font-semibold">inativo</span>
+                              <span className="text-[10px] text-red-700 font-semibold">
+                                inativo
+                              </span>
                             )}
                           </p>
                           <p className="text-xs text-[#6B7280]">
