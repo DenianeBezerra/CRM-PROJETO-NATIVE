@@ -95,6 +95,27 @@ routerAdd(
       return e.json(403, { error: 'Avaliação de exceções é exclusiva de administradores.' })
     }
     console.log('T314 avaliar chamado') // DEBUG
+    var abertasDbg = $app.findRecordsByFilter(
+      'obrigacoes',
+      "status = 'prevista' || status = 'em_execucao' || status = 'atrasada'",
+      '',
+      500,
+      0,
+    )
+    console.log('T314 abertas encontradas: ' + abertasDbg.length) // DEBUG
+    if (abertasDbg.length > 0) {
+      var o0 = abertasDbg[0]
+      console.log(
+        'T314 primeiro: tipo=' +
+          String(o0.get('tipo')) +
+          ' etapa=' +
+          String(o0.get('etapa')) +
+          ' etapa_em=' +
+          String(o0.get('etapa_em')) +
+          ' prevista=' +
+          String(o0.get('data_prevista')),
+      ) // DEBUG
+    }
     var FERIADOS_FIXOS = [
       '01-01',
       '04-21',
