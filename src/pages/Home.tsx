@@ -80,9 +80,8 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
       <header className="sticky top-0 z-30 w-full bg-[#0A0A0A] border-b border-[#C9A227]/25 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-lg">
         {/* Left: Brand / Wordmark */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg border border-[#C9A227]/40 bg-gradient-to-br from-[#141414] to-[#0A0A0A] flex items-center justify-center shadow-[0_0_10px_rgba(201,162,39,0.2)]">
-            <Sparkles className="w-4 h-4 text-[#E8C766]" />
-          </div>
+          <img src={LOGO_WHITE} alt="Vibratto BPO Financeiro" className="h-8 w-auto" />
+          <div className="h-6 w-[1px] bg-[#C9A227]/40" />
           <div className="flex flex-col">
             <span className="font-playfair text-lg sm:text-xl font-bold tracking-tight text-white">
               Vibratto <span className="text-[#E8C766]">CRM</span>

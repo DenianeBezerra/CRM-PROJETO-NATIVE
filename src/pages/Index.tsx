@@ -6,10 +6,10 @@ import {
   Loader2,
   ShieldCheck,
   AlertCircle,
-  Sparkles,
   KeyRound,
   FlaskConical,
 } from 'lucide-react'
+import { LOGO_WHITE } from '@/assets/logo'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 
@@ -119,12 +119,10 @@ export default function Index() {
             aria-hidden="true"
           />
           <div className="inline-block group cursor-default">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg border border-[#C9A227]/40 bg-gradient-to-br from-[#141414] to-[#0A0A0A] flex items-center justify-center shadow-[0_0_15px_rgba(201,162,39,0.25)]">
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-[#E8C766]" />
-              </div>
+            <div className="flex items-center gap-4">
+              <img src={LOGO_WHITE} alt="Vibratto BPO Financeiro" className="h-10 sm:h-14 w-auto" />
               <h1 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
-                Vibratto <span className="text-[#E8C766] font-semibold">CRM</span>
+                <span className="text-[#E8C766] font-semibold">CRM</span>
               </h1>
             </div>
             <div className="mt-3 relative h-[2px] w-full bg-[#C9A227]/25 overflow-hidden rounded-full">
