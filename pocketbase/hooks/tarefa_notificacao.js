@@ -3,6 +3,18 @@
 // (lição T2.06 — request hooks não disparam para $app.save de sistema).
 // Runtime goja: lógica inline (AP-0200).
 onRecordCreate((e) => {
+  try {
+    var auditD = $app.findCollectionByNameOrId('auditoria')
+    var evD = new Record(auditD)
+    evD.set('entidade', 'debug_t308')
+    evD.set('registro_id', e.record.id)
+    evD.set('acao', 'hook_disparou')
+    evD.set('ator_id', '')
+    evD.set('ocorrido_em', new Date().toISOString())
+    evD.set('estado_anterior', '')
+    evD.set('estado_posterior', 'resp=' + String(e.record.get('responsavel') || ''))
+    $app.save(evD)
+  } catch (_) {}
   var responsavel = String(e.record.get('responsavel') || '')
   var criadoPor = String(e.record.get('criado_por') || '')
   $app
