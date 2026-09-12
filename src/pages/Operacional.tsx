@@ -88,23 +88,24 @@ export default function Operacional() {
       setLoading(true)
       setError('')
       try {
-        const [resumoData, tempoData, vencidasData, paradasData, filasData] = await Promise.all([
-          pb.send<Resumo>('/backend/v1/operacional/resumo', {}),
-          pb.send<{ etapas: StageTime[]; estado_invalido: string[] }>(
-            '/backend/v1/operacional/tempo-por-etapa',
-            {},
-          ),
-          pb.send<{ total: number; itens: QueueItem[] }>(
-            '/backend/v1/operacional/acoes-vencidas',
-            {},
-          ),
-          pb.send<{ limite_dias: number; total: number; itens: QueueItem[] }>(
-            '/backend/v1/operacional/paradas',
-            {},
-          ),
-          pb.send<FilasOperacionais>('/backend/v1/filas/operacionais', {}),
-          pb.send<AutomacoesDia>('/backend/v1/automacoes/execucoes', {}),
-        ])
+        const [resumoData, tempoData, vencidasData, paradasData, filasData, automacoesData] =
+          await Promise.all([
+            pb.send<Resumo>('/backend/v1/operacional/resumo', {}),
+            pb.send<{ etapas: StageTime[]; estado_invalido: string[] }>(
+              '/backend/v1/operacional/tempo-por-etapa',
+              {},
+            ),
+            pb.send<{ total: number; itens: QueueItem[] }>(
+              '/backend/v1/operacional/acoes-vencidas',
+              {},
+            ),
+            pb.send<{ limite_dias: number; total: number; itens: QueueItem[] }>(
+              '/backend/v1/operacional/paradas',
+              {},
+            ),
+            pb.send<FilasOperacionais>('/backend/v1/filas/operacionais', {}),
+            pb.send<AutomacoesDia>('/backend/v1/automacoes/execucoes', {}),
+          ])
         setResumo(resumoData)
         setEtapas(tempoData.etapas || [])
         setEstadoInvalido(tempoData.estado_invalido || [])
