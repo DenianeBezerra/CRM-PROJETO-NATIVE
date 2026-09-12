@@ -13,7 +13,7 @@
 
 routerAdd(
   'GET',
-  '/backend/v1/fichas/{empresaId}',
+  '/backend/v1/ficha-operacional/{empresaId}',
   (e) => {
     var PADROES_CREDENCIAL = [
       /senha\s*[:=]/i,
@@ -155,7 +155,7 @@ routerAdd(
 
 routerAdd(
   'POST',
-  '/backend/v1/fichas',
+  '/backend/v1/ficha-operacional',
   (e) => {
     var PADROES_CREDENCIAL = [
       /senha\s*[:=]/i,
@@ -288,7 +288,7 @@ routerAdd(
 
 routerAdd(
   'PATCH',
-  '/backend/v1/fichas/{id}',
+  '/backend/v1/ficha-operacional/{id}',
   (e) => {
     var PADROES_CREDENCIAL = [
       /senha\s*[:=]/i,
@@ -677,7 +677,7 @@ routerAdd(
 
 routerAdd(
   'GET',
-  '/backend/v1/fichas/{empresaId}/procedimento',
+  '/backend/v1/ficha-operacional/{empresaId}/procedimento',
   (e) => {
     var PADROES_CREDENCIAL = [
       /senha\s*[:=]/i,
@@ -956,7 +956,7 @@ routerAdd(
 
 routerAdd(
   'GET',
-  '/backend/v1/fichas/{empresaId}/versoes',
+  '/backend/v1/ficha-operacional/{empresaId}/versoes',
   (e) => {
     var fichaDeEmpresa = function (empresaId) {
       var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
