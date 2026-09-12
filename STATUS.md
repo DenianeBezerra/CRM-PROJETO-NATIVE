@@ -2,8 +2,12 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 13/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia (SPEC-3-013) — aguardando autorização da CEO
+**Task ativa:** T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia (SPEC-3-013) — aguardando teste humano da CEO
 **Última task concluída:** T3.12 — Motor de Rotinas + Exceções (2026-09-13 13:09, teste humano executado a pedido da CEO com a ficha real da Felicidade Collective — 10 testes aprovados; bug de auditoria corrigido na 0164)
+**Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
+**Versão atual:** v0.0.507 (QA verde)
+**Produção:** não publicada (decisão da cliente)
+**Governança GitHub:** commit 696a1d9 (T3.13 analisada) — byte-exato verificado
 **Próxima leva (após T3.13):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — formulário público em /entrada
 **Versão atual:** v0.0.505 (QA verde)
@@ -26,7 +30,7 @@
 | 10   | T3.10 — Painel Direção (12 KPIs + metas + comparativo) + premissa MRR | SPEC-3-010            | ✅ Concluída — 2026-09-13 12:19 |
 | 11   | T3.11 — Ficha Operacional do Cliente (Leva A + UI)                    | SPEC-3-011            | ✅ Concluída — 2026-09-13 12:44 |
 | 12   | T3.12 — Motor de Rotinas + Exceções (Leva B)                          | SPEC-3-012            | ✅ Concluída — 2026-09-13 13:09 |
-| 13   | T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia      | SPEC-3-013            | 🕐 Aguardando autorização       |
+| 13   | T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia      | SPEC-3-013            | 🕐 Aguardando teste humano      |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3               | a definir SPEC a SPEC | Planejadas                      |
 
 ## Estado real preservado (base de dados)
