@@ -1,14 +1,19 @@
 // T3.02 — CA-3-002/003/004/005: formulários inteligentes por solução.
 // Coleção `formularios` (respostas vinculadas a contato/empresa/oportunidade)
-// + campos de contexto na oportunidade (dados_formulario, formulario_status,
-// formulario_resumo). Regras: leitura apenas autenticada; create/update/delete
-// SOMENTE server-side (null) — o público entra pela rota dedicada por token.
-// Idempotente (padrão 0021/0110).
+// + campos de contexto na oportunidade. Regras: leitura apenas autenticada;
+// create/update/delete SOMENTE server-side (null) — o público entra pela rota
+// dedicada por token. Idempotente (padrão 0021/0110).
 migrate(
   (app) => {
-    const negocios = app.findCollectionByNameOrId('negocios')
-    if (!app.findCollectionByNameOrId('formularios')) {
-      const col = new Collection({
+    var negocios = app.findCollectionByNameOrId('negocios')
+    var existe = true
+    try {
+      app.findCollectionByNameOrId('formularios')
+    } catch (_) {
+      existe = false
+    }
+    if (!existe) {
+      var col = new Collection({
         name: 'formularios',
         type: 'base',
         listRule: "@request.auth.id != ''",
@@ -60,8 +65,7 @@ migrate(
       })
       app.save(col)
     }
-    // Campos de contexto na oportunidade (§9 do doc Onda 3).
-    const campos = [
+    var campos = [
       {
         name: 'formulario_status',
         type: 'select',
@@ -71,9 +75,9 @@ migrate(
       { name: 'dados_formulario', type: 'json', maxSize: 2000000 },
       { name: 'formulario_resumo', type: 'text', max: 8000 },
     ]
-    for (const field of campos) {
+    for (var i = 0; i < campos.length; i++) {
       try {
-        negocios.fields.add(new Field(field))
+        negocios.fields.add(new Field(campos[i]))
       } catch (_) {
         /* idempotente */
       }
@@ -82,10 +86,11 @@ migrate(
   },
   (app) => {
     try {
-      const negocios = app.findCollectionByNameOrId('negocios')
-      for (const name of ['formulario_status', 'dados_formulario', 'formulario_resumo']) {
+      var negocios = app.findCollectionByNameOrId('negocios')
+      var nomes = ['formulario_status', 'dados_formulario', 'formulario_resumo']
+      for (var i = 0; i < nomes.length; i++) {
         try {
-          negocios.fields.removeByName(name)
+          negocios.fields.removeByName(nomes[i])
         } catch (_) {}
       }
       app.save(negocios)
