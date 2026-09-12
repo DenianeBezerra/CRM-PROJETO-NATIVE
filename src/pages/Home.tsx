@@ -14,6 +14,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 import pb from '@/lib/pocketbase/client'
+import { LOGO_WHITE } from '@/assets/logo'
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
