@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T12:11:53.358Z",
+  "generatedAt": "2026-09-12T12:40:46.430Z",
   "collections": [
     {
       "name": "users",
@@ -475,6 +475,20 @@
           "type": "text",
           "required": false,
           "system": false
+        },
+        {
+          "name": "entrada_origem",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "formulario_entrada",
+            "indicacao",
+            "site",
+            "redes_sociais",
+            "evento",
+            "outro"
+          ]
         }
       ],
       "indexes": [
@@ -2909,6 +2923,251 @@
       "indexes": [
         "CREATE UNIQUE INDEX idx_autom_unica ON automacoes_execucoes (regra, negocio, dia_referencia)",
         "CREATE INDEX idx_autom_dia ON automacoes_execucoes (dia_referencia)"
+      ]
+    },
+    {
+      "name": "leads_entrada",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "token",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "whatsapp",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "eh_decisor",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cnpj",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "empresa_razao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "faturamento_faixa",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "ate_100k",
+            "100k_500k",
+            "500k_2m",
+            "2m_10m",
+            "acima_10m",
+            "nao_sei_informar"
+          ]
+        },
+        {
+          "name": "qtd_cnpjs",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "colaboradores",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "regime_tributario",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "simples",
+            "presumido",
+            "real",
+            "nao_sei_informar"
+          ]
+        },
+        {
+          "name": "erp_atual",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "quem_cuida_financeiro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "dor_principal",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "caixa_sem_previsibilidade",
+            "rotina_financeira_atrasada",
+            "informacao_confavel_falta",
+            "custo_alto_sem_controle",
+            "crescimento_sem_estrutura",
+            "outro"
+          ]
+        },
+        {
+          "name": "dores_secundarias",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "relato",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "urgencia",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "imediata",
+            "este_trimestre",
+            "este_ano",
+            "so_informando"
+          ]
+        },
+        {
+          "name": "sonho_12m",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "score",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "temperatura",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "quente",
+            "morno",
+            "frio"
+          ]
+        },
+        {
+          "name": "utm",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "origem_declarada",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ip",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "consentimento_lgpd",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "consentimento_versao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "consentimento_data",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "optin_marketing",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "negocio",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "negocios"
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "novo",
+            "vinculado"
+          ]
+        },
+        {
+          "name": "trilha",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_leads_entrada_token ON leads_entrada (token)",
+        "CREATE INDEX idx_leads_entrada_created ON leads_entrada (created)",
+        "CREATE INDEX idx_leads_entrada_temp ON leads_entrada (temperatura)"
       ]
     }
   ]

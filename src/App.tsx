@@ -15,6 +15,7 @@ import Qualificacao from './pages/Qualificacao'
 import Dicionario from './pages/Dicionario'
 import DashboardComercial from './pages/DashboardComercial'
 import FormularioPublico from './pages/FormularioPublico'
+import EntradaPublica from './pages/EntradaPublica'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -136,6 +137,8 @@ const App = () => (
           </Route>
           {/* T3.02 — rota pública do formulário (sem login, por token) */}
           <Route path="/formulario/:token" element={<FormularioPublico />} />
+          {/* T3.07 — Porta 1: formulário público de entrada (sem login) */}
+          <Route path="/entrada" element={<EntradaPublica />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>
