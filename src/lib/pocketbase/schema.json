@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T03:07:06.140Z",
+  "generatedAt": "2026-09-12T03:40:40.429Z",
   "collections": [
     {
       "name": "users",
@@ -2631,6 +2631,110 @@
       ],
       "indexes": [
         "CREATE INDEX idx_fichas_negocio ON fichas_proposta (negocio)"
+      ]
+    },
+    {
+      "name": "interacoes_whatsapp",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "negocio",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "negocios"
+        },
+        {
+          "name": "contato",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "clientes"
+        },
+        {
+          "name": "direcao",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "entrada",
+            "saida"
+          ]
+        },
+        {
+          "name": "resumo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "resultado",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "sem_resposta",
+            "resposta",
+            "reuniao_agendada",
+            "proposta_solicitada",
+            "negativo"
+          ]
+        },
+        {
+          "name": "responsavel",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "proxima_acao_descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "proxima_acao_em",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "trilha",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_wa_negocio ON interacoes_whatsapp (negocio)",
+        "CREATE INDEX idx_wa_created ON interacoes_whatsapp (created)"
       ]
     }
   ]

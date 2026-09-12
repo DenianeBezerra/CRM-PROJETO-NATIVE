@@ -10,6 +10,7 @@ import PropostaNegocio from '@/components/PropostaNegocio'
 import TarefasNegocio from '@/components/TarefasNegocio'
 import FormularioNegocio from '@/components/FormularioNegocio'
 import FichaPropostaNegocio from '@/components/FichaPropostaNegocio'
+import WhatsAppNegocio from '@/components/WhatsAppNegocio'
 
 type Oportunidade = {
   id: string
@@ -366,6 +367,7 @@ export default function Opportunities() {
   const [tarOpen, setTarOpen] = useState<Oportunidade | null>(null)
   const [formOpen, setFormOpen] = useState<Oportunidade | null>(null)
   const [fichaOpen, setFichaOpen] = useState<Oportunidade | null>(null)
+  const [waOpen, setWaOpen] = useState<Oportunidade | null>(null)
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -551,6 +553,15 @@ export default function Opportunities() {
                           className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
                         >
                           Ficha da proposta
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuAberto(null)
+                            setWaOpen(item)
+                          }}
+                          className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                        >
+                          WhatsApp
                         </button>
                       </div>
                     )}
@@ -940,6 +951,7 @@ export default function Opportunities() {
       {tarOpen && <TarefasNegocio negocio={tarOpen} onClose={() => setTarOpen(null)} />}
       {formOpen && <FormularioNegocio negocio={formOpen} onClose={() => setFormOpen(null)} />}
       {fichaOpen && <FichaPropostaNegocio negocio={fichaOpen} onClose={() => setFichaOpen(null)} />}
+      {waOpen && <WhatsAppNegocio negocio={waOpen} onClose={() => setWaOpen(null)} />}
     </div>
   )
 }

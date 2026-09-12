@@ -27,6 +27,11 @@ type Consulta360 = {
     tempo_ate_aceite_segundos?: number | null
     tempo_base?: string
   }
+  whatsapp?: {
+    total: number
+    ultima: { direcao: string; resultado: string; created: string } | null
+    proxima_acao: { descricao: string; em: string } | null
+  }
   campos_ausentes: string[]
 }
 
@@ -190,6 +195,38 @@ export default function Consulta360Negocio({
                       </div>
                     )}
                 </div>
+              )}
+            </div>
+            <div className="p-4 rounded-xl border">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold">WhatsApp</p>
+                <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-0.5">
+                  {dados.whatsapp?.total || 0} interações
+                </span>
+              </div>
+              {dados.whatsapp?.ultima ? (
+                <div className="text-sm space-y-1">
+                  <p>
+                    <span className="text-[#6B7280]">Última: </span>
+                    {dados.whatsapp.ultima.direcao === 'entrada' ? 'Recebida' : 'Feita'} ·{' '}
+                    {dados.whatsapp.ultima.created
+                      ? new Date(dados.whatsapp.ultima.created.replace(' ', 'T')).toLocaleString(
+                          'pt-BR',
+                        )
+                      : '—'}
+                  </p>
+                  {dados.whatsapp.proxima_acao && (
+                    <p>
+                      <span className="text-[#6B7280]">Próxima ação via WhatsApp: </span>
+                      {dados.whatsapp.proxima_acao.descricao}
+                      {dados.whatsapp.proxima_acao.em
+                        ? ` · ${new Date(dados.whatsapp.proxima_acao.em.replace(' ', 'T')).toLocaleDateString('pt-BR')}`
+                        : ''}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-[#6B7280]">Nenhuma interação WhatsApp registrada.</p>
               )}
             </div>
             <div>

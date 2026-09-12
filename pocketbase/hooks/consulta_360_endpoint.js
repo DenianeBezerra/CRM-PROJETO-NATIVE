@@ -192,6 +192,41 @@ routerAdd(
       }
     }
 
+    // --- WhatsApp (T3.03 — CA-3-006/007): total, última interação e próxima ação ---
+    let whatsapp = { total: 0, ultima: null, proxima_acao: null }
+    try {
+      const waRegs = $app.findRecordsByFilter(
+        'interacoes_whatsapp',
+        'negocio = "' + negocio.id + '"',
+        '-created',
+        200,
+        0,
+      )
+      whatsapp.total = waRegs.length
+      if (waRegs.length > 0) {
+        const u = waRegs[0]
+        whatsapp.ultima = {
+          direcao: String(u.get('direcao') || ''),
+          resultado: String(u.get('resultado') || ''),
+          created: String(u.get('created') || ''),
+        }
+        // próxima ação mais recente registrada via WhatsApp (futura ou não —
+        // leitura explícita, nunca omitida)
+        for (let w = 0; w < waRegs.length; w++) {
+          const desc = String(waRegs[w].get('proxima_acao_descricao') || '').trim()
+          if (desc) {
+            whatsapp.proxima_acao = {
+              descricao: desc,
+              em: String(waRegs[w].get('proxima_acao_em') || ''),
+            }
+            break
+          }
+        }
+      }
+    } catch (err) {
+      $app.logger().error('T303 falha ao consultar interações WhatsApp', 'error', String(err))
+    }
+
     // --- Campos ausentes (explícitos) ---
     const camposAusentes = []
     if (!diagnosticoAtual) {
@@ -230,6 +265,7 @@ routerAdd(
       responsavel: { id: respId, nome: responsavelNome },
       proxima_acao: { em: proximaAcaoEm, descricao: proximaAcaoDescricao, futura: proximaOk },
       handoff: handoff,
+      whatsapp: whatsapp,
       campos_ausentes: camposAusentes,
       calculado_em: new Date().toISOString(),
     })
