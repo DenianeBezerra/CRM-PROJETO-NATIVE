@@ -2,8 +2,9 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 14/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma (T3.13 concluída)
+**Task ativa:** T3.14 — Exceções E1–E9 via marcação de etapa (aguardando teste humano da CEO)
 **Última task concluída:** T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia (2026-09-13 13:43, teste humano aprovado pela CEO — "aprovado, conclua e siga"; v0.0.508)
+**Versão atual:** v0.0.516 (QA verde)
 **Próxima leva (a definir com a CEO):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Versão atual:** v0.0.507 (QA verde)

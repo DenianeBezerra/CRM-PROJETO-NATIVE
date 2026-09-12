@@ -1,5 +1,12 @@
 # Changelog — CRM Vibratto
 
+## [0.0.516] — 2026-09-13 — T3.14 implementada e provada (aguardando teste humano)
+
+- 2026-09-13 · [Deni.Ai] · Task T3.14 implementada (autorização da CEO 18:26 — "Pode seguir com a implementação da leva E1-e9, ajustes e integração com os sistemas faremos posteriormenye"). Exceções E1–E9 com gatilho por marcação de etapa, sem integração externa. Migration 0165 (etapa/etapa_em em obrigacoes; prazo_alerta/reincidencia em excecoes; ações etapa_marcada/excecao_gerada na auditoria) + hook excecoes_e1_e9.js (POST /obrigacoes/{id}/etapa; POST /excecoes/avaliar admin; cron 09:10 UTC) + baixa da obrigação resolve TODAS as exceções vinculadas + UI: botão "Etapa" no /operacao-dia (modal etapa + evidência) e etapa exibida no card.
+- Causa raiz corrigida no caminho: "status: cannot be blank" (criarExcecao não definia status; try/catch engolidor atrasou o diagnóstico — logar, não engolir). Lição: `new Field()` genérico não existe em migrations — usar construtores tipados.
+- Provas: RED (401 etapa sem auth; 401 avaliar sem auth; 400 etapa inválida; 403 avaliar operator) + GREEN (etapa 200; E1 criada c/ prazo_resposta_horas=48 da ficha real; E5 criada; dedup 2ª exec 0; baixa resolve exceção vinculada). Fixtures de prova invalidadas; estado real restaurado (13 pendentes: 12 previstas + 1 bloqueada; 3 exceções abertas). E7 fica com gatilho manual até o conector OMIE.
+- QA verde v0.0.511–0.0.516.
+
 ## [0.0.509] — 2026-09-13 — T3.13 CONCLUÍDA (teste humano aprovado pela CEO)
 
 - 2026-09-13 · [Deni.Ai] · Task T3.13 concluída: Visão do analista — /operacao-dia + Obrigações no Meu dia (SPEC-3-013, CA-3-043 a CA-3-047). Teste humano aprovado pela CEO em 2026-09-13 13:43 — "aprovado, conclua e siga". Revalidação do zero: RED (401 baixa sem auth; 401 bloquear sem auth; 403 create manual — CA-3-042; 400 baixa em bloqueada; 400 bloquear sem motivo) + GREEN (baixa 1 toque 200 + reload reflete 12 + restauração 13; lote 3/3 + restauração; meus=1 13; estado real intacto: 13 pendentes — 12 previstas + 1 bloqueada; 3 exceções abertas). Browser real verificado (/operacao-dia com bloco de exceções no topo; /meu-dia com a nova seção). Pendência GitHub da governança RESOLVIDA (commits 696a1d9 e 210571d, byte-exato). Fase 3: 14/N.
