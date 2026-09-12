@@ -7,7 +7,8 @@
 onRecordCreate((e) => {
   const ORIGINS = ['indicacao', 'site', 'redes_sociais', 'evento', 'outro']
   const PRIORITIES = ['baixa', 'media', 'alta']
-  const SERVICES = ['bpo_financeiro', 'controladoria', 'cfo_as_a_service', 'outro']
+  // T3.01: Tesouraria adicionada às frentes (pedido da cliente, 12/09).
+  const SERVICES = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
   const STATUSES = ['em_aberto', 'em_negociacao', 'pausado', 'ganho', 'perdido']
 
   const record = e.record
@@ -59,7 +60,8 @@ onRecordCreate((e) => {
 onRecordUpdate((e) => {
   const ORIGINS = ['indicacao', 'site', 'redes_sociais', 'evento', 'outro']
   const PRIORITIES = ['baixa', 'media', 'alta']
-  const SERVICES = ['bpo_financeiro', 'controladoria', 'cfo_as_a_service', 'outro']
+  // T3.01: Tesouraria adicionada às frentes (pedido da cliente, 12/09).
+  const SERVICES = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
   const STATUSES = ['em_aberto', 'em_negociacao', 'pausado', 'ganho', 'perdido']
 
   const record = e.record
