@@ -1,4 +1,8 @@
 # Changelog — CRM Vibratto
+## [0.0.518] — 2026-09-13 — T3.14 revalidada do zero (aguardando teste humano)
+
+- 2026-09-13 · [Deni.Ai] · Revalidação do zero da T3.14 após reconciliação de estado (sessão anterior havia implementado até v0.0.516 com estado/STATUS desatualizados). RED por API: etapa sem auth 401; avaliar sem auth 401; avaliar com operator 403; etapa em obrigação inexistente 404. GREEN por API: avaliar admin 200 com dedup (0 novas — estado real intacto: 12 pendentes + 1 bloqueada; 3 exceções abertas). QA verde v0.0.518. Governança reconciliada: fase.md (linha T3.13 concluída + T3.14 adicionada), STATUS (task ativa T3.14), estado-atual (aguardando_teste_humano).
+
 
 ## [0.0.509] — 2026-09-13 — T3.13 CONCLUÍDA (teste humano aprovado pela CEO)
 
