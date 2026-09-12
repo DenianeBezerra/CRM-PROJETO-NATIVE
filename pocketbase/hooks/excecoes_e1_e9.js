@@ -175,7 +175,8 @@ routerAdd(
       }
       try {
         $app.save(ex)
-      } catch (_) {
+      } catch (errSave) {
+        console.log('T314 erro ao salvar excecao: ' + String(errSave)) // DEBUG
         return 0
       }
       try {
