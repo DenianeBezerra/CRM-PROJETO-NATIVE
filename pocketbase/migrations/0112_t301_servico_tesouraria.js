@@ -7,7 +7,7 @@ migrate(
     try {
       const negocios = app.findCollectionByNameOrId('negocios')
       const servico = negocios.fields.getByName('servico')
-      const atual = servico.values || []
+      const atual = (servico.values || []).slice()
       if (!atual.includes('tesouraria')) {
         // Inserir antes de 'outro' para manter a ordem legível da UI.
         const idx = atual.indexOf('outro')
@@ -18,6 +18,7 @@ migrate(
         }
         servico.values = atual
         app.save(negocios)
+        console.log('T301 servico tesouraria ADICIONADO: ' + JSON.stringify(atual))
       }
     } catch (err) {
       console.log('T301 servico tesouraria: ' + String(err))
