@@ -73,8 +73,16 @@ onRecordUpdateRequest((e) => {
     }
   }
 
-  if (nextStage !== 'fechado_ganho' && String(e.record.get('motivo_ganho') || '').trim()) {
-    throw new Error('Motivo de ganho só vale em oportunidade ganha.')
+  if (nextStage !== 'fechado_ganho') {
+    const motivoAtual = String(e.record.get('motivo_ganho') || '').trim()
+    if (previousStage === 'fechado_ganho' && motivoAtual) {
+      // Reabertura de um ganho: o motivo é da decisão encerrada — limpa sem
+      // bloquear (a trilha de auditoria preserva o valor anterior).
+      e.record.set('motivo_ganho', '')
+      e.record.set('motivo_ganho_detalhe', '')
+    } else if (motivoAtual && previousStage !== 'fechado_ganho') {
+      throw new Error('Motivo de ganho só vale em oportunidade ganha.')
+    }
   }
 
   e.next()
