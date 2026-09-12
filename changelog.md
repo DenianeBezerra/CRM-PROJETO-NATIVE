@@ -1,5 +1,17 @@
 # Changelog — CRM Vibratto
 
+## [0.0.506] — 2026-09-13 — T3.13 analisada, SPEC-3-013 publicada (aguardando autorização)
+
+- 2026-09-13 · [Deni.Ai] · Seleção e análise da próxima leva após a conclusão da T3.12: **T3.13 — Visão do analista: /operacao-dia + seção "Obrigações operacionais" no Meu dia** (pendência explícita registrada na conclusão da T3.12; cap. 6.1 do documento da CEO). SPEC-3-013 publicada em `04-fase-atual/specs/`. Recorte: página `/operacao-dia` (fonte única nos endpoints existentes da T3.12 — `GET /obrigacoes?dia=HOJE` e `GET /excecoes`, sem alteração de contrato), bloco de atrasos + exceções abertas no topo, agrupamento por cliente ordenado por prazo, baixa em 1 toque + lote, bloqueio com motivo, link para a ficha operacional, filtro meus=1; seção resumida no `/meu-dia` (T3.08) com a mesma fonte (`meus=1`). Critérios CA-3-043 a CA-3-047. Fora do recorte: visões de coordenação/comercial (Leva C), E1–E9 automáticas (conector OMIE), criação manual de obrigação (nunca — CA-3-042). Nada implementado — estado `aguardando_autorizacao`.
+
+## [0.0.505] — 2026-09-13 — T3.12 CONCLUÍDA (teste humano executado a pedido da CEO)
+
+- 2026-09-13 · [Deni.Ai] · Task T3.12 concluída: Motor de Rotinas + Exceções (Leva B, SPEC-3-012). Teste humano executado pela Deni.Ai a pedido da CEO (13:09): 10 testes com a ficha real da Felicidade Collective — motor gerou 18 obrigações (ciclo completo), baixa 1 toque 200, lote 3/3, bloqueio com motivo 200, baixa em bloqueada 400, E10 resolvida pela baixa, dedup 2ª execução 0/18, regressão ok. Estado real preservado: 13 obrigações (12 previstas + 1 bloqueada), 4 exceções (3 abertas + 1 resolvida).
+- Bug corrigido no teste: auditoria silenciosamente falhando — coleção `auditoria` só aceitava acao create/update (migration 0010) e try/catch engolia o erro; fix migration 0164 (motor_executado/baixa/baixa_lote/bloqueio/delete) + registro_id não vazio. Lição: try/catch de auditoria deve LOGAR, não engolir.
+- Provas T3.12: RED 5 (401/403/404/400×2/403 create manual/403 delete) + GREEN (18 obrigações da ficha real; dedup 2ª exec 0/18; baixa+lote; bloqueio; reserva substituicao_aplicada=true; suspensão 0 novas). Limpeza 0163 — base 0 obrigações de prova, ficha Felicidade preservada.
+- Lição GRAVE (AP-0200 extensão): helpers top-level chamados DENTRO de função inline (não callback direto) TAMBÉM derrubam o hook no runtime goja — rota dá "File not found" sem erro no QA. Fix: TODOS os helpers dentro de cada escopo.
+- Pendências registradas para a próxima leva: UI /operacao-dia (visão do analista) e seção "Obrigações operacionais" no Meu dia — entraram como T3.13 (SPEC-3-013). E1–E9 automáticas dependem do conector OMIE (leva seguinte).
+
 ## [0.0.459] — 2026-09-13 — D2+D5 implementadas e provadas (correção autorizada pela CEO)
 
 - 2026-09-13 · [Deni.Ai] · Correções D2/D5 da T3.07 (autorização da CEO 10:34 — "PODE IMPLEMENTAR"). **D2**: relato opcional com mínimo 30 chars — validação server-side no hook leads_entrada.js (400 com mensagem clara) + contador orientador no UI /entrada (placeholder com exemplo, contador âmbar abaixo de 30, ✓ ao atingir). **D5**: retenção 24 meses — hook leads_entrada_retencao.js com cron diário 03:00 (padrão audit_retention.js) + execução manual admin-only POST /backend/v1/entrada/retencao/executar (padrão T3.06); leads `novo` eliminados 24 meses após coleta ou último contato (trilha); delete via $app.delete em contexto sistema (deleteRule null bloqueia só a API — provado 403).
