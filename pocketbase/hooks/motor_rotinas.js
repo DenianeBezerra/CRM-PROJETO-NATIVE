@@ -1,14 +1,14 @@
 // T3.12 — SPEC-3-012: Motor de Rotinas + Exceções.
 // Rotas:
-//   POST /backend/v1/obrigacoes/gerar            — executa o motor (admin; cron usa interno)
+//   POST /backend/v1/obrigacoes/gerar            — executa o motor (admin)
 //   GET  /backend/v1/obrigacoes                  — lista (auth; ?dia=YYYY-MM-DD, ?meus=1)
 //   POST /backend/v1/obrigacoes/{id}/baixa       — baixa em 1 toque (auth)
 //   POST /backend/v1/obrigacoes/baixa-lote       — baixa em lote por ids (auth)
 //   POST /backend/v1/obrigacoes/{id}/bloquear    — bloqueia com motivo obrigatório (auth)
-//   GET  /backend/v1/excecoes                    — lista exceções abertas (auth)
+//   GET  /backend/v1/excecoes                    — lista exceções (auth; ?status=aberta|resolvida|todas)
 // Cron diário 06:05 BRT (09:05 UTC) executa o motor.
 // NENHUMA rota cria obrigação manualmente — CA-3-042.
-// Runtime goja: helpers INLINE em cada callback (AP-0200); datas PB " " → "T".
+// Runtime goja: gerarMotor/avaliarAtrasos INLINE em cada escopo que as usa (AP-0200).
 
 // Feriados nacionais fixos 2026 (MM-DD) — municipais ficam como decisão pendente.
 var FERIADOS_FIXOS = [
@@ -46,25 +46,12 @@ var dataISO = function (d) {
 }
 
 // Calcula as datas do ciclo para um serviço, a partir dos parâmetros da ficha.
-// Retorna lista de datas previstas (um ciclo completo à frente).
 var datasDoCiclo = function (ficha, servico, hoje) {
   var datas = []
   var periodicidade = String(ficha.get('periodicidade_projecao') || '')
   var diasRef = String(ficha.get('dias_referencia') || '').toLowerCase()
   if (servico === 'contas_a_pagar' && periodicidade) {
     if (periodicidade === 'semanal') {
-      // dias de referência por nome (segunda-feira etc.) — gera próximas 2 ocorrências
-      var nomes = [
-        'domingo',
-        'segunda',
-        'terca',
-        'terça',
-        'quarta',
-        'quinta',
-        'sexta',
-        'sabado',
-        'sábado',
-      ]
       var alvoDow = -1
       if (diasRef.indexOf('segunda') >= 0) alvoDow = 1
       else if (diasRef.indexOf('terça') >= 0 || diasRef.indexOf('terca') >= 0) alvoDow = 2
@@ -86,7 +73,6 @@ var datasDoCiclo = function (ficha, servico, hoje) {
       periodicidade === 'decendial' ||
       periodicidade === 'mensal'
     ) {
-      // dias do mês: extrai números da string (ex.: "dias 01, 10 e 20" → [1,10,20])
       var nums = diasRef.match(/\d{1,2}/g) || []
       var passou = []
       for (var i = 0; i < nums.length; i++) {
@@ -96,7 +82,6 @@ var datasDoCiclo = function (ficha, servico, hoje) {
       passou.sort(function (a, b) {
         return a - b
       })
-      // próximas 2 ocorrências: neste mês (se ainda não passou) e no mês seguinte
       var mesAtual = hoje.getUTCMonth()
       var anoAtual = hoje.getUTCFullYear()
       var candidatos = []
@@ -121,7 +106,6 @@ var datasDoCiclo = function (ficha, servico, hoje) {
     }
   }
   if (servico === 'faturamento') {
-    // dia_emissao: "dia 10 e dia 25" → dias do mês
     var diaEm = String(ficha.get('dia_emissao') || '').toLowerCase()
     var numsF = diaEm.match(/\d{1,2}/g) || []
     var diasF = []
@@ -169,7 +153,6 @@ var datasDoCiclo = function (ficha, servico, hoje) {
     }
   }
   if (servico === 'fechamento') {
-    // entrega à contabilidade: prazo_entrega "dia X" do mês seguinte
     var prazoE = String(ficha.get('prazo_entrega') || '').toLowerCase()
     var numsP = prazoE.match(/\d{1,2}/g) || []
     if (numsP.length > 0) {
@@ -212,155 +195,158 @@ var offsetTipo = function (tipo) {
   return 0
 }
 
-var gerarMotor = function () {
-  var geradas = 0
-  var ignoradas = 0
-  var agoraISO = new Date().toISOString()
-  var hoje = new Date()
-  var fichas = $app.findRecordsByFilter(
-    'fichas_operacionais',
-    "status_operacional = 'ativo'",
-    '',
-    200,
-    0,
-  )
-  for (var f = 0; f < fichas.length; f++) {
-    var ficha = fichas[f]
-    var clienteId = String(ficha.get('empresa') || '')
-    var titular = String(ficha.get('responsavel_principal') || '')
-    var reserva = String(ficha.get('responsavel_reserva') || '')
-    var substituicao = false
-    var responsavel = titular
-    if (titular) {
-      try {
-        var u = $app.findRecordById('_pb_users_auth_', titular)
-        if (u.get('active') === false) {
-          responsavel = reserva
-          substituicao = true
-        }
-      } catch (_) {
-        responsavel = reserva
-        substituicao = true
-      }
-    } else if (reserva) {
-      responsavel = reserva
-      substituicao = true
-    }
-    if (!responsavel) continue
-
-    var servicos = String(ficha.get('servicos_contratados') || '').split(',')
-    for (var s = 0; s < servicos.length; s++) {
-      var servico = servicos[s].trim()
-      if (!servico) continue
-      var tipos = tiposPorServico(servico)
-      if (tipos.length === 0) continue
-      var datas = datasDoCiclo(ficha, servico, hoje)
-      for (var d = 0; d < datas.length; d++) {
-        var prevista = datas[d]
-        for (var t = 0; t < tipos.length; t++) {
-          var tipo = tipos[t]
-          var off = offsetTipo(tipo)
-          var dt = new Date(prevista.getTime())
-          dt.setUTCDate(dt.getUTCDate() + off)
-          if (!ehDiaUtil(dt)) dt = ajustarDiaUtil(dt)
-          var prazo = new Date(dt.getTime())
-          prazo.setUTCHours(21, 0, 0, 0)
-          var cicloChave = clienteId + '|' + tipo + '|' + dt.toISOString().slice(0, 10)
-          // dedup: já existe?
-          var existentes = $app.findRecordsByFilter('obrigacoes', 'ciclo_chave = {:c}', '', 1, 0, {
-            c: cicloChave,
-          })
-          if (existentes.length > 0) {
-            ignoradas++
-            continue
-          }
-          var col = $app.findCollectionByNameOrId('obrigacoes')
-          var rec = new Record(col)
-          rec.set('tipo', tipo)
-          rec.set('cliente', clienteId)
-          rec.set('ficha', ficha.id)
-          rec.set('responsavel', responsavel)
-          rec.set('substituicao_aplicada', substituicao)
-          rec.set('data_prevista', dataISO(dt))
-          rec.set('prazo_limite', prazo.toISOString().replace('T', ' '))
-          rec.set('status', 'prevista')
-          rec.set('gerada_em', agoraISO)
-          rec.set('ciclo_chave', cicloChave)
-          try {
-            $app.save(rec)
-            geradas++
-          } catch (errS) {
-            ignoradas++
-          }
-        }
-      }
-    }
-  }
-  return { geradas: geradas, ignoradas: ignoradas }
-}
-
-// Exceção E10: obrigações vencidas sem baixa viram atrasadas + exceção aberta.
-var avaliarAtrasos = function () {
-  var marcadas = 0
-  var excecoesNovas = 0
-  var agora = Date.now()
-  var abertas = $app.findRecordsByFilter(
-    'obrigacoes',
-    "status = 'prevista' || status = 'em_execucao'",
-    '',
-    500,
-    0,
-  )
-  for (var i = 0; i < abertas.length; i++) {
-    var ob = abertas[i]
-    var prazo = String(ob.get('prazo_limite') || '')
-    if (!prazo || prazo.indexOf('0001-01-01') === 0) continue
-    var msP = Date.parse(prazo.replace(' ', 'T'))
-    if (isNaN(msP) || msP >= agora) continue
-    ob.set('status', 'atrasada')
-    $app.save(ob)
-    marcadas++
-    // exceção E10 (dedup: uma aberta por obrigação)
-    var jaExiste = $app.findRecordsByFilter(
-      'excecoes',
-      "obrigacao = {:o} && tipo = 'obrigacao_atrasada' && status = 'aberta'",
-      '',
-      1,
-      0,
-      { o: ob.id },
-    )
-    if (jaExiste.length === 0) {
-      var col = $app.findCollectionByNameOrId('excecoes')
-      var ex = new Record(col)
-      ex.set('tipo', 'obrigacao_atrasada')
-      ex.set('cliente', String(ob.get('cliente') || ''))
-      ex.set('obrigacao', ob.id)
-      ex.set(
-        'descricao',
-        'Obrigação ' +
-          String(ob.get('tipo') || '') +
-          ' venceu em ' +
-          prazo.slice(0, 10) +
-          ' sem baixa.',
-      )
-      ex.set('aberta_em', new Date().toISOString())
-      ex.set('destinatario_analista', String(ob.get('responsavel') || ''))
-      ex.set('escalada_coordenacao', false)
-      ex.set('status', 'aberta')
-      try {
-        $app.save(ex)
-        excecoesNovas++
-      } catch (_) {}
-    }
-  }
-  return { marcadas: marcadas, excecoes: excecoesNovas }
-}
-
-// ---- POST executar motor (admin) ----
 routerAdd(
   'POST',
   '/backend/v1/obrigacoes/gerar',
   (e) => {
+    var gerarMotor = function () {
+      var geradas = 0
+      var ignoradas = 0
+      var agoraISO = new Date().toISOString()
+      var hoje = new Date()
+      var fichas = $app.findRecordsByFilter(
+        'fichas_operacionais',
+        "status_operacional = 'ativo'",
+        '',
+        200,
+        0,
+      )
+      for (var f = 0; f < fichas.length; f++) {
+        var ficha = fichas[f]
+        var clienteId = String(ficha.get('empresa') || '')
+        var titular = String(ficha.get('responsavel_principal') || '')
+        var reserva = String(ficha.get('responsavel_reserva') || '')
+        var substituicao = false
+        var responsavel = titular
+        if (titular) {
+          try {
+            var u = $app.findRecordById('_pb_users_auth_', titular)
+            if (u.get('active') === false) {
+              responsavel = reserva
+              substituicao = true
+            }
+          } catch (_) {
+            responsavel = reserva
+            substituicao = true
+          }
+        } else if (reserva) {
+          responsavel = reserva
+          substituicao = true
+        }
+        if (!responsavel) continue
+
+        var servicos = String(ficha.get('servicos_contratados') || '').split(',')
+        for (var s = 0; s < servicos.length; s++) {
+          var servico = servicos[s].trim()
+          if (!servico) continue
+          var tipos = tiposPorServico(servico)
+          if (tipos.length === 0) continue
+          var datas = datasDoCiclo(ficha, servico, hoje)
+          for (var d = 0; d < datas.length; d++) {
+            var prevista = datas[d]
+            for (var t = 0; t < tipos.length; t++) {
+              var tipo = tipos[t]
+              var off = offsetTipo(tipo)
+              var dt = new Date(prevista.getTime())
+              dt.setUTCDate(dt.getUTCDate() + off)
+              if (!ehDiaUtil(dt)) dt = ajustarDiaUtil(dt)
+              var prazo = new Date(dt.getTime())
+              prazo.setUTCHours(21, 0, 0, 0)
+              var cicloChave = clienteId + '|' + tipo + '|' + dt.toISOString().slice(0, 10)
+              var existentes = $app.findRecordsByFilter(
+                'obrigacoes',
+                'ciclo_chave = {:c}',
+                '',
+                1,
+                0,
+                {
+                  c: cicloChave,
+                },
+              )
+              if (existentes.length > 0) {
+                ignoradas++
+                continue
+              }
+              var col = $app.findCollectionByNameOrId('obrigacoes')
+              var rec = new Record(col)
+              rec.set('tipo', tipo)
+              rec.set('cliente', clienteId)
+              rec.set('ficha', ficha.id)
+              rec.set('responsavel', responsavel)
+              rec.set('substituicao_aplicada', substituicao)
+              rec.set('data_prevista', dataISO(dt))
+              rec.set('prazo_limite', prazo.toISOString().replace('T', ' '))
+              rec.set('status', 'prevista')
+              rec.set('gerada_em', agoraISO)
+              rec.set('ciclo_chave', cicloChave)
+              try {
+                $app.save(rec)
+                geradas++
+              } catch (errS) {
+                ignoradas++
+              }
+            }
+          }
+        }
+      }
+      return { geradas: geradas, ignoradas: ignoradas }
+    }
+
+    var avaliarAtrasos = function () {
+      var marcadas = 0
+      var excecoesNovas = 0
+      var agora = Date.now()
+      var abertas = $app.findRecordsByFilter(
+        'obrigacoes',
+        "status = 'prevista' || status = 'em_execucao'",
+        '',
+        500,
+        0,
+      )
+      for (var i = 0; i < abertas.length; i++) {
+        var ob = abertas[i]
+        var prazo = String(ob.get('prazo_limite') || '')
+        if (!prazo || prazo.indexOf('0001-01-01') === 0) continue
+        var msP = Date.parse(prazo.replace(' ', 'T'))
+        if (isNaN(msP) || msP >= agora) continue
+        ob.set('status', 'atrasada')
+        $app.save(ob)
+        marcadas++
+        var jaExiste = $app.findRecordsByFilter(
+          'excecoes',
+          "obrigacao = {:o} && tipo = 'obrigacao_atrasada' && status = 'aberta'",
+          '',
+          1,
+          0,
+          { o: ob.id },
+        )
+        if (jaExiste.length === 0) {
+          var col = $app.findCollectionByNameOrId('excecoes')
+          var ex = new Record(col)
+          ex.set('tipo', 'obrigacao_atrasada')
+          ex.set('cliente', String(ob.get('cliente') || ''))
+          ex.set('obrigacao', ob.id)
+          ex.set(
+            'descricao',
+            'Obrigação ' +
+              String(ob.get('tipo') || '') +
+              ' venceu em ' +
+              prazo.slice(0, 10) +
+              ' sem baixa.',
+          )
+          ex.set('aberta_em', new Date().toISOString())
+          ex.set('destinatario_analista', String(ob.get('responsavel') || ''))
+          ex.set('escalada_coordenacao', false)
+          ex.set('status', 'aberta')
+          try {
+            $app.save(ex)
+            excecoesNovas++
+          } catch (_) {}
+        }
+      }
+      return { marcadas: marcadas, excecoes: excecoesNovas }
+    }
+
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     if (String(actor.get('role') || '') !== 'admin') {
@@ -399,7 +385,6 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- GET lista de obrigações ----
 routerAdd(
   'GET',
   '/backend/v1/obrigacoes',
@@ -452,7 +437,6 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- POST baixa em 1 toque ----
 routerAdd(
   'POST',
   '/backend/v1/obrigacoes/{id}/baixa',
@@ -479,7 +463,6 @@ routerAdd(
     } catch (err) {
       return e.json(400, { error: 'Falha ao baixar: ' + String(err) })
     }
-    // resolve exceção E10 vinculada, se houver
     try {
       var exs = $app.findRecordsByFilter(
         'excecoes',
@@ -512,7 +495,6 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- POST baixa em lote ----
 routerAdd(
   'POST',
   '/backend/v1/obrigacoes/baixa-lote',
@@ -567,7 +549,6 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- POST bloquear (motivo obrigatório) ----
 routerAdd(
   'POST',
   '/backend/v1/obrigacoes/{id}/bloquear',
@@ -615,7 +596,6 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- GET exceções abertas ----
 routerAdd(
   'GET',
   '/backend/v1/excecoes',
@@ -624,12 +604,14 @@ routerAdd(
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
     var statusF = String(e.request.url.query().get('status') || 'aberta').trim()
     var filtro = 'status = {:s}'
-    if (statusF === 'todas') filtro = "status != ''"
+    var params = { s: statusF }
+    if (statusF === 'todas') {
+      filtro = "status != ''"
+      params = {}
+    }
     var exs = []
     try {
-      exs = $app.findRecordsByFilter('excecoes', filtro, '-aberta_em', 200, 0, {
-        s: statusF === 'todas' ? 'aberta' : statusF,
-      })
+      exs = $app.findRecordsByFilter('excecoes', filtro, '-aberta_em', 200, 0, params)
     } catch (err) {
       return e.json(500, { error: 'Falha ao consultar exceções.' })
     }
@@ -659,8 +641,155 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// ---- Cron diário 06:05 BRT (09:05 UTC) ----
 cronAdd('obrigacoes_motor', '5 9 * * *', () => {
+  var gerarMotor = function () {
+    var geradas = 0
+    var ignoradas = 0
+    var agoraISO = new Date().toISOString()
+    var hoje = new Date()
+    var fichas = $app.findRecordsByFilter(
+      'fichas_operacionais',
+      "status_operacional = 'ativo'",
+      '',
+      200,
+      0,
+    )
+    for (var f = 0; f < fichas.length; f++) {
+      var ficha = fichas[f]
+      var clienteId = String(ficha.get('empresa') || '')
+      var titular = String(ficha.get('responsavel_principal') || '')
+      var reserva = String(ficha.get('responsavel_reserva') || '')
+      var substituicao = false
+      var responsavel = titular
+      if (titular) {
+        try {
+          var u = $app.findRecordById('_pb_users_auth_', titular)
+          if (u.get('active') === false) {
+            responsavel = reserva
+            substituicao = true
+          }
+        } catch (_) {
+          responsavel = reserva
+          substituicao = true
+        }
+      } else if (reserva) {
+        responsavel = reserva
+        substituicao = true
+      }
+      if (!responsavel) continue
+
+      var servicos = String(ficha.get('servicos_contratados') || '').split(',')
+      for (var s = 0; s < servicos.length; s++) {
+        var servico = servicos[s].trim()
+        if (!servico) continue
+        var tipos = tiposPorServico(servico)
+        if (tipos.length === 0) continue
+        var datas = datasDoCiclo(ficha, servico, hoje)
+        for (var d = 0; d < datas.length; d++) {
+          var prevista = datas[d]
+          for (var t = 0; t < tipos.length; t++) {
+            var tipo = tipos[t]
+            var off = offsetTipo(tipo)
+            var dt = new Date(prevista.getTime())
+            dt.setUTCDate(dt.getUTCDate() + off)
+            if (!ehDiaUtil(dt)) dt = ajustarDiaUtil(dt)
+            var prazo = new Date(dt.getTime())
+            prazo.setUTCHours(21, 0, 0, 0)
+            var cicloChave = clienteId + '|' + tipo + '|' + dt.toISOString().slice(0, 10)
+            var existentes = $app.findRecordsByFilter(
+              'obrigacoes',
+              'ciclo_chave = {:c}',
+              '',
+              1,
+              0,
+              {
+                c: cicloChave,
+              },
+            )
+            if (existentes.length > 0) {
+              ignoradas++
+              continue
+            }
+            var col = $app.findCollectionByNameOrId('obrigacoes')
+            var rec = new Record(col)
+            rec.set('tipo', tipo)
+            rec.set('cliente', clienteId)
+            rec.set('ficha', ficha.id)
+            rec.set('responsavel', responsavel)
+            rec.set('substituicao_aplicada', substituicao)
+            rec.set('data_prevista', dataISO(dt))
+            rec.set('prazo_limite', prazo.toISOString().replace('T', ' '))
+            rec.set('status', 'prevista')
+            rec.set('gerada_em', agoraISO)
+            rec.set('ciclo_chave', cicloChave)
+            try {
+              $app.save(rec)
+              geradas++
+            } catch (errS) {
+              ignoradas++
+            }
+          }
+        }
+      }
+    }
+    return { geradas: geradas, ignoradas: ignoradas }
+  }
+
+  var avaliarAtrasos = function () {
+    var marcadas = 0
+    var excecoesNovas = 0
+    var agora = Date.now()
+    var abertas = $app.findRecordsByFilter(
+      'obrigacoes',
+      "status = 'prevista' || status = 'em_execucao'",
+      '',
+      500,
+      0,
+    )
+    for (var i = 0; i < abertas.length; i++) {
+      var ob = abertas[i]
+      var prazo = String(ob.get('prazo_limite') || '')
+      if (!prazo || prazo.indexOf('0001-01-01') === 0) continue
+      var msP = Date.parse(prazo.replace(' ', 'T'))
+      if (isNaN(msP) || msP >= agora) continue
+      ob.set('status', 'atrasada')
+      $app.save(ob)
+      marcadas++
+      var jaExiste = $app.findRecordsByFilter(
+        'excecoes',
+        "obrigacao = {:o} && tipo = 'obrigacao_atrasada' && status = 'aberta'",
+        '',
+        1,
+        0,
+        { o: ob.id },
+      )
+      if (jaExiste.length === 0) {
+        var col = $app.findCollectionByNameOrId('excecoes')
+        var ex = new Record(col)
+        ex.set('tipo', 'obrigacao_atrasada')
+        ex.set('cliente', String(ob.get('cliente') || ''))
+        ex.set('obrigacao', ob.id)
+        ex.set(
+          'descricao',
+          'Obrigação ' +
+            String(ob.get('tipo') || '') +
+            ' venceu em ' +
+            prazo.slice(0, 10) +
+            ' sem baixa.',
+        )
+        ex.set('aberta_em', new Date().toISOString())
+        ex.set('destinatario_analista', String(ob.get('responsavel') || ''))
+        ex.set('escalada_coordenacao', false)
+        ex.set('status', 'aberta')
+        try {
+          $app.save(ex)
+          excecoesNovas++
+        } catch (_) {}
+      }
+    }
+    return { marcadas: marcadas, excecoes: excecoesNovas }
+  }
+
   var r1 = gerarMotor()
   var r2 = avaliarAtrasos()
   $app
