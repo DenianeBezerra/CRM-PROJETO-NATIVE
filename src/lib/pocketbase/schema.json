@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T02:24:07.412Z",
+  "generatedAt": "2026-09-12T02:27:21.506Z",
   "collections": [
     {
       "name": "users",
@@ -409,6 +409,7 @@
             "parceiro",
             "tiktok",
             "pagina_captura",
+            "comunidade",
             "outro"
           ]
         },
