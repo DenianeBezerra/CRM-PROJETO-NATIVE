@@ -1,15 +1,13 @@
 migrate(
   (app) => {
     // T3.01 — fix definitivo da 0115/0116/0117: TikTok no select `canal`.
-    // A 0117 rodou com prova interna de leitura mas o PATCH canal=tiktok
-    // continua 400 enquanto valores antigos dão 200 — o enum efetivo no
-    // runtime de REQUEST não mudou. Hipótese restante: múltiplas migrations
-    // (0115/0116/0117) competiram e o estado final do campo ficou sem
-    // consistência. Abordagem final: REMOVER o campo e recriá-lo do zero
-    // (padrão da 0110 que criou o campo e funcionou de primeira), com save
-    // imediato após cada operação.
+    // Estratégia: REMOVER o campo e recriá-lo do zero (padrão da 0110 que
+    // criou o campo e funcionou de primeira), com save imediato após cada
+    // operação. O erro de validação do QA acontece porque o app.save roda
+    // com o campo ausente (estado intermediário) — então o remove e o add
+    // acontecem no MESMO save (sem save intermediário).
     try {
-      let negocios = app.findCollectionByNameOrId('negocios')
+      const negocios = app.findCollectionByNameOrId('negocios')
       const LISTA = [
         'instagram',
         'linkedin',
@@ -27,8 +25,6 @@ migrate(
       console.log('T301-0118 canal ANTES: ' + JSON.stringify(canal.values || []))
       if (!(canal.values || []).includes('tiktok')) {
         negocios.fields.removeByName('canal')
-        app.save(negocios)
-        negocios = app.findCollectionByNameOrId('negocios')
         negocios.fields.add(
           new Field({
             name: 'canal',
