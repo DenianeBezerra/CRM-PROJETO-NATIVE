@@ -36,4 +36,5 @@ Dedup por e-mail provado por API e no teste humano. Instagram, agenda, pós-vend
 
 - **D6 — notificação de lead quente**: inicialmente somente a Deniane (CEO).
 - **D8 — agenda na tela final do formulário**: Calendly; fica para depois (fora do recorte atual).
-- **D2 (relato mínimo 120 chars) e D5 (retenção de leads que não fecharam)**: pendentes de decisão.
+- **D2 — relato livre**: opcional, com mínimo de 30 caracteres se preenchido (decisão da CEO, 13/09 — rejeitado o mínimo de 120 chars por custo de conversão; revisável com dado real de uso).
+- **D5 — retenção de leads que não fecharam**: 24 meses da coleta ou do último contato, o que for mais recente; eliminação dos dados de identificação ao fim do prazo (decisão da CEO, 13/09).
