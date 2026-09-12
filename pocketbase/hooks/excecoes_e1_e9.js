@@ -94,28 +94,7 @@ routerAdd(
     if (String(actor.get('role') || '') !== 'admin') {
       return e.json(403, { error: 'Avaliação de exceções é exclusiva de administradores.' })
     }
-    console.log('T314 avaliar chamado') // DEBUG
-    var abertasDbg = $app.findRecordsByFilter(
-      'obrigacoes',
-      "status = 'prevista' || status = 'em_execucao' || status = 'atrasada'",
-      '',
-      500,
-      0,
-    )
-    console.log('T314 abertas encontradas: ' + abertasDbg.length) // DEBUG
-    if (abertasDbg.length > 0) {
-      var o0 = abertasDbg[0]
-      console.log(
-        'T314 primeiro: tipo=' +
-          String(o0.get('tipo')) +
-          ' etapa=' +
-          String(o0.get('etapa')) +
-          ' etapa_em=' +
-          String(o0.get('etapa_em')) +
-          ' prevista=' +
-          String(o0.get('data_prevista')),
-      ) // DEBUG
-    }
+    console.log('T314 avaliar chamado')
     var FERIADOS_FIXOS = [
       '01-01',
       '04-21',
@@ -169,6 +148,7 @@ routerAdd(
       ex.set('destinatario_analista', String(ob.get('responsavel') || ''))
       ex.set('escalada_coordenacao', false)
       ex.set('reincidencia', 0)
+      ex.set('status', 'aberta')
       if (prazoAlertaMs) {
         var d = new Date(prazoAlertaMs)
         ex.set('prazo_alerta', d.toISOString().replace('T', ' '))
@@ -176,7 +156,7 @@ routerAdd(
       try {
         $app.save(ex)
       } catch (errSave) {
-        console.log('T314 erro ao salvar excecao: ' + String(errSave)) // DEBUG
+        console.log('T314 erro ao salvar excecao: ' + String(errSave))
         return 0
       }
       try {
@@ -423,6 +403,7 @@ cronAdd('excecoes_e1_e9', '10 9 * * *', () => {
     ex.set('destinatario_analista', String(ob.get('responsavel') || ''))
     ex.set('escalada_coordenacao', false)
     ex.set('reincidencia', 0)
+    ex.set('status', 'aberta')
     if (prazoAlertaMs) {
       var d = new Date(prazoAlertaMs)
       ex.set('prazo_alerta', d.toISOString().replace('T', ' '))
