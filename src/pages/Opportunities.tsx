@@ -8,6 +8,7 @@ import DiagnosticoNegocio from '@/components/DiagnosticoNegocio'
 import Consulta360Negocio from '@/components/Consulta360Negocio'
 import PropostaNegocio from '@/components/PropostaNegocio'
 import TarefasNegocio from '@/components/TarefasNegocio'
+import FormularioNegocio from '@/components/FormularioNegocio'
 
 type Oportunidade = {
   id: string
@@ -362,6 +363,7 @@ export default function Opportunities() {
   const [c360Open, setC360Open] = useState<Oportunidade | null>(null)
   const [propOpen, setPropOpen] = useState<Oportunidade | null>(null)
   const [tarOpen, setTarOpen] = useState<Oportunidade | null>(null)
+  const [formOpen, setFormOpen] = useState<Oportunidade | null>(null)
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -526,6 +528,15 @@ export default function Opportunities() {
                           className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
                         >
                           Tarefas
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuAberto(null)
+                            setFormOpen(item)
+                          }}
+                          className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                        >
+                          Formulário
                         </button>
                       </div>
                     )}
@@ -913,6 +924,7 @@ export default function Opportunities() {
       {c360Open && <Consulta360Negocio negocioId={c360Open.id} onClose={() => setC360Open(null)} />}
       {propOpen && <PropostaNegocio negocio={propOpen} onClose={() => setPropOpen(null)} />}
       {tarOpen && <TarefasNegocio negocio={tarOpen} onClose={() => setTarOpen(null)} />}
+      {formOpen && <FormularioNegocio negocio={formOpen} onClose={() => setFormOpen(null)} />}
     </div>
   )
 }
