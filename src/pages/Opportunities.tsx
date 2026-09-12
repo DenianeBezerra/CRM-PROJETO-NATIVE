@@ -494,7 +494,10 @@ export default function Opportunities() {
                   </button>
                   <div className="relative ml-auto" data-menu-oportunidade>
                     <button
-                      onClick={() => setMenuAberto(menuAberto === item.id ? null : item.id)}
+                      onClick={(ev) => {
+                        ev.stopPropagation()
+                        setMenuAberto(menuAberto === item.id ? null : item.id)
+                      }}
                       className="text-xs flex items-center gap-1 border rounded px-2 py-1 font-semibold"
                       aria-label="Mais ações"
                     >
