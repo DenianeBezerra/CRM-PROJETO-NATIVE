@@ -12,6 +12,7 @@ import FormularioNegocio from '@/components/FormularioNegocio'
 import FichaPropostaNegocio from '@/components/FichaPropostaNegocio'
 import WhatsAppNegocio from '@/components/WhatsAppNegocio'
 import TimelineNegocio from '@/components/TimelineNegocio'
+import EmailNegocio from '@/components/EmailNegocio'
 
 type Oportunidade = {
   id: string
@@ -370,6 +371,7 @@ export default function Opportunities() {
   const [fichaOpen, setFichaOpen] = useState<Oportunidade | null>(null)
   const [waOpen, setWaOpen] = useState<Oportunidade | null>(null)
   const [tlOpen, setTlOpen] = useState<Oportunidade | null>(null)
+  const [emOpen, setEmOpen] = useState<Oportunidade | null>(null)
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -573,6 +575,15 @@ export default function Opportunities() {
                           className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
                         >
                           Timeline
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuAberto(null)
+                            setEmOpen(item)
+                          }}
+                          className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                        >
+                          E-mail
                         </button>
                       </div>
                     )}
@@ -970,6 +981,7 @@ export default function Opportunities() {
           onClose={() => setTlOpen(null)}
         />
       )}
+      {emOpen && <EmailNegocio negocio={emOpen} onClose={() => setEmOpen(null)} />}
     </div>
   )
 }

@@ -32,6 +32,11 @@ type Consulta360 = {
     ultima: { direcao: string; resultado: string; created: string } | null
     proxima_acao: { descricao: string; em: string } | null
   }
+  email?: {
+    total: number
+    ultima: { direcao: string; assunto: string; created: string } | null
+    proxima_acao: { descricao: string; em: string } | null
+  }
   campos_ausentes: string[]
 }
 
@@ -227,6 +232,39 @@ export default function Consulta360Negocio({
                 </div>
               ) : (
                 <p className="text-sm text-[#6B7280]">Nenhuma interação WhatsApp registrada.</p>
+              )}
+            </div>
+            <div className="p-4 rounded-xl border">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold">E-mail</p>
+                <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-0.5">
+                  {dados.email?.total || 0} interações
+                </span>
+              </div>
+              {dados.email?.ultima ? (
+                <div className="text-sm space-y-1">
+                  <p>
+                    <span className="text-[#6B7280]">Último: </span>
+                    {dados.email.ultima.direcao === 'entrada' ? 'Recebido' : 'Enviado'} ·{' '}
+                    {dados.email.ultima.assunto || 'sem assunto'} ·{' '}
+                    {dados.email.ultima.created
+                      ? new Date(dados.email.ultima.created.replace(' ', 'T')).toLocaleString(
+                          'pt-BR',
+                        )
+                      : '—'}
+                  </p>
+                  {dados.email.proxima_acao && (
+                    <p>
+                      <span className="text-[#6B7280]">Próxima ação via e-mail: </span>
+                      {dados.email.proxima_acao.descricao}
+                      {dados.email.proxima_acao.em
+                        ? ` · ${new Date(dados.email.proxima_acao.em.replace(' ', 'T')).toLocaleDateString('pt-BR')}`
+                        : ''}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-[#6B7280]">Nenhuma interação de e-mail registrada.</p>
               )}
             </div>
             <div>

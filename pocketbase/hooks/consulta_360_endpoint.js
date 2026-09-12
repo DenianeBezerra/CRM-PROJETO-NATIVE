@@ -227,6 +227,39 @@ routerAdd(
       $app.logger().error('T303 falha ao consultar interações WhatsApp', 'error', String(err))
     }
 
+    // --- E-mail (T3.05 — CA-3-012/013): total, última interação e próxima ação ---
+    let email = { total: 0, ultima: null, proxima_acao: null }
+    try {
+      const emRegs = $app.findRecordsByFilter(
+        'interacoes_email',
+        'negocio = "' + negocio.id + '"',
+        '-created',
+        200,
+        0,
+      )
+      email.total = emRegs.length
+      if (emRegs.length > 0) {
+        const u = emRegs[0]
+        email.ultima = {
+          direcao: String(u.get('direcao') || ''),
+          assunto: String(u.get('assunto') || ''),
+          created: String(u.get('created') || ''),
+        }
+        for (let w = 0; w < emRegs.length; w++) {
+          const desc = String(emRegs[w].get('proxima_acao_descricao') || '').trim()
+          if (desc) {
+            email.proxima_acao = {
+              descricao: desc,
+              em: String(emRegs[w].get('proxima_acao_em') || ''),
+            }
+            break
+          }
+        }
+      }
+    } catch (err) {
+      $app.logger().error('T305 falha ao consultar interações e-mail', 'error', String(err))
+    }
+
     // --- Campos ausentes (explícitos) ---
     const camposAusentes = []
     if (!diagnosticoAtual) {
@@ -266,6 +299,7 @@ routerAdd(
       proxima_acao: { em: proximaAcaoEm, descricao: proximaAcaoDescricao, futura: proximaOk },
       handoff: handoff,
       whatsapp: whatsapp,
+      email: email,
       campos_ausentes: camposAusentes,
       calculado_em: new Date().toISOString(),
     })
