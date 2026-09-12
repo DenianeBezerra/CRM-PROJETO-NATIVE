@@ -5,85 +5,58 @@
 // 3) excecoes: campo 'prazo_alerta' (date) — vencimento do alerta da exceção.
 // 4) excecoes: campo 'reincidencia' (number) — contador de reincidência no ciclo (E1 → coordenação).
 // 5) auditoria: novas ações 'etapa_marcada' e 'excecao_gerada'.
-// Lição AP-0200: atribuição direta field.values = [...] (NÃO .set('values')).
+// Lições: AP-0200 (atribuição direta field.values = [...]) + guia de migrations
+// (col.fields.add usa construtores tipados: new SelectField/new DateField/new NumberField —
+// `new Field` genérico NÃO existe no runtime e derruba a migration).
 migrate(
   (app) => {
     // --- obrigacoes: etapa + etapa_em ---
     var ob = app.findCollectionByNameOrId('obrigacoes')
-    var temEtapa = false
-    var temEtapaEm = false
-    for (var i = 0; i < ob.fields.length; i++) {
-      if (ob.fields[i].name === 'etapa') temEtapa = true
-      if (ob.fields[i].name === 'etapa_em') temEtapaEm = true
+    if (!ob.fields.getByName('etapa')) {
+      ob.fields.add(
+        new SelectField({
+          name: 'etapa',
+          required: false,
+          presentable: false,
+          maxSelect: 1,
+          values: [
+            'aguardando',
+            'enviada',
+            'executada',
+            'conciliada',
+            'emitida',
+            'entregue',
+            'aguardando_aceite',
+            'aguardando_aprovacao',
+          ],
+        }),
+      )
     }
-    if (!temEtapa) {
-      var fEtapa = new Field({
-        type: 'select',
-        name: 'etapa',
-        required: false,
-        presentable: false,
-        values: [
-          'aguardando',
-          'enviada',
-          'executada',
-          'conciliada',
-          'emitida',
-          'entregue',
-          'aguardando_aceite',
-          'aguardando_aprovacao',
-        ],
-      })
-      ob.fields.add(fEtapa)
-    }
-    if (!temEtapaEm) {
-      var fEtapaEm = new Field({
-        type: 'date',
-        name: 'etapa_em',
-        required: false,
-        presentable: false,
-      })
-      ob.fields.add(fEtapaEm)
+    if (!ob.fields.getByName('etapa_em')) {
+      ob.fields.add(new DateField({ name: 'etapa_em', required: false, presentable: false }))
     }
     app.save(ob)
 
     // --- excecoes: prazo_alerta + reincidencia ---
     var ex = app.findCollectionByNameOrId('excecoes')
-    var temPrazo = false
-    var temReinc = false
-    for (var j = 0; j < ex.fields.length; j++) {
-      if (ex.fields[j].name === 'prazo_alerta') temPrazo = true
-      if (ex.fields[j].name === 'reincidencia') temReinc = true
+    if (!ex.fields.getByName('prazo_alerta')) {
+      ex.fields.add(new DateField({ name: 'prazo_alerta', required: false, presentable: false }))
     }
-    if (!temPrazo) {
-      var fPrazo = new Field({
-        type: 'date',
-        name: 'prazo_alerta',
-        required: false,
-        presentable: false,
-      })
-      ex.fields.add(fPrazo)
-    }
-    if (!temReinc) {
-      var fReinc = new Field({
-        type: 'number',
-        name: 'reincidencia',
-        required: false,
-        presentable: false,
-        onlyInt: true,
-      })
-      ex.fields.add(fReinc)
+    if (!ex.fields.getByName('reincidencia')) {
+      ex.fields.add(
+        new NumberField({
+          name: 'reincidencia',
+          required: false,
+          presentable: false,
+          onlyInt: true,
+        }),
+      )
     }
     app.save(ex)
 
     // --- auditoria: etapa_marcada + excecao_gerada ---
     var au = app.findCollectionByNameOrId('auditoria')
-    var campoAcao = null
-    for (var k = 0; k < au.fields.length; k++) {
-      if (au.fields[k].name === 'acao') {
-        campoAcao = au.fields[k]
-        break
-      }
-    }
+    var campoAcao = au.fields.getByName('acao')
     var valores = campoAcao.values || []
     var novos = ['etapa_marcada', 'excecao_gerada']
     for (var m = 0; m < novos.length; m++) {
@@ -93,22 +66,13 @@ migrate(
     app.save(au)
   },
   (app) => {
-    // down: remover campos adicionados
     var ob = app.findCollectionByNameOrId('obrigacoes')
-    var keep = []
-    for (var i = 0; i < ob.fields.length; i++) {
-      var n = ob.fields[i].name
-      if (n !== 'etapa' && n !== 'etapa_em') keep.push(ob.fields[i])
-    }
-    ob.fields = keep
+    ob.fields.removeByName('etapa')
+    ob.fields.removeByName('etapa_em')
     app.save(ob)
     var ex = app.findCollectionByNameOrId('excecoes')
-    var keepEx = []
-    for (var j = 0; j < ex.fields.length; j++) {
-      var ne = ex.fields[j].name
-      if (ne !== 'prazo_alerta' && ne !== 'reincidencia') keepEx.push(ex.fields[j])
-    }
-    ex.fields = keepEx
+    ex.fields.removeByName('prazo_alerta')
+    ex.fields.removeByName('reincidencia')
     app.save(ex)
   },
 )
