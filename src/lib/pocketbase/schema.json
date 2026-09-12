@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T02:21:55.954Z",
+  "generatedAt": "2026-09-12T02:22:48.180Z",
   "collections": [
     {
       "name": "users",
@@ -2369,32 +2369,6 @@
       "indexes": [
         "CREATE UNIQUE INDEX idx_baseline_periodo_versao ON baselines (periodo_inicio, periodo_fim, versao)"
       ]
-    },
-    {
-      "name": "diagnostico_t301",
-      "type": "base",
-      "apiRules": {
-        "list": null,
-        "view": null,
-        "create": null,
-        "update": null,
-        "delete": null
-      },
-      "fields": [
-        {
-          "name": "titulo",
-          "type": "text",
-          "required": false,
-          "system": false
-        },
-        {
-          "name": "payload",
-          "type": "text",
-          "required": false,
-          "system": false
-        }
-      ],
-      "indexes": []
     }
   ]
 }
