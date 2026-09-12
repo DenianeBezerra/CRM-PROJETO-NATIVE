@@ -153,6 +153,145 @@ routerAdd(
   $apis.requireAuth(),
 )
 
+// GET completo (todos os campos) — usado pela UI da ficha
+routerAdd(
+  'GET',
+  '/backend/v1/ficha-operacional/{empresaId}/completa',
+  (e) => {
+    var fichaDeEmpresa = function (empresaId) {
+      var fs = $app.findRecordsByFilter('fichas_operacionais', 'empresa = {:e}', '', 1, 0, {
+        e: empresaId,
+      })
+      return fs.length ? fs[0] : null
+    }
+    var podeVer = function (actor, ficha) {
+      if (String(actor.get('role') || '') === 'admin') return true
+      return (
+        String(ficha.get('responsavel_principal') || '') === actor.id ||
+        String(ficha.get('responsavel_reserva') || '') === actor.id
+      )
+    }
+    var actor = e.auth
+    if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
+    var ficha = fichaDeEmpresa(e.request.pathValue('empresaId'))
+    if (!ficha) return e.json(404, { error: 'Ficha operacional não encontrada para esta empresa.' })
+    if (!podeVer(actor, ficha)) return e.json(403, { error: 'Ficha fora da sua carteira.' })
+    var campos = [
+      'status_operacional',
+      'data_inicio_operacao',
+      'responsavel_principal',
+      'responsavel_reserva',
+      'servicos_contratados',
+      'fora_do_escopo',
+      'volume_referencia_pagamentos',
+      'volume_referencia_notas',
+      'sistema',
+      'sistema_outro',
+      'identificacao_empresa_sistema',
+      'modulos_utilizados',
+      'item_cofre_sistema',
+      'periodicidade_projecao',
+      'dias_referencia',
+      'janela_coberta',
+      'regra_conta_fixa',
+      'regra_conta_variavel',
+      'autoriza_projecao',
+      'canal_autorizacao',
+      'prazo_resposta_horas',
+      'antecipacao_pagamento',
+      'destino_comprovantes',
+      'estrutura_adicional',
+      'controle_externo_cliente',
+      'origem_informacao',
+      'dia_envio_relatorio',
+      'aprova_relatorio',
+      'dia_emissao',
+      'rotas_emissao',
+      'regra_rota',
+      'destinatarios_nota',
+      'cancelar_previsao',
+      'destino_notas',
+      'prazo_validacao_final',
+      'regra_cobranca',
+      'frequencia_conciliacao',
+      'responsavel_conciliacao',
+      'origem_extrato',
+      'destino_comprovantes_conc',
+      'controle_externo_conc',
+      'contabilidade_nome',
+      'contabilidade_contato',
+      'formato_entrega',
+      'canal_entrega',
+      'prazo_entrega',
+      'documentos_exigidos',
+      'particularidades_fechamento',
+    ]
+    var out = { id: ficha.id, empresa: String(ficha.get('empresa') || '') }
+    for (var i = 0; i < campos.length; i++) {
+      out[campos[i]] = ficha.get(campos[i])
+    }
+    var canais = []
+    try {
+      var cs = $app.findRecordsByFilter('ficha_canais', 'ficha = {:f}', '-created', 100, 0, {
+        f: ficha.id,
+      })
+      for (var ci = 0; ci < cs.length; ci++)
+        canais.push({
+          id: cs[ci].id,
+          tipo_canal: String(cs[ci].get('tipo_canal') || ''),
+          identificacao: String(cs[ci].get('identificacao') || ''),
+          frequencia_verificacao: String(cs[ci].get('frequencia_verificacao') || ''),
+          finalidade: String(cs[ci].get('finalidade') || ''),
+          observacao: String(cs[ci].get('observacao') || ''),
+        })
+    } catch (_) {}
+    var bancos = []
+    try {
+      var bs = $app.findRecordsByFilter('ficha_bancos', 'ficha = {:f}', '-created', 100, 0, {
+        f: ficha.id,
+      })
+      for (var bi = 0; bi < bs.length; bi++)
+        bancos.push({
+          id: bs[bi].id,
+          banco: String(bs[bi].get('banco') || ''),
+          apelido_conta: String(bs[bi].get('apelido_conta') || ''),
+          finalidade: String(bs[bi].get('finalidade') || ''),
+          perfil_acesso: String(bs[bi].get('perfil_acesso') || ''),
+          quem_aprova_no_banco: String(bs[bi].get('quem_aprova_no_banco') || ''),
+          item_cofre: String(bs[bi].get('item_cofre') || ''),
+          data_ultima_revisao_acesso: String(bs[bi].get('data_ultima_revisao_acesso') || ''),
+        })
+    } catch (_) {}
+    var pessoas = []
+    try {
+      var ps = $app.findRecordsByFilter('ficha_pessoas', 'ficha = {:f}', '-created', 100, 0, {
+        f: ficha.id,
+      })
+      for (var pi = 0; pi < ps.length; pi++) {
+        var contatoNome = ''
+        try {
+          contatoNome = String(
+            $app.findRecordById('clientes', String(ps[pi].get('contato') || '')).get('nome') || '',
+          )
+        } catch (_) {}
+        pessoas.push({
+          id: ps[pi].id,
+          contato: String(ps[pi].get('contato') || ''),
+          contato_nome: contatoNome,
+          papel_operacional: String(ps[pi].get('papel_operacional') || ''),
+          canal_preferencial: String(ps[pi].get('canal_preferencial') || ''),
+          ativo: ps[pi].get('ativo') === true,
+        })
+      }
+    } catch (_) {}
+    out.canais = canais
+    out.bancos = bancos
+    out.pessoas = pessoas
+    return e.json(200, out)
+  },
+  $apis.requireAuth(),
+)
+
 routerAdd(
   'POST',
   '/backend/v1/ficha-operacional',

@@ -228,7 +228,7 @@ export default function FichaOperacional() {
     setVersoes([])
     setAba('ficha')
     try {
-      const r = await pb.send<Ficha>(`/backend/v1/ficha-operacional/${id}`, {})
+      const r = await pb.send<Ficha>(`/backend/v1/ficha-operacional/${id}/completa`, {})
       setFicha(r)
     } catch (e: unknown) {
       const msg = String((e as { response?: { message?: string } })?.response?.message || '')
