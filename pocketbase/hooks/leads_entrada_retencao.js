@@ -8,9 +8,8 @@
 // Nota: delete direto via $app.delete é permitido em contexto de sistema
 // (deleteRule null bloqueia apenas a API pública — mesmo padrão da auditoria).
 
-var RETENCAO_MESES = 24
-
 cronAdd('leads_entrada_retencao', '0 3 * * *', () => {
+  var RETENCAO_MESES = 24
   var limite = new Date()
   limite.setMonth(limite.getMonth() - RETENCAO_MESES)
   var limiteISO = limite.toISOString().replace('T', ' ').substring(0, 19)
