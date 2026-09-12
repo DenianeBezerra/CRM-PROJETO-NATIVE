@@ -1,5 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Pencil, Plus, Search, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  Briefcase,
+  Calculator,
+  LineChart,
+  Pencil,
+  Plus,
+  Search,
+  UserTie,
+  X,
+  CircleDot,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
@@ -105,6 +116,15 @@ const servicoOptions = [
   { value: 'cfo_as_a_service', label: 'CFO as a Service' },
   { value: 'outro', label: 'Outro' },
 ]
+// T3.09 — harmonização visual: ícone por serviço (quadrado preto + glifo dourado,
+// padrão dos cards de módulo da home).
+const servicoIcone: Record<string, React.ComponentType<{ className?: string }>> = {
+  bpo_financeiro: Briefcase,
+  tesouraria: LineChart,
+  controladoria: Calculator,
+  cfo_as_a_service: UserTie,
+  outro: CircleDot,
+}
 const statusOptions = [
   { value: 'em_aberto', label: 'Em aberto' },
   { value: 'em_negociacao', label: 'Em negociação' },
@@ -445,29 +465,45 @@ export default function Opportunities() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {visible.map((item) => (
-              <article key={item.id} className="bg-white border rounded-xl p-5">
+              <article
+                key={item.id}
+                className="bg-white border border-[#E5E7EB] rounded-xl p-5 hover:border-[#C9A227]/60 hover:shadow-md transition-all"
+              >
                 <div className="flex justify-between gap-3">
-                  <div>
-                    <h2 className="font-semibold text-lg">{item.titulo}</h2>
-                    <p className="text-sm text-[#6B7280]">
-                      {item.cliente_nome || 'Contato não carregado'}
-                    </p>
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] shrink-0">
+                      {(() => {
+                        const Icone = servicoIcone[item.servico] || CircleDot
+                        return <Icone className="w-5 h-5" />
+                      })()}
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="font-playfair font-bold text-lg">{item.titulo}</h2>
+                      <p className="text-sm text-[#6B7280]">
+                        {item.cliente_nome || 'Contato não carregado'}
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-xs rounded-full bg-[#F7F5F1] px-2 py-1 h-fit">
-                    {stages.find((stage) => stage.chave === item.estagio)?.nome || item.estagio}
-                  </span>
-                  {item.arquivado && (
-                    <span className="text-xs rounded-full bg-neutral-200 px-2 py-1 h-fit">
-                      Arquivada
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className="text-xs rounded-full bg-[#F7F5F1] border border-[#C9A227]/30 px-2 py-1 h-fit font-semibold text-[#A8862B]">
+                      {stages.find((stage) => stage.chave === item.estagio)?.nome || item.estagio}
                     </span>
-                  )}
+                    {item.arquivado && (
+                      <span className="text-xs rounded-full bg-neutral-200 px-2 py-1 h-fit">
+                        Arquivada
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm mt-4">
-                  Valor:{' '}
-                  {item.valor == null
-                    ? 'não informado'
-                    : `R$ ${item.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}{' '}
-                  · Probabilidade: {item.probabilidade ?? 0}%
+                  <span className="font-bold">
+                    {item.valor == null
+                      ? 'Valor não informado'
+                      : `R$ ${item.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  </span>{' '}
+                  <span className="text-[#6B7280]">
+                    · Probabilidade: {item.probabilidade ?? 0}%
+                  </span>
                 </p>
                 <p className="text-xs text-[#6B7280] mt-2">
                   Origem: {label(origemOptions, item.origem) || 'não informada'} · Prioridade:{' '}
@@ -486,19 +522,19 @@ export default function Opportunities() {
                 <div className="flex gap-2 mt-4 items-center">
                   <button
                     onClick={() => openEdit(item)}
-                    className="text-xs flex items-center gap-1 border border-[#C9A227]/50 bg-[#F7F5F1] rounded px-2.5 py-1.5 font-semibold"
+                    className="text-xs flex items-center gap-1 border border-[#C9A227]/50 rounded-full px-3 py-1.5 font-semibold text-[#A8862B] hover:bg-[#C9A227] hover:text-[#0A0A0A] transition-colors"
                   >
                     <Pencil className="w-3 h-3" /> Editar
                   </button>
                   <button
                     onClick={() => setQualOpen(item)}
-                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
+                    className="text-xs flex items-center gap-1 border border-[#C9A227]/50 rounded-full px-3 py-1.5 font-semibold text-[#A8862B] hover:bg-[#C9A227] hover:text-[#0A0A0A] transition-colors"
                   >
                     Qualificar
                   </button>
                   <button
                     onClick={() => setDiagOpen(item)}
-                    className="text-xs flex items-center gap-1 border rounded px-2 py-1"
+                    className="text-xs flex items-center gap-1 border border-[#C9A227]/50 rounded-full px-3 py-1.5 font-semibold text-[#A8862B] hover:bg-[#C9A227] hover:text-[#0A0A0A] transition-colors"
                   >
                     Diagnóstico
                   </button>
@@ -508,7 +544,7 @@ export default function Opportunities() {
                         ev.stopPropagation()
                         setMenuAberto(menuAberto === item.id ? null : item.id)
                       }}
-                      className="text-xs flex items-center gap-1 border rounded px-2 py-1 font-semibold"
+                      className="text-xs flex items-center gap-1 border border-[#C9A227]/50 rounded-full px-3 py-1.5 font-semibold text-[#A8862B] hover:bg-[#C9A227] hover:text-[#0A0A0A] transition-colors"
                       aria-label="Mais ações"
                     >
                       Mais ⌄

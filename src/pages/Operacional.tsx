@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, Clock, Flag, PauseCircle, TrendingUp } from 'lucide-react'
+import {
+  ArrowLeft,
+  BellRing,
+  Clock,
+  Flag,
+  Hourglass,
+  PauseCircle,
+  TrendingUp,
+  MessageSquareWarning,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 
@@ -195,15 +204,29 @@ export default function Operacional() {
                     ] as [string, string, string][]
                   ).map(([chave, titulo, desc]) => {
                     const bloco = automacoes.regras[chave] || { total: 0, itens: [] }
+                    const IconeAuto =
+                      chave === 'follow_up_proposta'
+                        ? BellRing
+                        : chave === 'follow_up_sem_resposta'
+                          ? Hourglass
+                          : chave === 'alerta_sem_proxima_acao'
+                            ? Clock
+                            : MessageSquareWarning
                     return (
-                      <div key={chave} className="border rounded-xl p-4">
-                        <p className="text-sm font-semibold mb-1">
+                      <div
+                        key={chave}
+                        className="bg-[#F7F5F1] border border-[#E5E7EB] rounded-xl p-4 hover:border-[#C9A227]/60 transition-colors"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                          <IconeAuto className="w-5 h-5" />
+                        </div>
+                        <p className="font-playfair font-bold text-sm mb-1">
                           {titulo}{' '}
                           <span
                             className={
                               bloco.total > 0
-                                ? 'text-[#B91C1C] font-bold'
-                                : 'text-[#6B7280] font-bold'
+                                ? 'text-[#B91C1C] font-bold text-lg'
+                                : 'text-[#6B7280] font-bold text-lg'
                             }
                           >
                             {bloco.total}
@@ -303,10 +326,13 @@ export default function Operacional() {
                 administrador).
               </p>
               <div className="grid gap-4 lg:grid-cols-3">
-                <div className="border rounded-xl p-4">
-                  <p className="text-sm font-semibold mb-1">
+                <div className="bg-[#F7F5F1] border border-[#E5E7EB] rounded-xl p-4 hover:border-[#C9A227]/60 transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <p className="font-playfair font-bold text-sm mb-1">
                     Tarefas vencidas{' '}
-                    <span className="text-[#A8862B] font-bold">
+                    <span className="text-[#A8862B] font-bold text-lg">
                       {filas?.tarefas_vencidas.total ?? 0}
                     </span>
                   </p>
@@ -337,10 +363,13 @@ export default function Operacional() {
                     <p className="text-xs text-[#6B7280]">Nenhuma tarefa vencida.</p>
                   )}
                 </div>
-                <div className="border rounded-xl p-4">
-                  <p className="text-sm font-semibold mb-1">
+                <div className="bg-[#F7F5F1] border border-[#E5E7EB] rounded-xl p-4 hover:border-[#C9A227]/60 transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                    <Flag className="w-5 h-5" />
+                  </div>
+                  <p className="font-playfair font-bold text-sm mb-1">
                     Sem próxima ação{' '}
-                    <span className="text-[#A8862B] font-bold">
+                    <span className="text-[#A8862B] font-bold text-lg">
                       {filas?.sem_proxima_acao.total ?? 0}
                     </span>
                   </p>
@@ -368,10 +397,13 @@ export default function Operacional() {
                     <p className="text-xs text-[#6B7280]">Nenhuma oportunidade na fila.</p>
                   )}
                 </div>
-                <div className="border rounded-xl p-4">
-                  <p className="text-sm font-semibold mb-1">
+                <div className="bg-[#F7F5F1] border border-[#E5E7EB] rounded-xl p-4 hover:border-[#C9A227]/60 transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                    <PauseCircle className="w-5 h-5" />
+                  </div>
+                  <p className="font-playfair font-bold text-sm mb-1">
                     Exceções vigentes{' '}
-                    <span className="text-[#A8862B] font-bold">
+                    <span className="text-[#A8862B] font-bold text-lg">
                       {filas?.excecoes_vigentes.total ?? 0}
                     </span>
                   </p>
