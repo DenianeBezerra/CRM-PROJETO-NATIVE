@@ -83,7 +83,7 @@ export default function FormularioNegocio({
   const marcarEnviado = async (f: Formulario) => {
     setError('')
     try {
-      await pb.send(`/backend/v1/formularios/${f.id}/enviar`, { method: 'POST' })
+      await pb.send(`/backend/v1/formularios/enviar/${f.id}`, { method: 'POST' })
       toast({ title: 'Formulário marcado como enviado' })
       await load()
     } catch (err: unknown) {

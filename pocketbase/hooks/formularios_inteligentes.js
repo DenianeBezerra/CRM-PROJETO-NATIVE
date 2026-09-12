@@ -105,7 +105,7 @@ routerAdd(
 
 routerAdd(
   'POST',
-  '/backend/v1/formularios/{id}/enviar',
+  '/backend/v1/formularios/enviar/{id}',
   (e) => {
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
