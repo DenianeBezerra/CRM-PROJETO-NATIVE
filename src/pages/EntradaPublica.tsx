@@ -283,11 +283,31 @@ export default function EntradaPublica() {
               label: 'Outras dores (opcional)',
               area: true,
             })}
-            {T({
-              k: 'relato',
-              label: 'Conte com suas palavras o que está acontecendo (opcional)',
-              area: true,
-            })}
+            <label className="block text-sm font-medium">
+              Conte com suas palavras o que está acontecendo (opcional)
+              <textarea
+                value={String(form.relato || '')}
+                onChange={(e) => up('relato', e.target.value)}
+                rows={3}
+                maxLength={5000}
+                placeholder="Ex.: Meu caixa fecha no vermelho todo fim de trimestre e eu descubro tarde..."
+                className="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+              <span
+                className={`text-xs mt-1 block ${
+                  String(form.relato || '').length > 0 &&
+                  String(form.relato || '').trim().length < 30
+                    ? 'text-amber-700'
+                    : 'text-[#6B7280]'
+                }`}
+              >
+                {String(form.relato || '').length === 0
+                  ? 'Opcional — se preencher, escreva pelo menos 30 caracteres.'
+                  : String(form.relato || '').trim().length < 30
+                    ? `${30 - String(form.relato || '').trim().length} caracteres restantes (mínimo 30)`
+                    : '✓ ' + String(form.relato || '').trim().length + ' caracteres'}
+              </span>
+            </label>
             {S({ k: 'urgencia', label: 'Quando precisa resolver?', opts: URGENCIAS })}
             {T({
               k: 'sonho_12m',

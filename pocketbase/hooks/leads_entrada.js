@@ -59,6 +59,15 @@ routerAdd('POST', '/backend/v1/entrada/publico', (e) => {
   var dorOk = false
   for (var di = 0; di < DORES.length; di++) if (DORES[di] === dor) dorOk = true
   if (!dorOk) return e.json(400, { error: 'Selecione a dor principal.' })
+  // D2 (decisão CEO 13/09): relato é OPCIONAL, mas se preenchido precisa de
+  // mínimo 30 caracteres — "não sei" e palavras soltas não geram contexto útil.
+  var relatoTrim = String(body.relato || '').trim()
+  if (relatoTrim && relatoTrim.length < 30) {
+    return e.json(400, {
+      error:
+        'Se for contar o que está acontecendo, escreva pelo menos 30 caracteres — ou deixe em branco.',
+    })
+  }
   if (body.consentimento_lgpd !== true) {
     return e.json(400, { error: 'O consentimento LGPD é obrigatório para enviar.' })
   }
@@ -218,8 +227,7 @@ routerAdd('POST', '/backend/v1/entrada/publico', (e) => {
   regLead.set('dor_principal', dor)
   if (String(body.dores_secundarias || '').trim())
     regLead.set('dores_secundarias', String(body.dores_secundarias).trim().slice(0, 1000))
-  if (String(body.relato || '').trim())
-    regLead.set('relato', String(body.relato).trim().slice(0, 5000))
+  if (relatoTrim) regLead.set('relato', relatoTrim.slice(0, 5000))
   if (urg) regLead.set('urgencia', urg)
   if (String(body.sonho_12m || '').trim())
     regLead.set('sonho_12m', String(body.sonho_12m).trim().slice(0, 2000))
