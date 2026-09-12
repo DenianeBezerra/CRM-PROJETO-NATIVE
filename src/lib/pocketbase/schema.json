@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T11:52:32.717Z",
+  "generatedAt": "2026-09-12T12:01:52.847Z",
   "collections": [
     {
       "name": "users",
@@ -2845,6 +2845,70 @@
       "indexes": [
         "CREATE INDEX idx_email_negocio ON interacoes_email (negocio)",
         "CREATE INDEX idx_email_created ON interacoes_email (created)"
+      ]
+    },
+    {
+      "name": "automacoes_execucoes",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "regra",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "follow_up_proposta",
+            "follow_up_sem_resposta",
+            "alerta_sem_proxima_acao",
+            "alerta_parada"
+          ]
+        },
+        {
+          "name": "negocio",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "negocios"
+        },
+        {
+          "name": "responsavel",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "detalhe",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "dia_referencia",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_autom_unica ON automacoes_execucoes (regra, negocio, dia_referencia)",
+        "CREATE INDEX idx_autom_dia ON automacoes_execucoes (dia_referencia)"
       ]
     }
   ]
