@@ -16,6 +16,7 @@ import Dicionario from './pages/Dicionario'
 import DashboardComercial from './pages/DashboardComercial'
 import FormularioPublico from './pages/FormularioPublico'
 import EntradaPublica from './pages/EntradaPublica'
+import MeuDia from './pages/MeuDia'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -131,6 +132,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardComercial />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/meu-dia"
+              element={
+                <ProtectedRoute>
+                  <MeuDia />
                 </ProtectedRoute>
               }
             />

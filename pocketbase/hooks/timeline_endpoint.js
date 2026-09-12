@@ -272,6 +272,30 @@ routerAdd('GET', '/backend/v1/negocios/{id}/timeline', (e) => {
     fontesComErro.push('tarefas')
   }
 
+  // ---- Fonte: comentarios (T3.08 — 10ª fonte) ----
+  try {
+    var coms = $app.findRecordsByFilter(
+      'comentarios',
+      'negocio = {:n}',
+      '-created',
+      LIMITE_FONTE,
+      0,
+      { n: negocioId },
+    )
+    for (var ci = 0; ci < coms.length; ci++) {
+      var cm = coms[ci]
+      push(
+        'comentario',
+        cm.get('created'),
+        'Comentário de ' + nomeDe('_pb_users_auth_', cm.get('autor'), 'name'),
+        cm.get('texto'),
+        nomeDe('_pb_users_auth_', cm.get('autor'), 'name'),
+      )
+    }
+  } catch (errCo) {
+    fontesComErro.push('comentarios')
+  }
+
   // ---- Fonte: handoffs (criação, aceite, devolução) ----
   try {
     var hands = $app.findRecordsByFilter(

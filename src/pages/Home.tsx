@@ -10,11 +10,13 @@ import {
   CheckCircle2,
   Clock,
   Briefcase,
+  ListTodo,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 import pb from '@/lib/pocketbase/client'
 import { LOGO_WHITE } from '@/assets/logo'
+import SinoNotificacoes from '@/components/SinoNotificacoes'
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
@@ -93,8 +95,9 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           </div>
         </div>
 
-        {/* Right: User Email & Logout */}
+        {/* Right: Notifications, User Email & Logout */}
         <div className="flex items-center gap-3 sm:gap-5">
+          <SinoNotificacoes />
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-xs font-semibold text-white">{displayName}</span>
             <span className="text-[11px] text-[#E8C766]/80">{user?.email}</span>
@@ -211,7 +214,24 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           </div>
 
           {/* Highlights & Modules Preview */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-10 pt-8 border-t border-[#E5E7EB]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-10 pt-8 border-t border-[#E5E7EB]">
+            {/* Card 0: Meu dia — fila pessoal (T3.08) */}
+            <button
+              onClick={() => navigate('/meu-dia')}
+              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                <ListTodo className="w-5 h-5" />
+              </div>
+              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Meu dia</h3>
+              <p className="text-xs text-[#6B7280] mt-1">
+                Tarefas, ações vencidas e menções atribuídas a você.
+              </p>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
+                Abrir meu dia →
+              </span>
+            </button>
+
             {/* Card 1: Pipeline — clicável, leva para Oportunidades */}
             <button
               onClick={() => navigate('/oportunidades')}
