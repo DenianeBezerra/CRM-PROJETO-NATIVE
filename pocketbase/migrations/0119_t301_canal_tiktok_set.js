@@ -25,9 +25,7 @@ migrate(
       if (!(canal.values || []).includes('tiktok')) {
         canal.set('values', LISTA)
         app.save(negocios)
-        const reLido = app
-          .findCollectionByNameOrId('negocios')
-          .fields.getByName('canal')
+        const reLido = app.findCollectionByNameOrId('negocios').fields.getByName('canal')
         console.log('T301-0119 canal DEPOIS (relido): ' + JSON.stringify(reLido.values || []))
       } else {
         console.log('T301-0119 canal ja contem tiktok')
