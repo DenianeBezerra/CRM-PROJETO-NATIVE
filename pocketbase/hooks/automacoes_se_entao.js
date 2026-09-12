@@ -406,13 +406,18 @@ routerAdd('GET', '/backend/v1/automacoes/execucoes', (e) => {
   }
   var regs
   try {
+    // dia_referencia é date (armazenado com hora "00:00:00.000Z") — comparar por
+    // intervalo do dia [dia 00:00, dia+1 00:00) para casar com o formato PB.
+    var diaInicio = dia + ' 00:00:00.000Z'
+    var diaFim = new Date(Date.parse(dia + 'T00:00:00Z') + 86400000).toISOString().slice(0, 10)
+    diaFim = diaFim + ' 00:00:00.000Z'
     regs = $app.findRecordsByFilter(
       'automacoes_execucoes',
-      'dia_referencia = {:d}',
+      'dia_referencia >= {:ini} && dia_referencia < {:fim}',
       '-created',
       500,
       0,
-      { d: dia },
+      { ini: diaInicio, fim: diaFim },
     )
   } catch (_) {
     regs = []
