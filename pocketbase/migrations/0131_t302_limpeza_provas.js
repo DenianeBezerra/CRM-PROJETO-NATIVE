@@ -1,29 +1,21 @@
-// T3.02 — limpeza das fixtures de prova (padrão 0111/0126): remove os 2
+// T3.02 — limpeza das fixtures de prova (padrão 0111/0126): remove os
 // formulários criados nas provas RED/GREEN por API e restaura a oportunidade
-// "Proposta BPO" ao estado anterior à prova (campos de contexto vazios).
+// "Proposta BPO" ao estado anterior à prova. JSVM: delete é $app.delete(rec).
 migrate(
   (app) => {
-    var ids = ['lo4w17ptk9ab90k']
-    for (var i = 0; i < ids.length; i++) {
-      try {
-        app.deleteRecord('formularios', ids[i])
-      } catch (_) {}
-    }
-    // O segundo formulário (consultoria, marcado enviado) é identificado por status/status+solucao.
+    var resto = []
     try {
-      var resto = $app.findRecordsByFilter(
-        'formularios',
-        'solucao = "consultoria"',
-        '-created',
-        100,
-        0,
-      )
-      for (var j = 0; j < resto.length; j++) {
-        try {
-          app.deleteRecord('formularios', resto[j].id)
-        } catch (_) {}
+      resto = $app.findRecordsByFilter('formularios', '', '-created', 100, 0)
+    } catch (_) {
+      resto = []
+    }
+    for (var i = 0; i < resto.length; i++) {
+      try {
+        $app.delete(resto[i])
+      } catch (err) {
+        console.log('T302-0131 falha ao deletar ' + resto[i].id + ': ' + String(err))
       }
-    } catch (_) {}
+    }
     try {
       var negocio = app.findRecordById('negocios', 'ek8vvnaisupsnga')
       negocio.set('formulario_status', '')
