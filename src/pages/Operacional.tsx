@@ -4,6 +4,18 @@ import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 
 type StageTime = { etapa: string; nome: string; segundos: number }
+type AutomacaoItem = {
+  id: string
+  negocio: string
+  negocio_titulo: string
+  responsavel: string
+  detalhe: Record<string, unknown>
+  created: string
+}
+type AutomacoesDia = {
+  dia: string
+  regras: Record<string, { total: number; itens: AutomacaoItem[] }>
+}
 type QueueItem = {
   id: string
   titulo: string
@@ -67,6 +79,7 @@ export default function Operacional() {
   const [limiteDias, setLimiteDias] = useState<number | null>(null)
   const [estadoInvalido, setEstadoInvalido] = useState<string[]>([])
   const [filas, setFilas] = useState<FilasOperacionais | null>(null)
+  const [automacoes, setAutomacoes] = useState<AutomacoesDia | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -90,6 +103,7 @@ export default function Operacional() {
             {},
           ),
           pb.send<FilasOperacionais>('/backend/v1/filas/operacionais', {}),
+          pb.send<AutomacoesDia>('/backend/v1/automacoes/execucoes', {}),
         ])
         setResumo(resumoData)
         setEtapas(tempoData.etapas || [])
@@ -98,6 +112,7 @@ export default function Operacional() {
         setParadas(paradasData.itens || [])
         setLimiteDias(paradasData.limite_dias ?? null)
         setFilas(filasData)
+        setAutomacoes(automacoesData)
       } catch {
         setError('Não foi possível carregar os indicadores operacionais.')
       } finally {
@@ -146,6 +161,78 @@ export default function Operacional() {
           <p>Carregando indicadores...</p>
         ) : (
           <>
+            <section className="bg-white border rounded-xl p-5 mb-8">
+              <h2 className="font-playfair text-xl font-bold mb-1">Automações de hoje</h2>
+              <p className="text-xs text-[#6B7280] mb-4">
+                Detecções automáticas do dia (cron 08:05 BRT): follow-up de proposta sem resposta e
+                alertas de saúde da oportunidade. Nada é alterado — o time age sobre a lista.
+              </p>
+              {automacoes ? (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {(
+                    [
+                      [
+                        'follow_up_proposta',
+                        'Follow-up de proposta',
+                        'Proposta emitida há 3+ dias sem decisão',
+                      ],
+                      [
+                        'follow_up_sem_resposta',
+                        'Sem resposta (SLA)',
+                        'Proposta emitida há 7+ dias sem decisão',
+                      ],
+                      [
+                        'alerta_sem_proxima_acao',
+                        'Sem próxima ação',
+                        'Oportunidade ativa sem próxima ação futura',
+                      ],
+                      [
+                        'alerta_parada',
+                        'Oportunidade parada',
+                        'Na mesma etapa acima do limite configurado',
+                      ],
+                    ] as [string, string, string][]
+                  ).map(([chave, titulo, desc]) => {
+                    const bloco = automacoes.regras[chave] || { total: 0, itens: [] }
+                    return (
+                      <div key={chave} className="border rounded-xl p-4">
+                        <p className="text-sm font-semibold mb-1">
+                          {titulo}{' '}
+                          <span
+                            className={
+                              bloco.total > 0
+                                ? 'text-[#B91C1C] font-bold'
+                                : 'text-[#6B7280] font-bold'
+                            }
+                          >
+                            {bloco.total}
+                          </span>
+                        </p>
+                        <p className="text-xs text-[#6B7280] mb-3">{desc}</p>
+                        {bloco.itens.length ? (
+                          <ul className="space-y-1">
+                            {bloco.itens.slice(0, 5).map((it) => (
+                              <li key={it.id}>
+                                <button
+                                  onClick={() => navigate('/oportunidades')}
+                                  className="text-xs text-left text-[#A8862B] hover:underline"
+                                >
+                                  {it.negocio_titulo || 'Oportunidade'}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-xs text-[#6B7280]">Nada disparou hoje.</p>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-[#6B7280]">Carregando automações...</p>
+              )}
+            </section>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
               <div className="bg-white border rounded-xl p-5">
                 <div className="flex items-center gap-2 text-[#A8862B] mb-2">
