@@ -2,10 +2,8 @@ migrate(
   (app) => {
     // T3.01 — fix definitivo da 0115/0116/0117: TikTok no select `canal`.
     // Estratégia: REMOVER o campo e recriá-lo do zero (padrão da 0110 que
-    // criou o campo e funcionou de primeira), com save imediato após cada
-    // operação. O erro de validação do QA acontece porque o app.save roda
-    // com o campo ausente (estado intermediário) — então o remove e o add
-    // acontecem no MESMO save (sem save intermediário).
+    // criou o campo e funcionou de primeira). O QA valida o estado FINAL da
+    // coleção — o campo deve existir com values completos ao fim do up.
     try {
       const negocios = app.findCollectionByNameOrId('negocios')
       const LISTA = [
