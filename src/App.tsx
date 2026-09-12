@@ -17,6 +17,7 @@ import DashboardComercial from './pages/DashboardComercial'
 import FormularioPublico from './pages/FormularioPublico'
 import EntradaPublica from './pages/EntradaPublica'
 import MeuDia from './pages/MeuDia'
+import PainelDirecao from './pages/PainelDirecao'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -140,6 +141,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <MeuDia />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/painel-direcao"
+              element={
+                <ProtectedRoute>
+                  <PainelDirecao />
                 </ProtectedRoute>
               }
             />
