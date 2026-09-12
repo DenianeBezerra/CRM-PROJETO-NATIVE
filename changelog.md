@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.518] — 2026-09-13 — T3.14 revalidada do zero (aguardando teste humano)
+
+- 2026-09-13 · [Deni.Ai] · Revalidação do zero da T3.14 após reconciliação de estado (sessão anterior havia implementado até v0.0.516 com estado/STATUS desatualizados). RED por API: etapa sem auth 401; avaliar sem auth 401; avaliar com operator 403; etapa em obrigação inexistente 404. GREEN por API: avaliar admin 200 com dedup (0 novas — estado real intacto: 12 pendentes + 1 bloqueada; 3 exceções abertas). QA verde v0.0.518. Governança reconciliada: fase.md (linha T3.13 concluída + T3.14 adicionada), STATUS (task ativa T3.14), estado-atual (aguardando_teste_humano).
+
 ## [0.0.516] — 2026-09-13 — T3.14 implementada e provada (aguardando teste humano)
 
 - 2026-09-13 · [Deni.Ai] · Task T3.14 implementada (autorização da CEO 18:26 — "Pode seguir com a implementação da leva E1-e9, ajustes e integração com os sistemas faremos posteriormenye"). Exceções E1–E9 com gatilho por marcação de etapa, sem integração externa. Migration 0165 (etapa/etapa_em em obrigacoes; prazo_alerta/reincidencia em excecoes; ações etapa_marcada/excecao_gerada na auditoria) + hook excecoes_e1_e9.js (POST /obrigacoes/{id}/etapa; POST /excecoes/avaliar admin; cron 09:10 UTC) + baixa da obrigação resolve TODAS as exceções vinculadas + UI: botão "Etapa" no /operacao-dia (modal etapa + evidência) e etapa exibida no card.
