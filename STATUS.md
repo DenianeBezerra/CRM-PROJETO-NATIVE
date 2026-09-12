@@ -30,4 +30,10 @@
 
 ## Limitações
 
-Dedup por e-mail provado por API e no teste humano; notificação de lead quente (D6) e agenda na tela final (D8) pendem de decisão da CEO. Instagram, agenda, pós-venda, dashboard executivo e IA nas próximas levás. Publicação em produção aguarda decisão da cliente.
+Dedup por e-mail provado por API e no teste humano. Instagram, agenda, pós-venda, dashboard executivo e IA nas próximas levás. Publicação em produção aguarda decisão da cliente.
+
+## Decisões da CEO (13/09)
+
+- **D6 — notificação de lead quente**: inicialmente somente a Deniane (CEO).
+- **D8 — agenda na tela final do formulário**: Calendly; fica para depois (fora do recorte atual).
+- **D2 (relato mínimo 120 chars) e D5 (retenção de leads que não fecharam)**: pendentes de decisão.
