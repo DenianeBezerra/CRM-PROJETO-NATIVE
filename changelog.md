@@ -1,5 +1,10 @@
 # Changelog — CRM Vibratto
 
+## [0.0.509] — 2026-09-13 — T3.13 CONCLUÍDA (teste humano aprovado pela CEO)
+
+- 2026-09-13 · [Deni.Ai] · Task T3.13 concluída: Visão do analista — /operacao-dia + Obrigações no Meu dia (SPEC-3-013, CA-3-043 a CA-3-047). Teste humano aprovado pela CEO em 2026-09-13 13:43 — "aprovado, conclua e siga". Revalidação do zero: RED (401 baixa sem auth; 401 bloquear sem auth; 403 create manual — CA-3-042; 400 baixa em bloqueada; 400 bloquear sem motivo) + GREEN (baixa 1 toque 200 + reload reflete 12 + restauração 13; lote 3/3 + restauração; meus=1 13; estado real intacto: 13 pendentes — 12 previstas + 1 bloqueada; 3 exceções abertas). Browser real verificado (/operacao-dia com bloco de exceções no topo; /meu-dia com a nova seção). Pendência GitHub da governança RESOLVIDA (commits 696a1d9 e 210571d, byte-exato). Fase 3: 14/N.
+- Aprendizado: AP-2026-09-13-1350-github-governanca-destino.md (destino da governança GitHub confirmado; push_files programático com byte-compare).
+
 ## [0.0.507] — 2026-09-13 — T3.13 implementada e provada (aguardando teste humano)
 
 - 2026-09-13 · [Deni.Ai] · Task T3.13 implementada (autorização da CEO 13:33 — "corrija as pendencias que estiverem ao seu alcance e em seguida implemente o plan"). **Pendência GitHub resolvida**: governança sincronizada no repo DenianeBezerra/CRM-PROJETO-NATIVE via push_files com payload programático (conteúdo exato do working tree Skip) — commit 696a1d9, byte-compare EXATO nos 5 arquivos (fase.md, STATUS.md, changelog.md, estado-atual.md, SPEC-3-013).
