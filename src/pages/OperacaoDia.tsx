@@ -30,6 +30,8 @@ type Obrigacao = {
   prazo_limite: string
   status: string
   motivo_bloqueio: string
+  etapa?: string
+  etapa_em?: string
 }
 type Excecao = {
   id: string
@@ -40,6 +42,8 @@ type Excecao = {
   aberta_em?: string
   prazo_alerta?: string
   obrigacao?: string
+  escalada_coordenacao?: boolean
+  reincidencia?: number
 }
 type ExcecoesResp = { total: number; itens: Excecao[] }
 
@@ -56,6 +60,16 @@ const tipoLabel: Record<string, string> = {
   validacao: 'Validação',
   fechamento: 'Fechamento',
   entrega_contabilidade: 'Entrega à contabilidade',
+}
+const etapaLabel: Record<string, string> = {
+  aguardando: 'Aguardando',
+  enviada: 'Enviada',
+  executada: 'Executada',
+  conciliada: 'Conciliada',
+  emitida: 'Emitida',
+  entregue: 'Entregue',
+  aguardando_aceite: 'Aguardando aceite',
+  aguardando_aprovacao: 'Aguardando aprovação',
 }
 const statusLabel: Record<string, string> = {
   prevista: 'Prevista',
@@ -83,6 +97,9 @@ export default function OperacaoDia() {
   const [baixando, setBaixando] = useState<Record<string, boolean>>({})
   const [bloqueioId, setBloqueioId] = useState<string | null>(null)
   const [motivoBloqueio, setMotivoBloqueio] = useState('')
+  const [etapaId, setEtapaId] = useState<string | null>(null)
+  const [etapaSel, setEtapaSel] = useState('')
+  const [etapaEvidencia, setEtapaEvidencia] = useState('')
 
   const load = async () => {
     setLoading(true)
@@ -159,6 +176,23 @@ export default function OperacaoDia() {
     }
   }
 
+  const marcarEtapa = async () => {
+    if (!etapaId || !etapaSel) return
+    try {
+      await pb.send(`/backend/v1/obrigacoes/${etapaId}/etapa`, {
+        method: 'POST',
+        body: JSON.stringify({ etapa: etapaSel, evidencia: etapaEvidencia.trim() || undefined }),
+      })
+      toast({ title: `Etapa marcada: ${etapaLabel[etapaSel] || etapaSel}` })
+      setEtapaId(null)
+      setEtapaSel('')
+      setEtapaEvidencia('')
+      await load()
+    } catch {
+      toast({ title: 'Não foi possível marcar a etapa', variant: 'destructive' })
+    }
+  }
+
   const bloquear = async () => {
     if (!bloqueioId) return
     const motivo = motivoBloqueio.trim()
@@ -211,6 +245,13 @@ export default function OperacaoDia() {
       {o.status === 'bloqueada' && o.motivo_bloqueio && (
         <p className="text-xs text-amber-800 mb-1">Motivo: {o.motivo_bloqueio}</p>
       )}
+      {o.etapa && (
+        <p className="text-[11px] text-[#6B7280] mb-1">
+          Etapa:{' '}
+          <span className="font-semibold text-[#0A0A0A]">{etapaLabel[o.etapa] || o.etapa}</span>
+          {o.etapa_em && <> · marcada em {dataBR(o.etapa_em)}</>}
+        </p>
+      )}
       <div className="flex items-center justify-between gap-2 mt-2">
         {o.cliente && (
           <button
@@ -223,15 +264,28 @@ export default function OperacaoDia() {
         )}
         <div className="flex gap-2 ml-auto">
           {o.status !== 'bloqueada' && (
-            <button
-              onClick={() => {
-                setBloqueioId(o.id)
-                setMotivoBloqueio('')
-              }}
-              className="text-xs border rounded px-2 py-1 font-semibold text-amber-700 shrink-0"
-            >
-              <Ban className="w-3.5 h-3.5 inline" /> Bloquear
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  setEtapaId(o.id)
+                  setEtapaSel('')
+                  setEtapaEvidencia('')
+                }}
+                className="text-xs border rounded px-2 py-1 font-semibold text-[#6B7280] shrink-0"
+                title="Marcar etapa (alimenta as exceções E1–E9)"
+              >
+                Etapa
+              </button>
+              <button
+                onClick={() => {
+                  setBloqueioId(o.id)
+                  setMotivoBloqueio('')
+                }}
+                className="text-xs border rounded px-2 py-1 font-semibold text-amber-700 shrink-0"
+              >
+                <Ban className="w-3.5 h-3.5 inline" /> Bloquear
+              </button>
+            </>
           )}
           <button
             onClick={() => void baixar(o)}
@@ -389,6 +443,51 @@ export default function OperacaoDia() {
           </>
         )}
       </main>
+      {/* Modal de etapa (T3.14 — alimenta E1–E9) */}
+      {etapaId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl p-5 w-full max-w-md">
+            <h3 className="font-playfair font-bold text-lg mb-2">Marcar etapa</h3>
+            <p className="text-xs text-[#6B7280] mb-3">
+              A etapa alimenta os gatilhos de exceção (ex.: "Enviada" em uma autorização inicia a
+              contagem do prazo de resposta do cliente).
+            </p>
+            <select
+              value={etapaSel}
+              onChange={(e) => setEtapaSel(e.target.value)}
+              className="w-full border rounded-lg p-2 text-sm mb-2"
+            >
+              <option value="">Selecione a etapa...</option>
+              {Object.entries(etapaLabel).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
+            <input
+              value={etapaEvidencia}
+              onChange={(e) => setEtapaEvidencia(e.target.value)}
+              placeholder="Evidência (opcional) — ex.: link, protocolo, referência"
+              className="w-full border rounded-lg p-2 text-sm"
+            />
+            <div className="flex justify-end gap-2 mt-3">
+              <button
+                onClick={() => setEtapaId(null)}
+                className="text-sm px-3 py-1.5 rounded border border-[#E5E7EB] text-[#6B7280]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => void marcarEtapa()}
+                disabled={!etapaSel}
+                className="text-sm px-3 py-1.5 rounded font-semibold bg-[#C9A227] text-[#0A0A0A] hover:bg-[#B8912B] disabled:opacity-50"
+              >
+                Marcar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Modal de bloqueio */}
       {bloqueioId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

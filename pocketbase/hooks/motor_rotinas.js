@@ -445,11 +445,12 @@ routerAdd(
       return e.json(400, { error: 'Falha ao baixar: ' + String(err) })
     }
     try {
+      // T3.14: baixa resolve TODAS as exceções abertas vinculadas (E1–E10), não só E10.
       var exs = $app.findRecordsByFilter(
         'excecoes',
-        "obrigacao = {:o} && tipo = 'obrigacao_atrasada' && status = 'aberta'",
+        "obrigacao = {:o} && status = 'aberta'",
         '',
-        5,
+        20,
         0,
         { o: ob.id },
       )
