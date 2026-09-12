@@ -4,16 +4,10 @@
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** T3.14 — Exceções E1–E9 via marcação de etapa (aguardando teste humano da CEO)
 **Última task concluída:** T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia (2026-09-13 13:43, teste humano aprovado pela CEO — "aprovado, conclua e siga"; v0.0.508)
-**Versão atual:** v0.0.516 (QA verde)
-**Próxima leva (a definir com a CEO):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
+**Versão atual:** v0.0.519 (QA verde)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
-**Versão atual:** v0.0.507 (QA verde)
 **Produção:** não publicada (decisão da cliente)
-**Governança GitHub:** commit 696a1d9 (T3.13 analisada) — byte-exato verificado
-**Próxima leva (após T3.13):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
-**Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — formulário público em /entrada
-**Versão atual:** v0.0.505 (QA verde)
-**Produção:** não publicada (decisão da cliente)
+**Governança GitHub:** sincronizada via push_files programático (byte-exato)
 
 ## Composição da Fase 3 (em execução)
 
