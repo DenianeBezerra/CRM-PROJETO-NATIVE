@@ -38,9 +38,7 @@ migrate(
           }),
         )
         app.save(negocios)
-        const reLido = app
-          .findCollectionByNameOrId('negocios')
-          .fields.getByName('canal')
+        const reLido = app.findCollectionByNameOrId('negocios').fields.getByName('canal')
         console.log('T301-0118 canal DEPOIS (relido): ' + JSON.stringify(reLido.values || []))
       } else {
         console.log('T301-0118 canal ja contem tiktok')
