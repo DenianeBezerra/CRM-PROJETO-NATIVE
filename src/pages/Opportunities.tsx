@@ -28,6 +28,12 @@ type Oportunidade = {
   proxima_acao_descricao?: string
   arquivado?: boolean
   origem?: string
+  canal?: string
+  origem_especifica?: string
+  campanha?: string
+  conteudo?: string
+  motivo_ganho?: string
+  motivo_ganho_detalhe?: string
   tags?: string
   responsavel?: string
   responsavel_nome?: string
@@ -52,6 +58,28 @@ const origemOptions = [
   { value: 'site', label: 'Site' },
   { value: 'redes_sociais', label: 'Redes sociais' },
   { value: 'evento', label: 'Evento' },
+  { value: 'outro', label: 'Outro' },
+]
+// T3.01 — atribuição granular: canal → origem específica → campanha → conteúdo
+const canalOptions = [
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'site', label: 'Site' },
+  { value: 'google', label: 'Google' },
+  { value: 'evento', label: 'Evento' },
+  { value: 'indicacao', label: 'Indicação' },
+  { value: 'trafego_pago', label: 'Tráfego pago' },
+  { value: 'parceiro', label: 'Parceiro' },
+  { value: 'outro', label: 'Outro' },
+]
+// T3.01 — motivo de ganho estruturado (espelho do motivo de perda)
+const motivoGanhoOptions = [
+  { value: 'preco', label: 'Preço' },
+  { value: 'escopo', label: 'Escopo' },
+  { value: 'relacionamento', label: 'Relacionamento' },
+  { value: 'urgencia', label: 'Urgência' },
+  { value: 'indicacao_interna', label: 'Indicação interna' },
   { value: 'outro', label: 'Outro' },
 ]
 const prioridadeOptions = [
@@ -89,6 +117,12 @@ const emptyForm = {
   proxima_acao_descricao: '',
   arquivado: 'false',
   origem: '',
+  canal: '',
+  origem_especifica: '',
+  campanha: '',
+  conteudo: '',
+  motivo_ganho: '',
+  motivo_ganho_detalhe: '',
   tags: '',
   responsavel: '',
   prioridade: '',
@@ -194,6 +228,12 @@ export default function Opportunities() {
       proxima_acao_descricao: item.proxima_acao_descricao || '',
       arquivado: item.arquivado ? 'true' : 'false',
       origem: item.origem || '',
+      canal: item.canal || '',
+      origem_especifica: item.origem_especifica || '',
+      campanha: item.campanha || '',
+      conteudo: item.conteudo || '',
+      motivo_ganho: item.motivo_ganho || '',
+      motivo_ganho_detalhe: item.motivo_ganho_detalhe || '',
       tags: item.tags || '',
       responsavel: item.responsavel || '',
       prioridade: item.prioridade || '',
@@ -220,6 +260,15 @@ export default function Opportunities() {
       return setError('O score deve estar entre 0 e 100.')
     if (form.estagio === 'fechado_perdido' && !form.motivo_perda)
       return setError('Perda exige um motivo estruturado.')
+    // T3.01: ganho exige motivo estruturado (espelho da perda)
+    if (form.estagio === 'fechado_ganho' && originalStage !== 'fechado_ganho' && !form.motivo_ganho)
+      return setError('Ganho exige um motivo estruturado: por que o cliente fechou?')
+    if (
+      form.estagio === 'fechado_ganho' &&
+      form.motivo_ganho === 'outro' &&
+      !form.motivo_ganho_detalhe.trim()
+    )
+      return setError('Informe o detalhe do motivo de ganho.')
     if (
       form.estagio === 'fechado_perdido' &&
       form.motivo_perda === 'outro' &&
@@ -271,6 +320,12 @@ export default function Opportunities() {
         proxima_acao_descricao: form.proxima_acao_descricao,
         arquivado: form.arquivado === 'true',
         origem: form.origem || null,
+        canal: form.canal || null,
+        origem_especifica: form.origem_especifica,
+        campanha: form.campanha,
+        conteudo: form.conteudo,
+        motivo_ganho: form.motivo_ganho || null,
+        motivo_ganho_detalhe: form.motivo_ganho_detalhe,
         tags: form.tags,
         responsavel: form.responsavel || null,
         prioridade: form.prioridade || null,
@@ -576,6 +631,51 @@ export default function Opportunities() {
                 </select>
               </label>
               <label className="text-sm font-medium">
+                Canal (atribuição granular)
+                <select
+                  value={form.canal}
+                  onChange={(e) => update('canal', e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="">Selecione</option>
+                  {canalOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium">
+                Origem específica
+                <input
+                  value={form.origem_especifica}
+                  onChange={(e) => update('origem_especifica', e.target.value)}
+                  maxLength={200}
+                  placeholder="Ex.: Instagram orgânico, indicação do contador X"
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
+                Campanha
+                <input
+                  value={form.campanha}
+                  onChange={(e) => update('campanha', e.target.value)}
+                  maxLength={200}
+                  placeholder="Ex.: CFO as a Service 2026"
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
+                Conteúdo
+                <input
+                  value={form.conteudo}
+                  onChange={(e) => update('conteudo', e.target.value)}
+                  maxLength={300}
+                  placeholder="Ex.: post/reels/vídeo que gerou o contato"
+                  className="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+              </label>
+              <label className="text-sm font-medium">
                 Tags
                 <input
                   value={form.tags}
@@ -726,6 +826,37 @@ export default function Opportunities() {
                   </label>
                 )}
               </div>
+            )}
+            {form.estagio === 'fechado_ganho' && (
+              <>
+                <label className="block text-sm font-medium mt-4">
+                  Motivo do ganho <span className="text-red-600">*</span>
+                  <select
+                    value={form.motivo_ganho}
+                    onChange={(e) => update('motivo_ganho', e.target.value)}
+                    className="mt-1 w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Selecione</option>
+                    {motivoGanhoOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {form.motivo_ganho === 'outro' && (
+                  <label className="block text-sm font-medium mt-2">
+                    Detalhe do motivo <span className="text-red-600">*</span>
+                    <input
+                      value={form.motivo_ganho_detalhe}
+                      onChange={(e) => update('motivo_ganho_detalhe', e.target.value)}
+                      maxLength={1000}
+                      placeholder="Descreva o motivo específico"
+                      className="mt-1 w-full border rounded-lg px-3 py-2"
+                    />
+                  </label>
+                )}
+              </>
             )}
             {form.estagio === 'fechado_ganho' && (
               <label className="block text-sm font-medium mt-4">

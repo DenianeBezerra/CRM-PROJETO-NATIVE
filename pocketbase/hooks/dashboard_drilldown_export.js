@@ -24,6 +24,8 @@ routerAdd(
 
     const BLOCOS = [
       'leads_por_origem',
+      'leads_por_canal',
+      'ganhos_por_motivo',
       'oportunidades_por_etapa',
       'perdas',
       'propostas_ciclo',
@@ -99,6 +101,23 @@ routerAdd(
       for (const d of filtrados) {
         const o = d.getString('origem') || 'sem_origem'
         if (chave && o !== chave) continue
+        itens.push(resumoDe(d))
+        n++
+      }
+    } else if (bloco === 'leads_por_canal') {
+      // T3.01: drill-down por canal (atribuição granular)
+      for (const d of filtrados) {
+        const c = d.getString('canal') || 'sem_canal'
+        if (chave && c !== chave) continue
+        itens.push(resumoDe(d))
+        n++
+      }
+    } else if (bloco === 'ganhos_por_motivo') {
+      // T3.01: drill-down por motivo de ganho estruturado
+      for (const d of filtrados) {
+        if (d.getString('estagio') !== 'fechado_ganho') continue
+        const m = d.getString('motivo_ganho') || 'sem_motivo'
+        if (chave && m !== chave) continue
         itens.push(resumoDe(d))
         n++
       }
@@ -283,6 +302,27 @@ routerAdd(
     }
     if (Object.keys(porOrigem).length === 0) {
       linhas.push(['leads_por_origem', '(vazio)', 0, 0])
+    }
+
+    // T3.01: canal e motivo de ganho nas agregações exportadas
+    const porCanalExp = {}
+    for (const d of filtrados) {
+      const c = d.getString('canal') || 'sem_canal'
+      porCanalExp[c] = (porCanalExp[c] || 0) + 1
+    }
+    for (const c of Object.keys(porCanalExp).sort()) {
+      linhas.push(['leads_por_canal', c, porCanalExp[c], filtrados.length])
+    }
+    const ganhosPorMotivoExp = {}
+    let nGanhosExp = 0
+    for (const d of filtrados) {
+      if (d.getString('estagio') !== 'fechado_ganho') continue
+      nGanhosExp++
+      const m = d.getString('motivo_ganho') || 'sem_motivo'
+      ganhosPorMotivoExp[m] = (ganhosPorMotivoExp[m] || 0) + 1
+    }
+    for (const m of Object.keys(ganhosPorMotivoExp).sort()) {
+      linhas.push(['ganhos_por_motivo', m, ganhosPorMotivoExp[m], nGanhosExp])
     }
 
     const porEtapa = {}

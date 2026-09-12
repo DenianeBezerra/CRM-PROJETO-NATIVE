@@ -10,6 +10,8 @@ type Dashboard = {
     n_total_sem_filtro_origem: number
     por_origem: Record<string, number>
   }
+  leads_por_canal: { n: number; por_canal: Record<string, number> }
+  ganhos_por_motivo: { n: number; por_motivo: Record<string, number> }
   oportunidades_por_etapa: { n: number; por_etapa: Record<string, number> }
   primeira_resposta: {
     n: number
@@ -55,6 +57,28 @@ const ORIGEM_LABEL: Record<string, string> = {
   site: 'Site',
   redes_sociais: 'Redes sociais',
   evento: 'Evento',
+  outro: 'Outro',
+}
+
+// T3.01 — atribuição granular e motivo de ganho
+const CANAL_LABEL: Record<string, string> = {
+  instagram: 'Instagram',
+  linkedin: 'LinkedIn',
+  whatsapp: 'WhatsApp',
+  site: 'Site',
+  google: 'Google',
+  evento: 'Evento',
+  indicacao: 'Indicação',
+  trafego_pago: 'Tráfego pago',
+  parceiro: 'Parceiro',
+  outro: 'Outro',
+}
+const MOTIVO_GANHO_LABEL: Record<string, string> = {
+  preco: 'Preço',
+  escopo: 'Escopo',
+  relacionamento: 'Relacionamento',
+  urgencia: 'Urgência',
+  indicacao_interna: 'Indicação interna',
   outro: 'Outro',
 }
 
@@ -334,6 +358,52 @@ export default function DashboardComercial() {
                   ))}
                   {dados.leads_por_origem.n === 0 && (
                     <li className="text-[#6B7280] text-xs">Nenhum lead no filtro atual.</li>
+                  )}
+                </ul>
+              </Bloco>
+              <Bloco
+                titulo={`Leads por canal (N=${dados.leads_por_canal?.n ?? 0})`}
+                cobertura={dados.cobertura_por_bloco?.leads_por_canal}
+              >
+                <ul className="text-sm space-y-1">
+                  {Object.entries(dados.leads_por_canal?.por_canal || {}).map(([c, v]) => (
+                    <li
+                      key={c}
+                      className="flex justify-between cursor-pointer hover:bg-[#F7F5F1] rounded px-1 -mx-1"
+                      onClick={() => void abrirDrilldown('leads_por_canal', c)}
+                      title="Ver as oportunidades que compõem este número"
+                    >
+                      <span>{CANAL_LABEL[c] || c.replace('_', ' ')}</span>
+                      <span className="font-semibold">{v}</span>
+                    </li>
+                  ))}
+                  {!dados.leads_por_canal?.n && (
+                    <li className="text-[#6B7280] text-xs">
+                      Nenhum lead com canal no filtro atual.
+                    </li>
+                  )}
+                </ul>
+              </Bloco>
+              <Bloco
+                titulo={`Ganhos por motivo (N=${dados.ganhos_por_motivo?.n ?? 0})`}
+                cobertura={dados.cobertura_por_bloco?.ganhos_por_motivo}
+              >
+                <ul className="text-sm space-y-1">
+                  {Object.entries(dados.ganhos_por_motivo?.por_motivo || {}).map(([m, v]) => (
+                    <li
+                      key={m}
+                      className="flex justify-between cursor-pointer hover:bg-[#F7F5F1] rounded px-1 -mx-1"
+                      onClick={() => void abrirDrilldown('ganhos_por_motivo', m)}
+                      title="Ver as oportunidades que compõem este número"
+                    >
+                      <span>{MOTIVO_GANHO_LABEL[m] || m.replace('_', ' ')}</span>
+                      <span className="font-semibold">{v}</span>
+                    </li>
+                  ))}
+                  {!dados.ganhos_por_motivo?.n && (
+                    <li className="text-[#6B7280] text-xs">
+                      Nenhum ganho com motivo no filtro atual.
+                    </li>
                   )}
                 </ul>
               </Bloco>

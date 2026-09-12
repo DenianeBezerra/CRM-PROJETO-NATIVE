@@ -69,6 +69,25 @@ routerAdd(
       por_origem: porOrigem,
     }
 
+    // ---- 1b) T3.01: leads por canal (atribuição granular) ----
+    const porCanal = {}
+    for (const d of filtrados) {
+      const c = d.getString('canal') || 'sem_canal'
+      porCanal[c] = (porCanal[c] || 0) + 1
+    }
+    const leadsPorCanal = { n: filtrados.length, por_canal: porCanal }
+
+    // ---- 1c) T3.01: ganhos por motivo estruturado ----
+    const ganhosPorMotivoMap = {}
+    let nGanhos = 0
+    for (const d of filtrados) {
+      if (d.getString('estagio') !== 'fechado_ganho') continue
+      nGanhos++
+      const m = d.getString('motivo_ganho') || 'sem_motivo'
+      ganhosPorMotivoMap[m] = (ganhosPorMotivoMap[m] || 0) + 1
+    }
+    const ganhosPorMotivo = { n: nGanhos, por_motivo: ganhosPorMotivoMap }
+
     // ---- 2) Oportunidades por etapa (N por etapa) ----
     const porEtapa = {}
     for (const d of filtrados) {
@@ -438,6 +457,8 @@ routerAdd(
         origem: origemFiltro || null,
       },
       leads_por_origem: leadsPorOrigem,
+      leads_por_canal: leadsPorCanal,
+      ganhos_por_motivo: ganhosPorMotivo,
       oportunidades_por_etapa: oportunidadesPorEtapa,
       primeira_resposta: primeiraResposta,
       tempo_por_etapa: tempoPorEtapa,
