@@ -64,6 +64,7 @@ const origemOptions = [
 const canalOptions = [
   { value: 'instagram', label: 'Instagram' },
   { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'tiktok', label: 'TikTok' },
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'site', label: 'Site' },
   { value: 'google', label: 'Google' },
