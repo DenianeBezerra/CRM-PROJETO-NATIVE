@@ -5,6 +5,9 @@
 onRecordCreate((e) => {
   var responsavel = String(e.record.get('responsavel') || '')
   var criadoPor = String(e.record.get('criado_por') || '')
+  $app
+    .logger()
+    .info('T308 tarefa hook', 'resp', responsavel, 'criador', criadoPor, 'id', e.record.id)
   if (!responsavel || responsavel === criadoPor) {
     e.next()
     return
