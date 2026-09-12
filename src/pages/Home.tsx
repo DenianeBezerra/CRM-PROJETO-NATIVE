@@ -231,8 +231,11 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               </span>
             </button>
 
-            {/* Card 2: Clientes */}
-            <div className="p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/40 transition-colors">
+            {/* Card 2: Clientes — clicável, leva para Contatos */}
+            <button
+              onClick={() => navigate('/contatos')}
+              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
+            >
               <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
                 <Users className="w-5 h-5" />
               </div>
@@ -240,7 +243,10 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               <p className="text-xs text-[#6B7280] mt-1">
                 Histórico unificado de interações, propostas e contratos.
               </p>
-            </div>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
+                Abrir contatos →
+              </span>
+            </button>
 
             {/* Card 3: Contas Corporativas */}
             <div className="p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/40 transition-colors">
