@@ -89,6 +89,7 @@ const prioridadeOptions = [
 ]
 const servicoOptions = [
   { value: 'bpo_financeiro', label: 'BPO Financeiro' },
+  { value: 'tesouraria', label: 'Tesouraria' },
   { value: 'controladoria', label: 'Controladoria' },
   { value: 'cfo_as_a_service', label: 'CFO as a Service' },
   { value: 'outro', label: 'Outro' },
