@@ -74,9 +74,16 @@ routerAdd('POST', '/backend/v1/entrada/publico', (e) => {
   }
   if (!ip) {
     try {
-      ip = String(e.request.getHeader('X-Forwarded-For') || '')
+      ip = String(e.request.header.get('X-Forwarded-For') || '')
         .split(',')[0]
         .trim()
+    } catch (_) {
+      ip = ''
+    }
+  }
+  if (!ip) {
+    try {
+      ip = String(e.request.header.get('Cf-Connecting-Ip') || '').trim()
     } catch (_) {
       ip = ''
     }
