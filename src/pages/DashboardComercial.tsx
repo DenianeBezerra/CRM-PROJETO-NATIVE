@@ -70,6 +70,8 @@ const CANAL_LABEL: Record<string, string> = {
   google: 'Google',
   pagina_captura: 'Página de captura',
   comunidade: 'Comunidade',
+  spotify: 'Spotify',
+  podcast: 'Podcast',
   evento: 'Evento',
   indicacao: 'Indicação',
   trafego_pago: 'Tráfego pago',

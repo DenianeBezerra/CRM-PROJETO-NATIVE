@@ -70,6 +70,8 @@ const canalOptions = [
   { value: 'google', label: 'Google' },
   { value: 'pagina_captura', label: 'Página de captura' },
   { value: 'comunidade', label: 'Comunidade' },
+  { value: 'spotify', label: 'Spotify' },
+  { value: 'podcast', label: 'Podcast' },
   { value: 'evento', label: 'Evento' },
   { value: 'indicacao', label: 'Indicação' },
   { value: 'trafego_pago', label: 'Tráfego pago' },
