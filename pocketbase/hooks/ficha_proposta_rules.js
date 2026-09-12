@@ -1,8 +1,9 @@
-// T3.02b — regra server-side da ficha (v3): motivo_atualizacao obrigatório no
+// T3.02b — regra server-side da ficha (v4): motivo_atualizacao obrigatório no
 // CREATE; no UPDATE, exigido quando a VERSÃO avança ou o CONTEÚDO muda.
 // PATCH sem mudança real preserva o motivo anterior (idempotência).
-// Nota: e.record.original() pode refletir o payload parcial no JSVM — por isso
-// a versão anterior é lida ANTES do PATCH e comparada com a versão enviada.
+// v4: o UPDATE hook roda em request — e.record.original() reflete o registro
+// carregado, mas o comparador de versão usa a versão LIDA DO BANCO via
+// findRecordById (fonte da verdade), não o objeto do hook.
 onRecordCreateRequest((e) => {
   var motivo = String(e.record.get('motivo_atualizacao') || '').trim()
   if (motivo.length < 10) {
@@ -12,9 +13,14 @@ onRecordCreateRequest((e) => {
 }, 'fichas_proposta')
 
 onRecordUpdateRequest((e) => {
-  var before = e.record.original()
   var motivo = String(e.record.get('motivo_atualizacao') || '').trim()
-  var motivoAnterior = String(before.get('motivo_atualizacao') || '').trim()
+  var motivoAnterior = ''
+  var versaoBanco = 0
+  try {
+    var noBanco = $app.findRecordById('fichas_proposta', e.record.id)
+    motivoAnterior = String(noBanco.get('motivo_atualizacao') || '').trim()
+    versaoBanco = Number(noBanco.get('versao') || 0)
+  } catch (_) {}
 
   var campos = [
     'solucao_recomendada',
@@ -28,19 +34,16 @@ onRecordUpdateRequest((e) => {
   var conteudoMudou = false
   for (var i = 0; i < campos.length; i++) {
     var novo = e.record.get(campos[i])
-    var antigo = before.get(campos[i])
-    // Só compara se o campo veio no payload (undefined = não enviado).
-    if (
-      novo !== undefined &&
-      novo !== null &&
-      String(novo) !== String(antigo === null || antigo === undefined ? '' : antigo)
-    ) {
-      conteudoMudou = true
+    if (novo !== undefined && novo !== null) {
+      var antigo = ''
+      try {
+        antigo = String($app.findRecordById('fichas_proposta', e.record.id).get(campos[i]) || '')
+      } catch (_) {}
+      if (String(novo) !== antigo) conteudoMudou = true
     }
   }
   var versaoNova = Number(e.record.get('versao') || 0)
-  var versaoAnterior = Number(before.get('versao') || 0)
-  if (versaoNova > versaoAnterior) conteudoMudou = true
+  if (versaoNova > versaoBanco) conteudoMudou = true
 
   if (conteudoMudou) {
     if (motivo.length < 10) {
