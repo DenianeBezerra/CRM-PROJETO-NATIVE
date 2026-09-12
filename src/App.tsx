@@ -17,6 +17,7 @@ import DashboardComercial from './pages/DashboardComercial'
 import FormularioPublico from './pages/FormularioPublico'
 import EntradaPublica from './pages/EntradaPublica'
 import MeuDia from './pages/MeuDia'
+import OperacaoDia from './pages/OperacaoDia'
 import PainelDirecao from './pages/PainelDirecao'
 import FichaOperacional from './pages/FichaOperacional'
 import NotFound from './pages/NotFound'
@@ -150,6 +151,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PainelDirecao />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/operacao-dia"
+              element={
+                <ProtectedRoute>
+                  <OperacaoDia />
                 </ProtectedRoute>
               }
             />

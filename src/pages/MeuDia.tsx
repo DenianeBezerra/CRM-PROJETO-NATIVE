@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, CheckCircle2, Clock, AtSign, ListTodo } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Clock, AtSign, ListTodo, ClipboardList } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
@@ -43,6 +43,29 @@ type MeuDia = {
   notificacoes_nao_lidas: number
   fontes_com_erro: string[]
 }
+type ObrigacaoItem = {
+  id: string
+  tipo: string
+  cliente: string
+  cliente_nome: string
+  data_prevista: string
+  prazo_limite: string
+  status: string
+}
+const tipoLabel: Record<string, string> = {
+  coleta_canal: 'Coleta no canal',
+  lancamento: 'Lançamento',
+  projecao: 'Projeção',
+  envio_autorizacao: 'Envio p/ autorização',
+  cadastro_banco: 'Cadastro no banco',
+  conciliacao: 'Conciliação',
+  relatorio_faturamento: 'Relatório de faturamento',
+  emissao_nota: 'Emissão de nota',
+  entrega_nota: 'Entrega de nota',
+  validacao: 'Validação',
+  fechamento: 'Fechamento',
+  entrega_contabilidade: 'Entrega à contabilidade',
+}
 
 const prioridadeLabel: Record<string, string> = { baixa: 'Baixa', media: 'Média', alta: 'Alta' }
 const dataBR = (s: string) => {
@@ -57,6 +80,8 @@ export default function MeuDia() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [resultado, setResultado] = useState<Record<string, string>>({})
+  const [obrigacoes, setObrigacoes] = useState<ObrigacaoItem[]>([])
+  const [baixandoOb, setBaixandoOb] = useState<Record<string, boolean>>({})
 
   const load = async () => {
     setLoading(true)
@@ -68,6 +93,33 @@ export default function MeuDia() {
       setError('Não foi possível carregar o seu painel. Tente novamente.')
     } finally {
       setLoading(false)
+    }
+    // T3.13 — obrigações operacionais do próprio usuário (mesma fonte da T3.12, meus=1)
+    try {
+      const dia = new Date().toISOString().slice(0, 10)
+      const ob = await pb.send<{ total: number; itens: ObrigacaoItem[] }>(
+        `/backend/v1/obrigacoes?dia=${dia}&meus=1`,
+        {},
+      )
+      setObrigacoes(ob.itens || [])
+    } catch {
+      setObrigacoes([])
+    }
+  }
+
+  const baixarObrigacao = async (o: ObrigacaoItem) => {
+    setBaixandoOb((p) => ({ ...p, [o.id]: true }))
+    try {
+      await pb.send(`/backend/v1/obrigacoes/${o.id}/baixa`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      })
+      toast({ title: `Baixa registrada — ${tipoLabel[o.tipo] || o.tipo}` })
+      await load()
+    } catch {
+      toast({ title: 'Não foi possível baixar a obrigação', variant: 'destructive' })
+    } finally {
+      setBaixandoOb((p) => ({ ...p, [o.id]: false }))
     }
   }
 
@@ -267,6 +319,66 @@ export default function MeuDia() {
             exibidos podem estar incompletos.
           </p>
         )}
+
+        {/* T3.13 — Obrigações operacionais (mesma fonte da T3.12, meus=1) */}
+        <section className="mt-8 p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB]">
+          <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+            <ClipboardList className="w-5 h-5" />
+          </div>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <h2 className="font-playfair font-bold text-base">
+                Obrigações operacionais ({obrigacoes.length})
+              </h2>
+              <p className="text-xs text-[#6B7280] mt-1 mb-3">
+                Rotinas geradas pelo motor a partir da ficha operacional — vencem hoje ou já
+                atrasaram, atribuídas a você.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/operacao-dia')}
+              className="text-xs font-semibold text-[#A8862B] hover:underline"
+            >
+              Ver operação do dia →
+            </button>
+          </div>
+          {obrigacoes.length === 0 ? (
+            <p className="text-xs text-[#6B7280]">Nenhuma obrigação pendente para você hoje.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {obrigacoes.map((o) => (
+                <div key={o.id} className="bg-white border rounded-lg p-3">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-[10px] rounded-full bg-[#F7F5F1] border border-[#E5E7EB] px-2 py-0.5 font-semibold text-[#6B7280]">
+                      {tipoLabel[o.tipo] || o.tipo}
+                    </span>
+                    {o.status === 'atrasada' && (
+                      <span className="text-[10px] rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700">
+                        Atrasada
+                      </span>
+                    )}
+                    {o.status === 'bloqueada' && (
+                      <span className="text-[10px] rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800">
+                        Bloqueada
+                      </span>
+                    )}
+                    <span className="text-[10px] text-[#6B7280]">
+                      limite {dataBR(o.prazo_limite)}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold">{o.cliente_nome || 'Cliente'}</p>
+                  <button
+                    onClick={() => void baixarObrigacao(o)}
+                    disabled={!!baixandoOb[o.id]}
+                    className="mt-2 text-xs rounded px-3 py-1 font-semibold bg-[#C9A227] text-[#0A0A0A] hover:bg-[#B8912B] disabled:opacity-50"
+                  >
+                    {baixandoOb[o.id] ? 'Baixando...' : 'Baixar'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
     </div>
   )
