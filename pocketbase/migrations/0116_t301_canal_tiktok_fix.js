@@ -2,11 +2,9 @@ migrate(
   (app) => {
     // T3.01 — fix da 0115: TikTok no select `canal` de negocios.
     // A 0115 aplicou mas o PATCH canal=tiktok continuou 400 (valor antigo
-    // 200, valor inválido 400 — comportamento de enum sem o valor novo).
-    // Hipótese: no JSVM, `field.set('values', arr)` com array JS comum não
-    // persiste; a 0110 (que funcionou) usou `negocios.fields.add(new Field(...))`.
-    // Aqui: recriar o campo via add() com a lista completa (idempotente —
-    // se falhar porque existe, remover e re-adicionar).
+    // 200, valor inválido 400 — enum sem o valor novo). Estratégia: recriar
+    // o campo com a lista completa via fields.add(new Field(...)) — o padrão
+    // que funcionou na 0110. Idempotente.
     try {
       const negocios = app.findCollectionByNameOrId('negocios')
       const LISTA = [
@@ -16,6 +14,7 @@ migrate(
         'whatsapp',
         'site',
         'google',
+        'pagina_captura',
         'evento',
         'indicacao',
         'trafego_pago',
@@ -23,44 +22,23 @@ migrate(
         'outro',
       ]
       let canal = negocios.fields.getByName('canal')
-      const antes = JSON.stringify(canal.values || [])
-      console.log('T301-0116 canal ANTES: ' + antes)
+      console.log('T301-0116 canal ANTES: ' + JSON.stringify(canal.values || []))
       if (!(canal.values || []).includes('tiktok')) {
-        // Tentativa 1: set direto
-        try {
-          canal.set('values', LISTA)
-          app.save(negocios)
-          const depois1 = JSON.stringify(
-            app.findCollectionByNameOrId('negocios').fields.getByName('canal').values || [],
-          )
-          console.log('T301-0116 apos set(): ' + depois1)
-        } catch (e1) {
-          console.log('T301-0116 set() falhou: ' + String(e1))
-        }
-        // Tentativa 2: remove + add (padrão da 0110 que funcionou)
-        canal = app.findCollectionByNameOrId('negocios').fields.getByName('canal')
-        if (!(canal.values || []).includes('tiktok')) {
-          try {
-            app.findCollectionByNameOrId('negocios').fields.removeByName('canal')
-            app.save(app.findCollectionByNameOrId('negocios'))
-            const col2 = app.findCollectionByNameOrId('negocios')
-            col2.fields.add(
-              new Field({
-                name: 'canal',
-                type: 'select',
-                values: LISTA,
-                maxSelect: 1,
-              }),
-            )
-            app.save(col2)
-            const depois2 = JSON.stringify(
-              app.findCollectionByNameOrId('negocios').fields.getByName('canal').values || [],
-            )
-            console.log('T301-0116 apos remove+add: ' + depois2)
-          } catch (e2) {
-            console.log('T301-0116 remove+add falhou: ' + String(e2))
-          }
-        }
+        // remove e re-adiciona com a lista completa (padrão da 0110)
+        negocios.fields.removeByName('canal')
+        negocios.fields.add(
+          new Field({
+            name: 'canal',
+            type: 'select',
+            values: LISTA,
+            maxSelect: 1,
+          }),
+        )
+        app.save(negocios)
+        const depois = JSON.stringify(
+          app.findCollectionByNameOrId('negocios').fields.getByName('canal').values || [],
+        )
+        console.log('T301-0116 canal DEPOIS: ' + depois)
       } else {
         console.log('T301-0116 canal ja contem tiktok')
       }
@@ -72,9 +50,15 @@ migrate(
     try {
       const negocios = app.findCollectionByNameOrId('negocios')
       const canal = negocios.fields.getByName('canal')
-      canal.set(
-        'values',
-        (canal.values || []).filter((v) => v !== 'tiktok'),
+      const semTiktok = (canal.values || []).filter((v) => v !== 'tiktok')
+      negocios.fields.removeByName('canal')
+      negocios.fields.add(
+        new Field({
+          name: 'canal',
+          type: 'select',
+          values: semTiktok,
+          maxSelect: 1,
+        }),
       )
       app.save(negocios)
     } catch (_) {}
