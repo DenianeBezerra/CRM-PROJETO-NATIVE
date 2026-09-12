@@ -94,6 +94,7 @@ routerAdd(
     if (String(actor.get('role') || '') !== 'admin') {
       return e.json(403, { error: 'Avaliação de exceções é exclusiva de administradores.' })
     }
+    console.log('T314 avaliar chamado') // DEBUG
     var FERIADOS_FIXOS = [
       '01-01',
       '04-21',
