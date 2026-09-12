@@ -1,10 +1,9 @@
 migrate(
   (app) => {
     // T3.01 — fix da 0115: TikTok no select `canal` de negocios.
-    // A 0115 aplicou mas o PATCH canal=tiktok continuou 400 (valor antigo
-    // 200, valor inválido 400 — enum sem o valor novo). Estratégia: recriar
-    // o campo com a lista completa via fields.add(new Field(...)) — o padrão
-    // que funcionou na 0110. Idempotente.
+    // A 0115 aplicou mas o PATCH canal=tiktok continuou 400. Estratégia:
+    // recriar o campo com a lista completa via fields.add(new Field(...)) —
+    // o padrão que funcionou na 0110. Idempotente.
     try {
       const negocios = app.findCollectionByNameOrId('negocios')
       const LISTA = [
@@ -14,7 +13,6 @@ migrate(
         'whatsapp',
         'site',
         'google',
-        'pagina_captura',
         'evento',
         'indicacao',
         'trafego_pago',
@@ -24,7 +22,6 @@ migrate(
       let canal = negocios.fields.getByName('canal')
       console.log('T301-0116 canal ANTES: ' + JSON.stringify(canal.values || []))
       if (!(canal.values || []).includes('tiktok')) {
-        // remove e re-adiciona com a lista completa (padrão da 0110)
         negocios.fields.removeByName('canal')
         negocios.fields.add(
           new Field({
