@@ -410,6 +410,16 @@ routerAdd(
         data_prevista: String(ob.get('data_prevista') || ''),
         prazo_limite: String(ob.get('prazo_limite') || ''),
         status: String(ob.get('status') || ''),
+        // T3.20 (C-01): atraso é por DATA — data_prevista < hoje e não concluída,
+        // independentemente do status armazenado (pode estar defasado entre crons).
+        atrasada_efetiva: (function () {
+          var stL = String(ob.get('status') || '')
+          var dpL = String(ob.get('data_prevista') || '')
+          if (stL === 'concluida' || stL === 'nao_aplicavel') return false
+          if (!dpL || dpL.indexOf('0001-01-01') === 0) return false
+          var fimDiaL = Date.parse(dpL.slice(0, 10) + 'T23:59:59Z')
+          return !isNaN(fimDiaL) && fimDiaL < Date.now()
+        })(),
         motivo_bloqueio: String(ob.get('motivo_bloqueio') || ''),
       })
     }
