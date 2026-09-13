@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.16 (Implantação de cliente + RBAC — SPEC-3-016)
+- task_id: nenhuma (T3.16 concluída)
 - champion: Deni.Ai
 - spec: 04-fase-atual/specs/SPEC-3-016-implantacao-cliente-rbac.md
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
-- teste_humano: pendente
-- verificacao_automatica: pendente
-- aprendizado: pendente
-- ultima_acao: T3.15 concluída (CEO 22:23); T3.16 selecionada e analisada (cap. 7/8 do doc da CEO); estado real inspecionado (empresas sem status em_implantacao; papéis admin/operator; bug latente T3.15 config valor vs valor_numero identificado); SPEC-3-016 publicada com D12 registrada como decidida (papéis entram nesta task)
-- proxima_acao: aguardar autorização para implementar
-- atualizado_em: 2026-09-13T22:40:00-03:00
+- etapa: concluida
+- autorizacao_implementacao: confirmada — CEO 22:32 "sim, implemente" + ajustes de processo real 22:44/22:46/22:55
+- teste_humano: aprovado — CEO 23:10 "sim, aprovado!" (teste executado pela Deni.Ai no browser real a pedido da CEO: ciclo completo até checklist de bloqueio + e-mail de boas-vindas)
+- verificacao_automatica: passou — RED/GREEN completos + regressão 200×5 + browser real; QA verde v0.0.527–0.0.540
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2310-migration-campos.md
+- ultima_acao: T3.16 concluída; governança atualizada (fase.md 17/N, STATUS, changelog 0.0.540, estado)
+- proxima_acao: aguardar decisão da CEO sobre a próxima leva (modelo de contrato no CRM — insumo recebido 23:06 — ou backlog Etapa 3)
+- atualizado_em: 2026-09-13T23:10:00-03:00
