@@ -148,7 +148,9 @@ export default function BuscaGlobal() {
                   <span>
                     <span className="block text-sm font-semibold text-[#0A0A0A]">{c.nome}</span>
                     <span className="block text-xs text-[#6B7280]">
-                      {[c.empresa, c.email].filter(Boolean).join(' · ') || '—'}
+                      {[c.empresa !== c.nome ? c.empresa : '', c.email]
+                        .filter(Boolean)
+                        .join(' · ') || '—'}
                     </span>
                   </span>
                 </button>
