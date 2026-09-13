@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.566] — 2026-09-15 — T3.19 analisada, SPEC-3-019 publicada (aguardando autorização)
+
+- 2026-09-15 · [Deni.Ai] · Seleção da próxima task após a conclusão da T3.18: **T3.19 — Relatórios agendados** (backlog Etapa 3 — §2.3 do doc da CEO, item de "maior retorno e menor custo da camada analítica"). SPEC-3-019 publicada em `04-fase-atual/specs/`. Recorte: coleção relatorios_agendados (0185), hook com GET/POST/PATCH /relatorios + POST /{id}/enviar + cron horário idempotente (semanal/mensal), relatório `resumo_direcao` em HTML com os KPIs do painel (LGPD — sem dados pessoais), auditoria `relatorio_enviado`, UI /relatorios admin + card home. Critérios CA-3-083 a CA-3-088. SMTP atual: relay compartilhado (noreply@mail.goskip.dev). Nada implementado — estado `aguardando_autorizacao`.
+
 ## [0.0.565] — 2026-09-14 — T3.18 CONCLUÍDA (teste humano aprovado pela CEO)
 
 - 2026-09-14 · [Deni.Ai] · Task T3.18 concluída: Painel por papel + metas editáveis (SPEC-3-018, CA-3-077 a CA-3-082). Teste humano aprovado pela CEO em 2026-09-14 23:58 — "sim, siga". Revalidação do zero por API: RED (401 painel/metas sem auth; 400 papel inválido; 400 bloco inválido; 403 operator em metas) + GREEN (painel direção 21 KPIs com os 10 indicadores do §2.2; origem_ganhos julho = indicação R$ 8.336,11; metas: 3 seeds ativos, prova desativada; drill-down dos 4 blocos novos; regressão obrigações/visão/export 200). Limpeza: meta de prova desativada — base real intacta. AP-2026-09-14-0100 (variação de KPI distribuição por soma de qtd). QA verde v0.0.563–0.0.565. Fase 3: 19/N.
