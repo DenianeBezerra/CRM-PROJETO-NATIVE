@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.522] — 2026-09-13 — T3.15 analisada, SPEC-3-015 publicada (aguardando autorização)
+
+- 2026-09-13 · [Deni.Ai] · Seleção da próxima leva após a conclusão da T3.14: **T3.15 — Visão de coordenação + Visão comercial** (Leva C da Ficha Operacional, parte 1 — cap. 6.2/6.3 do doc da CEO). SPEC-3-015 publicada em `04-fase-atual/specs/`. Recorte: endpoint admin-only `GET /visao/coordenacao` (matriz clientes × obrigações do ciclo, exceções por cliente/analista com tempo em aberto, carga por analista, sinalização de volume acima da referência e fichas desatualizadas) + endpoint `GET /visao/comercial` (resumo somente leitura: em dia, contagem de exceções, último fechamento — sem dados operacionais) + UI `/visao-coordenacao` (admin) + card na home + bloco de resumo para operator. Critérios CA-3-055 a CA-3-061. Fora do recorte: implantação de cliente (cap. 7 — T3.16), novos papéis na coleção users (D12), notificações. Decisões pendentes da CEO: D12 (papéis agora ou depois), D13 (N dias ficha desatualizada, proposto 30), D14 (resumo comercial visível ao operator, proposto sim). Nada implementado — estado `aguardando_autorizacao`.
+
 ## [0.0.518] — 2026-09-13 — T3.14 revalidada do zero (aguardando teste humano)
 
 - 2026-09-13 · [Deni.Ai] · Revalidação do zero da T3.14 após reconciliação de estado (sessão anterior havia implementado até v0.0.516 com estado/STATUS desatualizados). RED por API: etapa sem auth 401; avaliar sem auth 401; avaliar com operator 403; etapa em obrigação inexistente 404. GREEN por API: avaliar admin 200 com dedup (0 novas — estado real intacto: 12 pendentes + 1 bloqueada; 3 exceções abertas). QA verde v0.0.518. Governança reconciliada: fase.md (linha T3.13 concluída + T3.14 adicionada), STATUS (task ativa T3.14), estado-atual (aguardando_teste_humano).
