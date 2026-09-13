@@ -1,15 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.20 (Causas comuns C-03 + C-01 + C-04 — SPEC-3-020)
+- task_id: T3.21 (Módulo de Conteúdo — Leva A concluída; Leva B autorizada)
 - champion: Deni.Ai
-- spec: 04-fase-atual/specs/SPEC-3-020-causas-comuns-c03-c01-c04.md
-- etapa: concluida
-- autorizacao_implementacao: confirmada — CEO 2026-09-14 08:45 "SIM" (após relatório de análise da T3.20)
-- teste_humano: aprovado — teste executado pela Deni.Ai a pedido da CEO (14/09, browser real)
-- teste_humano_resultado: CEO 14/09 09:04 — "Teste você mesma as tasks dessa leva"
-- verificacao_automatica: passou — C-03: PATCH status divergente é sobrescrito pela etapa (Proposta CFO → em_negociacao/novo); reconciliação 0187 aplicada; ganho sem valor → 400 (B-14). C-01: obrigação real adiada para 11/09 aparece como atrasada_efetiva em /obrigacoes, entra na fila pessoal /meu-dia (B-12), matriz da coordenação conta atrasada=1 (B-06), visão comercial operacao_em_dia=false — estado real restaurado após as provas. C-04: exceções em BRT; p50=0 → travessão. Regressão: painel/metas/ficha/contratos/relatórios/exceções 200. QA verde v0.0.574–0.0.576.
-- teste_humano_executado (browser real, 14/09 ~09:00, pela Deni.Ai a pedido da CEO): (1) Painel de Direção — p50 exibe travessão "—" em vez de "0 min" ✓; metas com descrições da planilha ✓; (2) Operação do dia — exceções exibem "aberta em 12/09/2026 (data de abertura)" em BRT ✓; obrigação real adiada para 11/09 apareceu no bloco de atrasos com status "Bloqueada" preservado ✓; (3) Meu dia — novo bloco "Atrasadas (1)" com baixa em 1 toque ✓; (4) Visão de coordenação — matriz conta atrasada por data ✓; (5) Oportunidades — Felicidade ganho com probabilidade 100% ✓. Estado real restaurado após as provas.
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2350-jsvm-escopo-arquivo-template.md (da implementação; conclusão sem novo AP)
-- ultima_acao: T3.20 CONCLUÍDA (teste humano aprovado pela CEO 09:04 — "Teste você mesma as tasks dessa leva")
-- proxima_acao: próxima task a definir pela CEO (Módulo de Conteúdo em análise)
-- atualizado_em: 2026-09-14T09:15:00-03:00
+- spec: 04-fase-atual/specs/SPEC-3-021-modulo-conteudo-leva-a.md + SPEC-3-021B-leva-b-agenda-editorial.md
+- etapa: implementando (Leva B — calendário mensal com painel do dia)
+- autorizacao_implementacao: Leva A confirmada (CEO 14/09 09:19 "sim"); Leva B AUTORIZADA (CEO 13/09 — "Leva B autorizada, na ordem já definida")
+- decisoes_fechadas: D17 slug ano-linha-tema imutável (SÓ HÍFEN, linha abreviada); D18 destino=/entrada; D19 direção + aprovador reserva c/ ausência registrada; D20 semanal + 30 dias por peça; D21 90 dias c/ 2 exceções; D22 séries Newsletter e Deni Entrevista; D23 desempenho na ordenação quando houver dado medido; D24 lista plana substituída pela VISÃO 3 (não pelo painel do dia) — lista permanece até a Visão 3 existir
+- ajustes_recorte_CEO: links rastreáveis na Leva A; biblioteca mínima na Leva A
+- ultima_acao: TRES ENTREGAS DA FILA concluídas e confirmadas pela CEO (13/09): (1) M-19 busca global — ampliado para 4 tipos (empresas, contatos, oportunidades, conteúdos com busca em título/tema/ROTEIRO), provas por API e no navegador real (v0.0.615–0.621); (2) peça Split payment NOVA pelo fluxo completo até publicado — validação ponta a ponta do módulo (campanha D17 2026-cfo-split-payment, capa+arquivo reais, links 2/2, bloqueio sem url provado, 8 transições); (3) SPEC-3-021B publicada com D23/D24 fechadas e Leva B autorizada. Pendências registradas: página própria de Empresa (valor alto, após a Leva B); roteiro da peça publicada foi redigido por IA na validação (CEO reescreve antes de publicar de verdade); estender BuscaGlobal às demais telas (baixa).
+- pendencias: (1) implementar Leva B — calendário mensal com painel do dia → busca e histórico → quadro anual; (2) página própria de Empresa (após a Leva B); (3) estender BuscaGlobal ao Layout (baixa).
+- proxima_acao: implementar o calendário mensal com painel do dia (Leva B, item 1)
+- atualizado_em: 2026-09-13T11:55:00-03:00
