@@ -505,7 +505,14 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#C9A227]" />
               <span>Conexão segura</span>
-            </div>
+              {/* M-20: identificação visível do ambiente enquanto teste e produção
+                  coexistem — o preview é homologação; produção só após publish. */}
+              {import.meta.env.DEV || window.location.hostname.includes('--preview') ? (
+                <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                  Ambiente de homologação
+                </span>
+              ) : null}
+            </div>{' '}
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-neutral-400" />
