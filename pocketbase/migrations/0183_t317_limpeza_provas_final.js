@@ -14,7 +14,6 @@ migrate(
         n++
       } catch (_) {}
     }
-    $app.logger().info('T317 limpeza fixtures final', 'removidos', String(n))
   },
   (app) => {},
 )
