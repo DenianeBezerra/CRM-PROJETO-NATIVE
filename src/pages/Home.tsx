@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast'
 import pb from '@/lib/pocketbase/client'
 import { LOGO_WHITE } from '@/assets/logo'
 import SinoNotificacoes from '@/components/SinoNotificacoes'
+import BuscaGlobal from '@/components/BuscaGlobal'
 import { msgErro } from '@/lib/erro'
 
 type Contadores = {
@@ -172,8 +173,9 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           </div>
         </div>
 
-        {/* Right: Notifications, User Email & Logout */}
+        {/* Right: Busca global (M-19), Notifications, User Email & Logout */}
         <div className="flex items-center gap-3 sm:gap-5">
+          <BuscaGlobal />
           <SinoNotificacoes />
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-xs font-semibold text-white">{displayName}</span>
