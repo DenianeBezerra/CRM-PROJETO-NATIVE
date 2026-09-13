@@ -57,7 +57,9 @@ arquivo final reais, links rastreáveis por canal e url de publicação
 registrada. As quatro frentes (pacote, biblioteca mínima, links, transições)
 funcionam ponta a ponta.
 
-## Decisões abertas (a fechar antes da implementação)
+## Decisões fechadas (CEO 13/09)
 
-- D23: desempenho (Visão 3) na Leva B ou com a medição D20 (30 dias pós-publicação)? Sugestão: ordenação por desempenho entra quando houver dado; até lá, ordena por data.
-- D24: o painel do dia (Visão 2) substitui a lista plana da tela /conteudos ou convive com ela até o quadro anual existir? Sugestão: substitui — a lista plana deixa de existir na Leva B.
+- **D23 (fechada)**: ordenação por desempenho entra quando houver dado medido (D20, 30 dias pós-publicação). Até lá, ordenação por data.
+- **D24 (fechada, com correção de premissa)**: a lista plana é substituída pela **Visão 3 (busca e histórico)**, NÃO pelo painel do dia — o painel do dia é o detalhe de uma data dentro do calendário e responde a outra pergunta. A lista permanece até a Visão 3 estar entregue; só então é desativada. Não deve haver período sem nenhuma forma de visualizar o conjunto de conteúdos.
+- **M-19 ampliado (CEO 13/09)**: busca global com 4 tipos (empresas, contatos, oportunidades, conteúdos — busca em título, tema e roteiro). Implementado em v0.0.619.
+- **Leva B AUTORIZADA (CEO 13/09)**, na ordem: calendário mensal com painel do dia → busca e histórico → quadro anual.
