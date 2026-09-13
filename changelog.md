@@ -86,3 +86,59 @@
 - 2026-09-13 · [Deni.Ai] · Task T3.17 implementada (autorização da CEO 23:21 — "sim"). Migration 0180 (coleção `contratos` append-only/versionada com status enviado_assinatura|assinado reservados ao ClickSign + auditoria contrato_gerado) + hook contrato_endpoint.js (GET consolidação + POST gerar com validação fechado_ganho + dados mínimos + versionamento + GET versão; template das 9 cláusulas do contrato real da Felicidade INLINE no callback) + UI ContratoNegocio.tsx (consolidação → variáveis editáveis → gerar → Copiar texto + histórico de versões) integrada ao menu Mais ⌄ da oportunidade ganha (Opportunities.tsx).
 - Provas: RED 8 (401; 403 operator ×2; 404 negócio; 400 não-ganho; 400 sem dados mínimos com lista; 404 versão; 403 delete direto) + GREEN (v1 200 — 6127 chars, 0 placeholders, 9 cláusulas, mensalidade 8.336,11 e implantação 8.000,00 no texto; auditoria ok; v2 = versao+1; GET versão 200) + regressão (obrigações/implantações 200). Limpeza 0182 — base 0 contratos de prova.
 - Fixes no caminho (causas raiz provadas por API): índice após campos; TextField usa `max` (não `maxSize`); formatação BRL manual (goja não suporta toLocaleString com locale); template inline no callback (AP-2350). QA verde v0.0.545–0.0.556.
+
+## [0.0.543] — 2026-09-13 — T3.17 analisada, SPEC-3-017 publicada (aguardando autorização)
+
+- 2026-09-13 · [Deni.Ai] · Seleção da próxima task após a conclusão da T3.16: **T3.17 — Modelo de contrato no CRM** (passo anterior à integração ClickSign, trazida pela CEO 23:08). SPEC-3-017 publicada em `04-fase-atual/specs/`. Recorte: coleção contratos (0180, append-only, versionada; status enviado_assinatura|assinado reservados ao ClickSign), template das 9 cláusulas do contrato real da Felicidade, endpoints gerar/consolidar/versão, UI ContratoNegocio no menu Mais ⌄ da oportunidade ganha. Critérios CA-3-070 a CA-3-076. Nada implementado — estado `aguardando_autorizacao`.
+
+## [0.0.542] — 2026-09-13 — T3.16 concluída (revalidação do zero + governança)
+
+- 2026-09-13 · [Deni.Ai] · **T3.16 — Implantação de cliente + RBAC** CONCLUÍDA (CEO "sim, prossiga!" 23:08). Revalidação do zero por API: RED (401; 403 operator em criar/concluir; 404; 400 conclusão sem checklist) + GREEN (criação AG 200; 3 etapas reais; conclusão condicionada; e-mail boas-vindas gerado com Copiar texto; RBAC D12; etapa preparacao_contrato ordem 45). QA verde v0.0.542. fase.md reconciliado (T3.08–T3.12 restauradas — AP-2312). GitHub commit 6141663 byte-exato. Fase 3: 17/N.
+
+## [0.0.526] — 2026-09-13 — T3.16 analisada, SPEC-3-016 publicada (aguardando autorização)
+
+- 2026-09-13 · [Deni.Ai] · **T3.16 — Implantação de cliente (cap. 7) + RBAC (cap. 8/D12)** analisada e SPEC-3-016 publicada. Modelo padrão instanciado por cliente, conclusão condicionada à ficha preenchida, RBAC D12 (coordenação/comercial). Estado `aguardando_autorizacao`, QA verde v0.0.526.
+
+## [0.0.524] — 2026-09-13 — T3.15 concluída
+
+- 2026-09-13 · [Deni.Ai] · **T3.15 — Visão de coordenação + Visão comercial** CONCLUÍDA (CEO "aprovado, pode seguir" 22:23). Hook visao_coordenacao.js: GET /visao/coordenacao admin-only (matriz clientes × obrigações, exceções por analista, carga por analista, volumes acima da referência, fichas desatualizadas) + GET /visao/comercial (resumo mínimo, prova por conteúdo sem campos operacionais). UI /visao-coordenacao + card home. AP-2225 (visões gerenciais nascem somente leitura + validação por conteúdo). Fase 3: 16/N.
+
+## [0.0.522] — 2026-09-13 — T3.15 implementada (aguardando teste humano)
+
+- 2026-09-13 · [Deni.Ai] · **T3.15** implementada (CEO autorizou). /visao/coordenacao admin-only + /visao/comercial resumo mínimo + UI /visao-coordenacao + card home. RED 401/403, GREEN dados reais, prova por conteúdo sem campos operacionais, browser real ok. QA verde v0.0.523–0.0.524.
+
+## [0.0.518] — 2026-09-13 — T3.14 concluída
+
+- 2026-09-13 · [Deni.Ai] · **T3.14 — Exceções E1–E9** CONCLUÍDA (CEO "Confirme e siga" 22:08). Implementada SEM integração Omie (decisão CEO 18:26): gatilhos por marcação de etapa (POST /obrigacoes/{id}/etapa + evidência), avaliador admin POST /excecoes/avaliar + cron 09:10 UTC, dedup cliente+tipo+obrigação, baixa resolve exceções vinculadas, E7 manual até o conector. Migration 0165. UI: botão "Etapa" no /operacao-dia. Revalidada do zero (RED 401/401/403/404 + GREEN dedup 0 novas). AP-2210 (E1 fail-safe prazo). Fase 3: 15/N.
+
+## [0.0.516] — 2026-09-13 — T3.14 reconciliada (no portão de teste)
+
+- 2026-09-13 · [Deni.Ai] · **T3.14** reconciliada e no portão de teste: revalidação RED/GREEN ok, QA verde v0.0.520, governança corrigida no Skip. GitHub sync concluído (commit 6488a6c, byte-exato nos 4 arquivos).
+
+## [0.0.509] — 2026-09-13 — T3.13 concluída
+
+- 2026-09-13 · [Deni.Ai] · **T3.13 — Visão do analista** CONCLUÍDA (teste aprovado "aprovado, conclua e siga" 13:43). /operacao-dia (agrupada por cliente, atrasos+exceções no topo, baixa 1 toque/lote, bloqueio c/ motivo, link ficha, filtro meus) + seção Obrigações no Meu dia + card home. v0.0.507–0.0.509 QA verde. Provas RED 5/GREEN + browser real (prints). Estado real restaurado (13 pendentes, 3 exceções). Pendência GitHub RESOLVIDA: governança via push_files programático — commits 696a1d9, 210571d, 77e83f3b byte-exatos. Fase 3: 14/N.
+
+## [0.0.507] — 2026-09-13 — T3.12 concluída (teste humano aprovado)
+
+- 2026-09-13 · [Deni.Ai] · **T3.12 — Motor de Rotinas + Exceções** CONCLUÍDA (teste humano 13:09, a pedido da CEO): 10 testes com a ficha real — motor gerou 18 obrigações (ciclo completo), baixa 1 toque 200, lote 3/3, bloqueio com motivo 200, baixa em bloqueada 400, E10 resolvida pela baixa, dedup 2ª exec 0/18, regressão ok. Estado real preservado: 13 obrigações (12 previstas + 1 bloqueada), 4 exceções (3 abertas + 1 resolvida). Bug corrigido no teste: auditoria silenciosamente falhando — coleção auditoria só aceitava acao create/update (migration 0010) e try/catch engolia o erro; fix migration 0164 + registro_id não vazio. Lição: try/catch de auditoria deve LOGAR, não engolir.
+
+## [0.0.506] — 2026-09-13 — T3.12 implementada (aguardando teste humano)
+
+- 2026-09-13 · [Deni.Ai] · **T3.12 — Motor de Rotinas + Exceções (Leva B)** implementada (CEO autorizou). Coleções obrigacoes (12 tipos, 6 status, dedup ciclo_chave, create/delete bloqueados) + excecoes (10 tipos) (0162). Hook motor_rotinas.js: POST /obrigacoes/gerar (admin), GET lista (?dia/?meus), baixa 1 toque, baixa-lote (100), bloquear (motivo ≥5), GET /excecoes; cron 06:05 BRT. Motor lê fichas ativas e gera ciclo completo à frente (contas a pagar semanal/dias-do-mês, faturamento dia_emissao, conciliação, fechamento), dias úteis c/ feriados nacionais 2026, titular inativo→reserva c/ flag, suspensão interrompe geração. E10 completa (atrasada→exceção, baixa resolve); E1–E9 estrutura pronta, gatilhos automáticos dependem do conector OMIE (leva seguinte). Provas RED 5 + GREEN (18 obrigações da ficha real; dedup 2ª exec 0/18; baixa+lote; bloqueio; reserva substituicao_aplicada=true; suspensão 0 novas). Limpeza 0163 — base 0 obrigações, ficha Felicidade preservada. Lição GRAVE (AP-0200 extensão): helpers top-level chamados DENTRO de função inline (não callback direto) TAMBÉM derrubam o hook no runtime goja — rota dá "File not found" sem erro no QA. Fix: TODOS os helpers dentro de cada escopo.
+
+## [0.0.505] — 2026-09-13 — T3.11 concluída (UI + teste humano)
+
+- 2026-09-13 · [Deni.Ai] · **T3.11 — Ficha Operacional do Cliente** CONCLUÍDA (UI v0.0.492 + teste humano executado pela Deni.Ai a pedido da CEO, 23 testes com dados reais). Ficha completa da Felicidade Collective criada e PRESERVADA na base (titular Deniane, reserva vago, 18 versões). Procedimento gerado reflete todos os parâmetros. Bloqueio de credencial provado (senha: Omie@... → 400). Operator fora da carteira 403 em tudo; dentro (reserva) 200. UI: página /ficha-operacional (seleção de empresa → formulário em blocos condicionais aos serviços + abas Procedimento gerado e Histórico de versões) + card na home + endpoint GET /completa (53 campos + listas). Tela branca corrigida: multi-selects PB chegam como array, formulário espera string — normalização nos 2 sentidos. Lição nova: conflito de rota Go — GET /fichas/{x} já existia (ficha_proposta T3.02b); nova rota precisa segmento literal distinto (/ficha-operacional/). AP-0200 reincidente: helpers top-level NÃO visíveis em callbacks JSVM — inline sempre.
+
+## [0.0.459] — 2026-09-13 — T3.07 ciclo fechado (D2/D5 implementadas)
+
+- 2026-09-13 · [Deni.Ai] · **T3.07 — Porta 1** ciclo fechado (v0.0.455–0.0.460, limpeza 0154). D2 (relato livre opcional, mínimo 30 caracteres) e D5 (retenção de leads que não fecharam = 24 meses da coleta ou do último contato, eliminação dos dados de identificação ao fim do prazo) implementadas e aprovadas.
+
+## [0.0.452] — 2026-09-13 — T3.07 implementada (aguardando teste humano)
+
+- 2026-09-13 · [Deni.Ai] · **T3.07 — Porta 1 (formulário de entrada)** implementada (CEO autorizou). Coleção `leads_entrada` (0149, append-only), hook `leads_entrada.js` (GET/POST /backend/v1/entrada/publico público; GET /backend/v1/entrada/leads auth; POST /entrada/leads/{id}/vincular), UI pública `/entrada` (3 blocos, UTM, honeypot, tempo mínimo 20s, enriquecimento BrasilAPI informativo), score 0–92 server-side (quente ≥60/morno 35–59/frio <35), dedup por e-mail (negócio aberto <90d), rate limit por IP/hora (config limite_entrada_por_ip_hora, padrão 3, fail-open), LGPD duplo. Lição JSVM nova (AP-2026-09-13-t307): header HTTP em request hook = `e.request.header.get('X-Forwarded-For')` — NÃO `e.request.getHeader()` (não existe); `e.realIp()` retorna vazio atrás do proxy do preview. Provas: RED 6 (400 sem consentimento/tempo<20s/CNPJ inválido/re-vínculo; 401×2) + GREEN 5 (envio válido score 92 quente; lista; vincular cria contato+oportunidade saudável; rate limit 429 no 4º; honeypot silencioso). Limpeza 0150–0152, base 0 provas.
+
+## [0.0.451] — 2026-09-13 — T3.07 CONCLUÍDA (teste humano aprovado pela CEO)
+
+- 2026-09-13 · [Deni.Ai] · **T3.07 Porta 1 (formulário de entrada) — CONCLUÍDA 13/09 (teste aprovado "muito bom, validado!" 10:13)**: coleção `leads_entrada` (0149, append-only), hook `leads_entrada.js` (GET/POST /backend/v1/entrada/publico público; GET /backend/v1/entrada/leads auth; POST /entrada/leads/{id}/vincular), UI pública `/entrada` (3 blocos, UTM, honeypot, tempo mínimo 20s, enriquecimento BrasilAPI informativo), score 0–92 server-side (quente ≥60/morno 35–59/frio <35), dedup por e-mail (negócio aberto <90d), rate limit por IP/hora (config limite_entrada_por_ip_hora, padrão 3, fail-open), LGPD duplo. Ciclo fechado com D2/D5 implementadas (v0.0.455–0.460, limpeza 0154). Teste humano com dados reais da CEO: enriquecimento ok, lead quente 84, dedup provado, delete 403; 3 leads reais na base.
