@@ -263,7 +263,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => navigate('/pipeline')}
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
             title="Acessar Pipeline de Negócios"
           >
             <TrendingUp className="w-3.5 h-3.5 text-[#C9A227]" />
@@ -271,11 +271,19 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           </button>
           <button
             onClick={() => navigate('/contatos')}
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
             title="Acessar base de contatos"
           >
             <Users className="w-3.5 h-3.5 text-[#C9A227]" />
             <span>Contatos</span>
+          </button>
+          <button
+            onClick={() => navigate('/painel-direcao')}
+            className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
+            title="Acessar Painel de Direção"
+          >
+            <Crown className="w-3.5 h-3.5 text-[#C9A227]" />
+            <span>Painel de Direção</span>
           </button>
           <BuscaGlobal />
           <SinoNotificacoes />
@@ -503,6 +511,13 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                     className="font-semibold text-[#A8862B] underline"
                   >
                     {rotulo('/contatos')}
+                  </button>{' '}
+                  ·{' '}
+                  <button
+                    onClick={() => navigate('/painel-direcao')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    Painel de direção
                   </button>{' '}
                   ·{' '}
                   <button
