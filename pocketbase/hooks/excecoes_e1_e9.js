@@ -558,5 +558,31 @@ cronAdd('excecoes_e1_e9', '10 9 * * *', () => {
       )
     }
   }
+  // Fail-safe (divergência exceção × atraso, CEO 16/09): exceção aberta
+  // vinculada a obrigação CONCLUÍDA é órfã — a resolução por baixa só roda na
+  // rota /baixa, e conclusão direta no banco deixa a exceção aberta para
+  // sempre, divergindo do C-01 (atraso por data). O cron resolve órfãs.
+  try {
+    var todasOrfas = $app.findRecordsByFilter('excecoes', "status = 'aberta'", '', 500, 0)
+    for (var o = 0; o < todasOrfas.length; o++) {
+      var exO = todasOrfas[o]
+      var obId = String(exO.get('obrigacao') || '')
+      if (!obId) continue
+      try {
+        var obO = $app.findRecordById('obrigacoes', obId)
+        if (String(obO.get('status') || '') === 'concluida') {
+          exO.set('status', 'resolvida')
+          exO.set('resolvida_em', new Date().toISOString())
+          exO.set(
+            'motivo_resolucao',
+            'Fail-safe: obrigação vinculada já concluída — exceção órfã resolvida pelo cron.',
+          )
+          $app.save(exO)
+        }
+      } catch (_) {}
+    }
+  } catch (errOrfas) {
+    $app.logger().error('T314 fail-safe orfas falhou', String(errOrfas))
+  }
   $app.logger().info('T314 excecoes E1-E9 avaliadas', 'criadas', String(criadas))
 })
