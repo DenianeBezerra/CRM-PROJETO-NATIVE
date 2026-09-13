@@ -9,8 +9,10 @@ import {
   Link2,
   PackageCheck,
   PackageX,
+  Plus,
   RefreshCw,
 } from 'lucide-react'
+>>>>>>>
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
@@ -196,13 +198,24 @@ export default function AgendaEditorial() {
               Hoje
             </button>
           </div>
-          <button
-            onClick={() => void load(mes)}
-            className="text-xs font-semibold text-[#A8862B] hover:underline inline-flex items-center gap-1"
-          >
-            <RefreshCw className="w-3.5 h-3.5" /> Atualizar
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                navigate('/conteudos?novo=1&data=' + mes + '-15')
+              }}
+              className="text-xs rounded-full px-3 py-1.5 font-semibold bg-[#0A0A0A] text-[#E8C766] inline-flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" /> Novo conteúdo
+            </button>
+            <button
+              onClick={() => void load(mes)}
+              className="text-xs font-semibold text-[#A8862B] hover:underline inline-flex items-center gap-1"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Atualizar
+            </button>
+          </div>
         </div>
+>>>>>>>
 
         {loading ? (
           <p className="text-sm text-[#6B7280]">Carregando agenda...</p>
@@ -236,12 +249,13 @@ export default function AgendaEditorial() {
                     key={chave}
                     onClick={() => setDiaSel(sel ? '' : chave)}
                     className={`min-h-[4.5rem] sm:min-h-[5.5rem] p-1.5 sm:p-2 rounded-lg border text-left transition-all ${
-                      sel
+                      sel && info
                         ? 'border-[#C9A227] bg-[#FDF6E3] ring-1 ring-[#C9A227]'
                         : info
                           ? 'border-[#E5E7EB] bg-white hover:border-[#C9A227]/60'
                           : 'border-[#E5E7EB]/60 bg-white/50'
                     } ${noMes ? '' : 'opacity-40'}`}
+>>>>>>>
                   >
                     <span
                       className={`text-xs font-bold ${isToday(d) ? 'inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-[#E8C766]' : 'text-[#0A0A0A]'}`}
@@ -252,21 +266,22 @@ export default function AgendaEditorial() {
                       <span className="mt-1 flex flex-wrap gap-1">
                         {info.planejadas > 0 && (
                           <span className="text-[9px] rounded-full px-1.5 py-0.5 font-semibold bg-[#F7F5F1] text-[#374151] border border-[#E5E7EB]">
-                            {info.planejadas} plan.
+                            {info.planejadas} prevista{info.planejadas > 1 ? 's' : ''}
                           </span>
                         )}
                         {info.publicadas > 0 && (
                           <span className="text-[9px] rounded-full px-1.5 py-0.5 font-semibold bg-emerald-100 text-emerald-700">
-                            {info.publicadas} publ.
+                            {info.publicadas} publicada{info.publicadas > 1 ? 's' : ''}
                           </span>
                         )}
                         {info.atrasadas > 0 && (
                           <span className="text-[9px] rounded-full px-1.5 py-0.5 font-semibold bg-red-100 text-red-700">
-                            {info.atrasadas} atras.
+                            {info.atrasadas} atrasada{info.atrasadas > 1 ? 's' : ''}
                           </span>
                         )}
                       </span>
                     )}
+>>>>>>>
                   </button>
                 )
               })}
@@ -302,9 +317,18 @@ export default function AgendaEditorial() {
                       <div key={it.id} className="border border-[#E5E7EB] rounded-lg p-3 sm:p-4">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           {tagProva(it.titulo_interno, it.tema)}
-                          <span className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#0A0A0A] text-[#E8C766]">
-                            {etapaLabel[it.status] || it.status}
+                          <span
+                            className={`text-[10px] rounded-full px-2 py-0.5 font-semibold ${
+                              it.status === 'publicado'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-[#0A0A0A] text-[#E8C766]'
+                            }`}
+                          >
+                            {it.status === 'publicado'
+                              ? `Publicado em ${it.data_efetiva ? format(parseISO(it.data_efetiva), 'dd/MM') : '—'}`
+                              : `Prevista · ${etapaLabel[it.status] || it.status}`}
                           </span>
+>>>>>>>
                           <span className="text-[10px] rounded-full px-2 py-0.5 font-medium bg-white border border-[#E5E7EB] text-[#374151]">
                             {formatoLabel[it.formato] || it.formato}
                           </span>
