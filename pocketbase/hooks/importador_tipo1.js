@@ -14,20 +14,18 @@ routerAdd('POST', '/backend/v1/importador/preview', (e) => {
     var d = soDigitos(c)
     if (d.length !== 14) return false
     if (/^(\d)\1+$/.test(d)) return false
-    var calc = function (base) {
-      var soma = 0
-      var peso = base.length + 1
-      for (var i = 0; i < base.length; i++) {
-        soma += Number(base[i]) * peso
-        peso--
-        if (peso < 2) peso = 9
-      }
-      var r = soma % 11
-      return r < 2 ? 0 : 11 - r
-    }
-    var d1 = calc(d.substring(0, 12))
-    var d2 = calc(d.substring(0, 12) + String(d1))
-    return Number(d[12]) === d1 && Number(d[13]) === d2
+    var P1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var P2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var soma1 = 0
+    for (var i = 0; i < 12; i++) soma1 += Number(d[i]) * P1[i]
+    var r1 = soma1 % 11
+    var dv1 = r1 < 2 ? 0 : 11 - r1
+    if (Number(d[12]) !== dv1) return false
+    var soma2 = 0
+    for (var j = 0; j < 13; j++) soma2 += Number(d[j]) * P2[j]
+    var r2 = soma2 % 11
+    var dv2 = r2 < 2 ? 0 : 11 - r2
+    return Number(d[13]) === dv2
   }
   function papelPermitido(actor) {
     var role = String(actor.get('role') || '')
@@ -193,20 +191,18 @@ routerAdd('POST', '/backend/v1/importador/tipo1', (e) => {
     var d = soDigitos(c)
     if (d.length !== 14) return false
     if (/^(\d)\1+$/.test(d)) return false
-    var calc = function (base) {
-      var soma = 0
-      var peso = base.length + 1
-      for (var i = 0; i < base.length; i++) {
-        soma += Number(base[i]) * peso
-        peso--
-        if (peso < 2) peso = 9
-      }
-      var r = soma % 11
-      return r < 2 ? 0 : 11 - r
-    }
-    var d1 = calc(d.substring(0, 12))
-    var d2 = calc(d.substring(0, 12) + String(d1))
-    return Number(d[12]) === d1 && Number(d[13]) === d2
+    var P1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var P2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var soma1 = 0
+    for (var i = 0; i < 12; i++) soma1 += Number(d[i]) * P1[i]
+    var r1 = soma1 % 11
+    var dv1 = r1 < 2 ? 0 : 11 - r1
+    if (Number(d[12]) !== dv1) return false
+    var soma2 = 0
+    for (var j = 0; j < 13; j++) soma2 += Number(d[j]) * P2[j]
+    var r2 = soma2 % 11
+    var dv2 = r2 < 2 ? 0 : 11 - r2
+    return Number(d[13]) === dv2
   }
   function papelPermitido(actor) {
     var role = String(actor.get('role') || '')
@@ -482,20 +478,18 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
     var d = soDigitos(c)
     if (d.length !== 14) return false
     if (/^(\d)\1+$/.test(d)) return false
-    var calc = function (base) {
-      var soma = 0
-      var peso = base.length + 1
-      for (var i = 0; i < base.length; i++) {
-        soma += Number(base[i]) * peso
-        peso--
-        if (peso < 2) peso = 9
-      }
-      var r = soma % 11
-      return r < 2 ? 0 : 11 - r
-    }
-    var d1 = calc(d.substring(0, 12))
-    var d2 = calc(d.substring(0, 12) + String(d1))
-    return Number(d[12]) === d1 && Number(d[13]) === d2
+    var P1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var P2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var soma1 = 0
+    for (var i = 0; i < 12; i++) soma1 += Number(d[i]) * P1[i]
+    var r1 = soma1 % 11
+    var dv1 = r1 < 2 ? 0 : 11 - r1
+    if (Number(d[12]) !== dv1) return false
+    var soma2 = 0
+    for (var j = 0; j < 13; j++) soma2 += Number(d[j]) * P2[j]
+    var r2 = soma2 % 11
+    var dv2 = r2 < 2 ? 0 : 11 - r2
+    return Number(d[13]) === dv2
   }
   function papelPermitido(actor) {
     var role = String(actor.get('role') || '')
@@ -678,20 +672,18 @@ routerAdd('GET', '/backend/v1/importador/lotes', (e) => {
     var d = soDigitos(c)
     if (d.length !== 14) return false
     if (/^(\d)\1+$/.test(d)) return false
-    var calc = function (base) {
-      var soma = 0
-      var peso = base.length + 1
-      for (var i = 0; i < base.length; i++) {
-        soma += Number(base[i]) * peso
-        peso--
-        if (peso < 2) peso = 9
-      }
-      var r = soma % 11
-      return r < 2 ? 0 : 11 - r
-    }
-    var d1 = calc(d.substring(0, 12))
-    var d2 = calc(d.substring(0, 12) + String(d1))
-    return Number(d[12]) === d1 && Number(d[13]) === d2
+    var P1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var P2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    var soma1 = 0
+    for (var i = 0; i < 12; i++) soma1 += Number(d[i]) * P1[i]
+    var r1 = soma1 % 11
+    var dv1 = r1 < 2 ? 0 : 11 - r1
+    if (Number(d[12]) !== dv1) return false
+    var soma2 = 0
+    for (var j = 0; j < 13; j++) soma2 += Number(d[j]) * P2[j]
+    var r2 = soma2 % 11
+    var dv2 = r2 < 2 ? 0 : 11 - r2
+    return Number(d[13]) === dv2
   }
   function papelPermitido(actor) {
     var role = String(actor.get('role') || '')
