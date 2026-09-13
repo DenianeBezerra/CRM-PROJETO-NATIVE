@@ -12,10 +12,11 @@ import {
   X,
   Loader2,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
 import { tagProva } from '@/lib/prova'
 import { msgErro } from '@/lib/erro'
+>>>>>>>
 
 // T3.21 Leva B — criação de conteúdo pela UI (direcionamento da CEO 13/09).
 // Formulário MÍNIMO: título, tema, formato, canais, data prevista, série, linha, objetivo.
@@ -133,7 +134,9 @@ const itemVazio = (): ItemLote => ({
 
 export default function Conteudos() {
   const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const { toast } = useToast()
+>>>>>>>
   const [itens, setItens] = useState<Conteudo[]>([])
   const [series, setSeries] = useState<Serie[]>([])
   const [loading, setLoading] = useState(true)
@@ -179,7 +182,17 @@ export default function Conteudos() {
       .send<{ itens: Serie[] }>('/backend/v1/series', {})
       .then((r) => setSeries(r.itens || []))
       .catch(() => setSeries([]))
+    // Criação a partir do dia (CEO 13/09): /conteudos?novo=1&data=YYYY-MM-DD
+    // abre o formulário com a data prevista já preenchida.
+    if (params.get('novo') === '1') {
+      setFormAberto(true)
+      const data = params.get('data') || ''
+      setLote([{ ...itemVazio(), data_prevista: /^\d{4}-\d{2}-\d{2}$/.test(data) ? data : '' }])
+      setParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+>>>>>>>
 
   const gerarLinks = async (id: string) => {
     setGerando(id)

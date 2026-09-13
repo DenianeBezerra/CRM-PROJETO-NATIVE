@@ -306,8 +306,17 @@ export default function AgendaEditorial() {
                   </button>
                 </div>
                 {itensDia.length === 0 ? (
-                  <p className="text-sm text-[#6B7280]">Nenhuma peça prevista neste dia.</p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <p className="text-sm text-[#6B7280]">Nenhuma peça prevista neste dia.</p>
+                    <button
+                      onClick={() => navigate('/conteudos?novo=1&data=' + diaSel)}
+                      className="text-xs rounded-full px-3 py-1.5 font-semibold bg-[#0A0A0A] text-[#E8C766] inline-flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Criar peça neste dia
+                    </button>
+                  </div>
                 ) : (
+>>>>>>>
                   <div className="space-y-3">
                     {itensDia.map((it) => (
                       <div key={it.id} className="border border-[#E5E7EB] rounded-lg p-3 sm:p-4">
