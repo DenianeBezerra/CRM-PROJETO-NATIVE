@@ -24,7 +24,9 @@ import VisaoCoordenacao from './pages/VisaoCoordenacao'
 import Implantacoes from './pages/Implantacoes'
 import Relatorios from './pages/Relatorios'
 import Conteudos from './pages/Conteudos'
+import AgendaEditorial from './pages/AgendaEditorial'
 import NotFound from './pages/NotFound'
+>>>>>>>
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -208,6 +210,15 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/conteudos/agenda"
+                element={
+                  <ProtectedRoute>
+                    <AgendaEditorial />
+                  </ProtectedRoute>
+                }
+              />
+>>>>>>>
             </Route>
             {/* T3.02 — rota pública do formulário (sem login, por token) */}
             <Route path="/formulario/:token" element={<FormularioPublico />} />
