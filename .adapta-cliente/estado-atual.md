@@ -3,7 +3,7 @@
 - task_id: T3.17 (Modelo de contrato no CRM — SPEC-3-017)
 - champion: Deni.Ai
 - spec: 04-fase-atual/specs/SPEC-3-017-modelo-contrato-crm.md
-- etapa: implementando
+- etapa: em_correcao
 - autorizacao_implementacao: confirmada — CEO 22:32 "sim, implemente" + ajuste de processo real 22:44/22:46 + pedido de assinatura 22:55
 - teste_humano: pendente
 - verificacao_automatica: pendente
