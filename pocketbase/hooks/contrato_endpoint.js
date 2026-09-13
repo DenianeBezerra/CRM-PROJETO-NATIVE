@@ -244,15 +244,25 @@ routerAdd(
         ' conforme procedimentos operacionais acordados entre as partes; b) entrega periódica de relatórios e leituras de decisão; c) suporte à gestão financeira no escopo acordado.'
 
     var mensalidade = valorNegocio
-    var mensalFmt =
-      'R$ ' +
-      mensalidade.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    // goja não suporta toLocaleString com locale — formatação manual (causa raiz do
+    // 400 genérico provado por API na T3.17).
+    var fmtBRL = function (n) {
+      var neg = n < 0 ? '-' : ''
+      var abs = Math.abs(Number(n) || 0)
+      var centavos = Math.round(abs * 100) % 100
+      var inteiros = Math.floor(abs)
+      var s = String(inteiros)
+      var milhar = ''
+      while (s.length > 3) {
+        milhar = '.' + s.slice(-3) + milhar
+        s = s.slice(0, -3)
+      }
+      milhar = s + milhar
+      return neg + 'R$ ' + milhar + ',' + (centavos < 10 ? '0' : '') + centavos
+    }
+    var mensalFmt = fmtBRL(mensalidade)
     var implTotal = Number(body.implantacao_total || 0)
-    var implFmt =
-      implTotal > 0
-        ? 'R$ ' +
-          implTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        : ''
+    var implFmt = implTotal > 0 ? fmtBRL(implTotal) : ''
     var condicoes = String(body.condicoes_financeiras || '').trim()
     if (!condicoes) {
       var linhas = []
