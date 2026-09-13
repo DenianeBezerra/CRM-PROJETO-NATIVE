@@ -26,6 +26,7 @@ import Relatorios from './pages/Relatorios'
 import Conteudos from './pages/Conteudos'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
+import ErrorBoundary from './components/ErrorBoundary'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isValid, isLoading } = useAuth()
   if (isLoading)
@@ -46,175 +47,177 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 }
 const App = () => (
   <BrowserRouter>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Index />} />
-            <Route
-              path="/home"
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/contatos"
-              element={
-                <ProtectedRoute>
-                  <Contacts />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/oportunidades"
-              element={
-                <ProtectedRoute>
-                  <Opportunities />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/kanban"
-              element={
-                <ProtectedRoute>
-                  <Kanban />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/busca"
-              element={
-                <ProtectedRoute>
-                  <SearchPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/operacional"
-              element={
-                <ProtectedRoute>
-                  <Operacional />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/painel" element={<Navigate to="/operacional" replace />} />
-            <Route
-              path="/admin"
-              element={
-                <AdminRoute>
-                  <Home adminOnly />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/etapas"
-              element={
-                <AdminRoute>
-                  <Stages />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/qualificacao"
-              element={
-                <AdminRoute>
-                  <Qualificacao />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/dicionario"
-              element={
-                <AdminRoute>
-                  <Dicionario />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardComercial />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/meu-dia"
-              element={
-                <ProtectedRoute>
-                  <MeuDia />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/painel-direcao"
-              element={
-                <ProtectedRoute>
-                  <PainelDirecao />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/operacao-dia"
-              element={
-                <ProtectedRoute>
-                  <OperacaoDia />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ficha-operacional"
-              element={
-                <ProtectedRoute>
-                  <FichaOperacional />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/visao-coordenacao"
-              element={
-                <AdminRoute>
-                  <VisaoCoordenacao />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/implantacoes"
-              element={
-                <AdminRoute>
-                  <Implantacoes />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/relatorios"
-              element={
-                <AdminRoute>
-                  <Relatorios />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/conteudos"
-              element={
-                <ProtectedRoute>
-                  <Conteudos />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-          {/* T3.02 — rota pública do formulário (sem login, por token) */}
-          <Route path="/formulario/:token" element={<FormularioPublico />} />
-          {/* T3.07 — Porta 1: formulário público de entrada (sem login) */}
-          <Route path="/entrada" element={<EntradaPublica />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Index />} />
+              <Route
+                path="/home"
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/contatos"
+                element={
+                  <ProtectedRoute>
+                    <Contacts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/oportunidades"
+                element={
+                  <ProtectedRoute>
+                    <Opportunities />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/kanban"
+                element={
+                  <ProtectedRoute>
+                    <Kanban />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/busca"
+                element={
+                  <ProtectedRoute>
+                    <SearchPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/operacional"
+                element={
+                  <ProtectedRoute>
+                    <Operacional />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/painel" element={<Navigate to="/operacional" replace />} />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <Home adminOnly />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/etapas"
+                element={
+                  <AdminRoute>
+                    <Stages />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/qualificacao"
+                element={
+                  <AdminRoute>
+                    <Qualificacao />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/dicionario"
+                element={
+                  <AdminRoute>
+                    <Dicionario />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardComercial />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/meu-dia"
+                element={
+                  <ProtectedRoute>
+                    <MeuDia />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/painel-direcao"
+                element={
+                  <ProtectedRoute>
+                    <PainelDirecao />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/operacao-dia"
+                element={
+                  <ProtectedRoute>
+                    <OperacaoDia />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ficha-operacional"
+                element={
+                  <ProtectedRoute>
+                    <FichaOperacional />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/visao-coordenacao"
+                element={
+                  <AdminRoute>
+                    <VisaoCoordenacao />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/implantacoes"
+                element={
+                  <AdminRoute>
+                    <Implantacoes />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/relatorios"
+                element={
+                  <AdminRoute>
+                    <Relatorios />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/conteudos"
+                element={
+                  <ProtectedRoute>
+                    <Conteudos />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+            {/* T3.02 — rota pública do formulário (sem login, por token) */}
+            <Route path="/formulario/:token" element={<FormularioPublico />} />
+            {/* T3.07 — Porta 1: formulário público de entrada (sem login) */}
+            <Route path="/entrada" element={<EntradaPublica />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </BrowserRouter>
 )
 export default App
