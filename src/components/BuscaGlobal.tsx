@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, X, User, TrendingUp, Loader2 } from 'lucide-react'
+import { Search, X, User, TrendingUp, Loader2, Building2, PenTool } from 'lucide-react'
 import pb from '@/lib/pocketbase/client'
 
 // M-19 (CEO 13/09) — Busca global acessível de qualquer tela.
 // Um campo, três destinos: contato, oportunidade. Abre com "/" ou Ctrl+K,
 // fecha com Esc, navegação por clique. Resultados mínimos por tipo.
+type EmpresaHit = { id: string; nome: string; setor: string; status: string }
 type ClienteHit = { id: string; nome: string; email: string; empresa: string }
 type OportunidadeHit = {
   id: string
@@ -15,7 +16,21 @@ type OportunidadeHit = {
   status: string
   valor: number
 }
-type Resp = { total: number; clientes: ClienteHit[]; oportunidades: OportunidadeHit[] }
+type ConteudoHit = {
+  id: string
+  titulo: string
+  tema: string
+  formato: string
+  status: string
+  canais: string[]
+}
+type Resp = {
+  total: number
+  empresas: EmpresaHit[]
+  clientes: ClienteHit[]
+  oportunidades: OportunidadeHit[]
+  conteudos: ConteudoHit[]
+}
 
 const fmtBRL = (v: number) =>
   Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -118,7 +133,7 @@ export default function BuscaGlobal() {
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar contato ou oportunidade…"
+          placeholder="Buscar empresa, contato, oportunidade ou conteúdo…"
           className="bg-transparent outline-none text-sm text-white placeholder:text-white/40 w-56 sm:w-72"
         />
         {loading && <Loader2 className="w-3.5 h-3.5 text-[#C9A227] animate-spin" />}
@@ -132,6 +147,28 @@ export default function BuscaGlobal() {
           {erro && <p className="p-3 text-sm text-red-700">{erro}</p>}
           {res && res.total === 0 && !erro && (
             <p className="p-4 text-sm text-[#6B7280]">Nada encontrado para “{q.trim()}”.</p>
+          )}
+          {res && res.empresas.length > 0 && (
+            <div className="p-2">
+              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
+                Empresas
+              </p>
+              {res.empresas.map((em) => (
+                <button
+                  key={em.id}
+                  onClick={() => ir('/contatos')}
+                  className="w-full text-left px-2 py-2 rounded-lg hover:bg-[#F7F5F1] flex items-start gap-2"
+                >
+                  <Building2 className="w-4 h-4 text-[#A8862B] mt-0.5" />
+                  <span>
+                    <span className="block text-sm font-semibold text-[#0A0A0A]">{em.nome}</span>
+                    <span className="block text-xs text-[#6B7280]">
+                      {[em.setor, em.status].filter(Boolean).join(' · ') || '—'}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
           {res && res.clientes.length > 0 && (
             <div className="p-2">
@@ -151,6 +188,28 @@ export default function BuscaGlobal() {
                       {[c.empresa !== c.nome ? c.empresa : '', c.email]
                         .filter(Boolean)
                         .join(' · ') || '—'}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {res && res.conteudos.length > 0 && (
+            <div className="p-2 border-t border-[#F3F4F6]">
+              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
+                Conteúdos
+              </p>
+              {res.conteudos.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => ir('/conteudos')}
+                  className="w-full text-left px-2 py-2 rounded-lg hover:bg-[#F7F5F1] flex items-start gap-2"
+                >
+                  <PenTool className="w-4 h-4 text-[#A8862B] mt-0.5" />
+                  <span>
+                    <span className="block text-sm font-semibold text-[#0A0A0A]">{c.titulo}</span>
+                    <span className="block text-xs text-[#6B7280]">
+                      {[c.tema, c.formato, c.status].filter(Boolean).join(' · ')}
                     </span>
                   </span>
                 </button>
