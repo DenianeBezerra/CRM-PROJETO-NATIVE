@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, CheckCircle2, ClipboardList, Plus, RefreshCw } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, ClipboardList, Mail, Plus, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
@@ -61,6 +61,7 @@ export default function Implantacoes() {
   const [evidenciaEtapa, setEvidenciaEtapa] = useState('')
   const [etapaAlvo, setEtapaAlvo] = useState<string | null>(null)
   const [checklist, setChecklist] = useState<string[] | null>(null)
+  const [emailGerado, setEmailGerado] = useState<{ assunto: string; texto: string } | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -135,6 +136,19 @@ export default function Implantacoes() {
       await load()
     } catch {
       toast({ title: 'Não foi possível concluir a etapa', variant: 'destructive' })
+    }
+  }
+
+  const gerarEmail = async () => {
+    if (!detalhe) return
+    try {
+      const r = await pb.send<{ assunto: string; texto: string }>(
+        `/backend/v1/implantacoes/${detalhe.id}/email-boas-vindas`,
+        {},
+      )
+      setEmailGerado({ assunto: r.assunto, texto: r.texto })
+    } catch {
+      toast({ title: 'Não foi possível gerar o e-mail', variant: 'destructive' })
     }
   }
 
@@ -280,14 +294,24 @@ export default function Implantacoes() {
               <span className="text-[10px] rounded-full bg-[#F7F5F1] border border-[#E5E7EB] px-2 py-0.5 text-[#6B7280]">
                 {statusLabel[detalhe.status] || detalhe.status}
               </span>
-              {detalhe.status === 'em_andamento' && (
-                <button
-                  onClick={() => void concluirImplantacao()}
-                  className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg font-semibold bg-[#C9A227] text-[#0A0A0A] hover:bg-[#B8912B]"
-                >
-                  <CheckCircle2 className="w-4 h-4" /> Concluir implantação
-                </button>
-              )}
+              <div className="flex gap-2">
+                {detalhe.status === 'em_andamento' && (
+                  <button
+                    onClick={() => void gerarEmail()}
+                    className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg font-semibold border border-[#C9A227] text-[#A8862B] hover:bg-[#F7F5F1]"
+                  >
+                    <Mail className="w-4 h-4" /> E-mail de boas-vindas
+                  </button>
+                )}
+                {detalhe.status === 'em_andamento' && (
+                  <button
+                    onClick={() => void concluirImplantacao()}
+                    className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg font-semibold bg-[#C9A227] text-[#0A0A0A] hover:bg-[#B8912B]"
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> Concluir implantação
+                  </button>
+                )}
+              </div>
             </div>
 
             {checklist && (
@@ -300,6 +324,31 @@ export default function Implantacoes() {
                     <li key={i}>{c}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {emailGerado && (
+              <div className="bg-white border border-[#C9A227]/50 rounded-xl p-4">
+                <h3 className="font-playfair font-bold text-sm mb-1">
+                  E-mail de boas-vindas — {emailGerado.assunto}
+                </h3>
+                <p className="text-[11px] text-[#6B7280] mb-2">
+                  Revise, copie e envie pelo seu e-mail. O envio fica registrado na auditoria.
+                </p>
+                <pre className="text-xs whitespace-pre-wrap text-[#374151] bg-[#F7F5F1] rounded-lg p-3 border border-[#E5E7EB]">
+                  {emailGerado.texto}
+                </pre>
+                <div className="flex justify-end mt-2">
+                  <button
+                    onClick={() => {
+                      void navigator.clipboard.writeText(emailGerado.texto)
+                      toast({ title: 'Texto copiado' })
+                    }}
+                    className="text-sm px-3 py-1.5 rounded font-semibold bg-[#C9A227] text-[#0A0A0A] hover:bg-[#B8912B]"
+                  >
+                    Copiar texto
+                  </button>
+                </div>
               </div>
             )}
 

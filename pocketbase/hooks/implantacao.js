@@ -54,32 +54,16 @@ routerAdd(
 
     var MODELO = [
       [
-        'Coleta de documentos e acessos',
-        'Recolher documentos do cliente e registrar os IDENTIFICADORES dos itens de cofre (nunca credenciais).',
+        'Acessos e estrutura',
+        'Criação dos acessos bancários, criação de pasta compartilhada (SharePoint/Google Drive), implantação do sistema e acessos às planilhas de controle e acesso ao sistema de upload contábil.',
       ],
       [
-        'Cadastro no sistema do cliente',
-        'Cadastrar a empresa no sistema do cliente (Omie/Nibo/outro) com o usuário da Vibratto.',
+        'Análise das informações financeiras',
+        'Análise das informações financeiras: contas pagas, recebidas, a pagar e a receber.',
       ],
       [
-        'Preenchimento completo da ficha operacional',
-        'Preencher os 9 blocos da ficha operacional com os parâmetros reais do cliente.',
-      ],
-      [
-        'Validação do procedimento gerado com o cliente',
-        'Apresentar o procedimento gerado pela ficha e validar com o cliente.',
-      ],
-      [
-        'Configuração dos canais e bancos na ficha',
-        'Registrar canais de entrada, bancos e pessoas de contato na ficha.',
-      ],
-      [
-        'Primeiro ciclo em paralelo (shadow)',
-        'Executar um ciclo completo em paralelo com o processo atual do cliente.',
-      ],
-      [
-        'Go-live e transição para ativo',
-        'Concluir implantação: ficha ativa, empresa ativa, motor passa a gerar as rotinas.',
+        'Diagnóstico e validação dos processos',
+        'Diagnóstico, definição e validação dos processos do dia a dia, apresentação do sistema.',
       ],
     ]
     var colEtapas = $app.findCollectionByNameOrId('implantacao_etapas')
@@ -284,6 +268,78 @@ routerAdd(
       status: 'concluida',
       empresa_status: 'ativa',
       ficha_status: 'ativo',
+    })
+  },
+  $apis.requireAuth(),
+)
+
+// T3.16 ajuste (CEO 22:44): e-mail de boas-vindas GERADO pelo CRM.
+// GET /backend/v1/implantacoes/{id}/email-boas-vindas — admin/coordenacao.
+// Monta o texto real da Vibratto com nome do cliente, e-mail centralizador e time designado.
+routerAdd(
+  'GET',
+  '/backend/v1/implantacoes/{id}/email-boas-vindas',
+  (e) => {
+    var actor = e.auth
+    if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
+    var papel = String(actor.get('role') || '')
+    if (papel !== 'admin' && papel !== 'coordenacao') {
+      return e.json(403, { error: 'Geração do e-mail é exclusiva de admin/coordenação.' })
+    }
+    var impl
+    try {
+      impl = $app.findRecordById('implantacoes', e.request.pathValue('id'))
+    } catch (_) {
+      return e.json(404, { error: 'Implantação não encontrada.' })
+    }
+    var empresaId = String(impl.get('empresa') || '')
+    var nomeCliente = empresaId
+    try {
+      nomeCliente = String($app.findRecordById('empresas', empresaId).get('nome') || empresaId)
+    } catch (_) {}
+    // nome do cliente sem sufixo para saudação (primeira palavra)
+    var saudacao = nomeCliente.split(' ')[0] || nomeCliente
+    var texto = [
+      'Prezado(a) ' + saudacao + ',',
+      '',
+      'É um prazer tê-la conosco! Seja muito bem-vinda ao nosso BPO. Eu e meu time estamos empenhados em garantir que você tenha a melhor experiência possível durante toda a nossa jornada juntos.',
+      '',
+      'A implantação ocorrerá em três etapas:',
+      '1. Criação dos acessos bancários, criação de pasta compartilhada, implantação do sistema e acessos às planilhas de controle e acesso ao sistema de upload contábil;',
+      '2. Análise das informações financeiras, contas pagas, recebidas, a pagar e a receber;',
+      '3. Diagnóstico, definição e validação dos processos do dia a dia, apresentação do sistema.',
+      '',
+      'Para facilitar nossa comunicação e a troca de documentos, todas as interações por e-mail podem ser enviadas para: financeirox@vibratto.com.br (e-mail criado por nós para centralizar a comunicação) — ou, se preferir, o financeiro pode nos dar acesso ao e-mail dele.',
+      '',
+      'Além disso, por favor, crie (quando o cliente tem, ou será criada por nós e compartilhada) a pasta no SharePoint ou Google Drive, onde centralizaremos todas as informações na nuvem.',
+      '',
+      'Aproveito para apresentar nosso time:',
+      'Leandro e Lucélia — Implantação / Faturamento e Contas a Receber',
+      'Renato e Karine — Controladoria e Contas a Pagar',
+      '',
+      'Todos receberão cópias de financeirox@vibratto.com.br.',
+      '',
+      'Abraços,',
+      'Deniane Bezerra',
+      'Vibratto BPO Financeiro',
+    ].join('\n')
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var evRec = new Record(audit)
+      evRec.set('entidade', 'implantacoes')
+      evRec.set('registro_id', impl.id)
+      evRec.set('acao', 'email_boas_vindas_gerado')
+      evRec.set('ator_id', actor.id)
+      evRec.set('ocorrido_em', new Date().toISOString())
+      evRec.set('estado_anterior', '')
+      evRec.set('estado_posterior', 'gerado')
+      $app.save(evRec)
+    } catch (_) {}
+    return e.json(200, {
+      ok: true,
+      empresa: nomeCliente,
+      assunto: 'Bem-vinda ao BPO Vibratto — direcionamentos de implantação',
+      texto: texto,
     })
   },
   $apis.requireAuth(),
