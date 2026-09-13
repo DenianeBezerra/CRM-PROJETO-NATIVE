@@ -54,6 +54,7 @@ routerAdd(
     var links = {}
     try {
       links = JSON.parse(String(r.get('links_rastreaveis') || '{}'))
+      if (!links || typeof links !== 'object') links = {}
     } catch (_) {
       links = {}
     }
@@ -147,6 +148,7 @@ routerAdd(
     var urls = {}
     try {
       urls = JSON.parse(String(r.get('url_publicacao') || '{}'))
+      if (!urls || typeof urls !== 'object') urls = {}
     } catch (_) {
       urls = {}
     }
