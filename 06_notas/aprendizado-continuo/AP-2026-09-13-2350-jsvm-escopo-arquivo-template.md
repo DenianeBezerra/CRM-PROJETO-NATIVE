@@ -1,12 +1,12 @@
-# AP-2026-09-13-2350 — Escopo goja por arquivo de hook + limites de campo
+# AP-2026-09-13-2350 — Escopo entre arquivos de hooks no goja (var top-level cross-file)
 
 - Status: candidato
 - Escopo: projeto do cliente
 - Task/SPEC: T3.17 (SPEC-3-017)
-- Sinal: dois 400 genéricos ("Something went wrong") na rota de gerar contrato, ambos com causa raiz confirmada por API: (1) variável top-level definida em OUTRO arquivo de hook (contrato_modelo.js) não é visível dentro do callback de contrato_endpoint.js — cada arquivo de hook tem escopo próprio no runtime goja; (2) `Number.toLocaleString('pt-BR', {...})` lança no goja — formatação BRL precisa ser manual. Além disso, TextField aceitou `maxSize` na migration sem erro, mas aplicou o default 5000 — a propriedade correta é `max`.
-- Evidência: provas por API (400 genérico → 200 após inline do template; erro "conteudo: Must be no more than 5000" → 200 após migration 0181); QA verde v0.0.551–0.0.555.
-- Regra reutilizável: em hooks JSVM, todo dado compartilhado entre rotas do MESMO hook deve ser inline no callback; nunca depender de var top-level de outro arquivo; nunca usar toLocaleString com locale; em migrations, TextField usa `max` (maxSize é ignorado silenciosamente).
-- Quando aplicar: qualquer hook novo com template/constante compartilhada ou formatação de número; qualquer migration com campo de texto longo.
-- Quando não aplicar: helpers dentro do MESMO callback continuam válidos; toLocaleString() sem argumentos não foi testado.
-- Confiança: alta — causa raiz provada por API em ambas as correções.
+- Sinal: hook `contrato_endpoint.js` referenciava `TEMPLATE_CONTRATO_VIBRATTO`, var top-level definida em `contrato_modelo.js` (arquivo separado). No runtime goja, o callback não enxerga top-levels de OUTRO arquivo — o POST falhava com 400 genérico sem erro no QA. A lição AP-0200 (helpers top-level invisíveis em callbacks) se estende ao escopo ENTRE ARQUIVOS: cada arquivo de hook é um escopo isolado.
+- Evidência: POST gerar 400 "Something went wrong" por API (provas T3.17); fix com template inline no callback → geração 200 (v0.0.551); QA nunca acusou o problema.
+- Regra reutilizável: NUNCA compartilhe constantes/helpers entre arquivos de hook via var top-level — duplique inline dentro de cada callback que usa, ou mova para uma migration/coleção de configuração.
+- Quando aplicar: qualquer hook novo que precise de template/constante grande; revisar hooks existentes que importam conceitualmente de outro arquivo.
+- Quando não aplicar: constantes dentro do MESMO arquivo no escopo do callback já são seguras (padrão comercial_contract.js).
+- Confiança: alta — causa raiz demonstrada por prova de API antes/depois do fix.
 - Privacidade: sem segredo, dado pessoal ou conteúdo bruto.

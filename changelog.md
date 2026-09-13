@@ -1,5 +1,10 @@
 # Changelog — CRM Vibratto
 
+## [0.0.558] — 2026-09-14 — T3.17 CONCLUÍDA (teste humano aprovado pela CEO)
+
+- 2026-09-14 · [Deni.Ai] · Task T3.17 concluída: Modelo de contrato no CRM (SPEC-3-017, CA-3-070 a CA-3-076). Teste humano aprovado pela CEO em 2026-09-14 00:00 — "aprovado!". Revalidação do zero por API: RED (401 sem auth; 403 operator; 400 negócio não ganho; 400 sem dados mínimos com lista; 404 versão inexistente; 403 delete direto) + GREEN (consolidação 200 com Felicidade real — valor 8336.11, mensal; v1 gerada 200 — 6.136 chars, 0 placeholders, 9 cláusulas, mensalidade 8.336,11 e implantação 15.000,00 no texto; auditoria contrato_gerado; versionamento v1→v2; GET versão 200) + regressão (obrigações/implantações/visão-coordenação 200). Limpeza 0182 — base 0 contratos de prova, ficha Felicidade preservada. QA verde v0.0.545–0.0.558. Fase 3: 18/N.
+- Debug registrado no caminho: divergência do pod no hook de geração (400 genérico) resolvida após convergência — handoff em artifacts/handoff_debug_t317_pod_divergente.md; causa raiz do template fora do escopo corrigida (AP-2026-09-13-2350).
+
 ## [0.0.550] — 2026-09-13 — T3.17 implementada (verificação automática PARCIAL — geração bloqueada por divergência do pod)
 
 - 2026-09-13 · [Deni.Ai] · Task T3.17 implementada (autorização da CEO 23:21 — "sim"). Migration 0180 (coleção `contratos` append-only/versionada com status enviado_assinatura|assinado reservados ao ClickSign + auditoria contrato_gerado) + hook contrato_endpoint.js (GET consolidação + POST gerar com validação fechado_ganho + dados mínimos + versionamento + GET versão; template das 9 cláusulas do contrato real da Felicidade INLINE no callback) + UI ContratoNegocio.tsx (consolidação → variáveis editáveis → gerar → Copiar texto + histórico de versões) integrada ao menu Mais ⌄ da oportunidade ganha (Opportunities.tsx).
