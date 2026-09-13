@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,10 +19,11 @@ import { msgErro } from '@/lib/erro'
 
 // T3.21 Leva B — criação de conteúdo pela UI (direcionamento da CEO 13/09).
 // Formulário MÍNIMO: título, tema, formato, canais, data prevista, série, linha, objetivo.
->>>>>>>
 // Roteiro/legenda/capa/arquivo ficam para o avanço no ciclo de vida — criação não exige.
 // Criação em LOTE: várias peças de uma vez (agenda editorial), tudo-ou-nada no backend.
-// Edição: título, tema, data prevista e série de peças existentes (PATCH /conteudos/{id}).
+// Edição: título, tema e data prevista de peças existentes (PATCH /conteudos/{id}).
+// Criação a partir do dia: /conteudos?novo=1&data=YYYY-MM-DD abre o formulário
+// com a data prevista já preenchida (chamado pelo calendário).
 
 type Conteudo = {
   id: string
@@ -140,7 +141,6 @@ export default function Conteudos() {
   const [series, setSeries] = useState<Serie[]>([])
   const [loading, setLoading] = useState(true)
   const [gerando, setGerando] = useState<string>('')
->>>>>>>
   const [avancando, setAvancando] = useState<string>('')
 
   // ---- criação (individual ou lote) ----
@@ -152,12 +152,7 @@ export default function Conteudos() {
 
   // ---- edição ----
   const [editId, setEditId] = useState<string>('')
-  const [editForm, setEditForm] = useState({
-    titulo_interno: '',
-    tema: '',
-    data_prevista: '',
-    serie: '',
-  })
+  const [editForm, setEditForm] = useState({ titulo_interno: '', tema: '', data_prevista: '' })
   const [salvandoEdicao, setSalvandoEdicao] = useState(false)
 
   const load = async () => {
@@ -194,7 +189,6 @@ export default function Conteudos() {
   }, [])
 
   const gerarLinks = async (id: string) => {
->>>>>>>
     setGerando(id)
     try {
       await pb.send(`/backend/v1/conteudos/${id}/links`, {
@@ -294,7 +288,6 @@ export default function Conteudos() {
       titulo_interno: c.titulo_interno,
       tema: c.tema,
       data_prevista: c.data_prevista ? c.data_prevista.slice(0, 10) : '',
-      serie: '',
     })
   }
   const salvarEdicao = async () => {
