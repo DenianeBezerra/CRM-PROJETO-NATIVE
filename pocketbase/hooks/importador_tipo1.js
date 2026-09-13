@@ -642,7 +642,6 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
   }
   if (!criados || typeof criados !== 'object') criados = {}
   var removidos = { negocios: 0, clientes: 0, empresas: 0 }
-=======
   var negs = criados.negocios || []
   for (var i = 0; i < negs.length; i++) {
     try {
