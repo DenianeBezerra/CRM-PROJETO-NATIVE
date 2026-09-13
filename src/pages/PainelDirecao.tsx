@@ -20,6 +20,7 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/contexts/AuthContext'
+import { SinoNotificacoes } from '@/components/SinoNotificacoes'
 
 // T3.10 — SPEC-3-010: Painel de Direção (camada CEO).
 // 12 KPIs em 4 grupos (Aquisição, Pipeline, Financeiro, Operação), cada um com
@@ -196,6 +197,11 @@ export default function PainelDirecao() {
   const [novaMeta, setNovaMeta] = useState({ chave: '', valor: '', periodicidade: 'mensal' })
   const [editValores, setEditValores] = useState<Record<string, string>>({})
 
+  // Meta Mensal de Vendas (Req 2)
+  const [metaVendasEditando, setMetaVendasEditando] = useState(false)
+  const [metaVendasInput, setMetaVendasInput] = useState('')
+  const [salvandoMetaVendas, setSalvandoMetaVendas] = useState(false)
+
   const load = async (p: string) => {
     setLoading(true)
     setError('')
@@ -287,16 +293,22 @@ export default function PainelDirecao() {
   }
   const loadMetas = async () => {
     try {
+      // Tentar via endpoint de metas ou via coleção direta
       const r = await pb.send<{ total: number; itens: MetaItem[] }>('/backend/v1/metas', {})
       setMetas(r.itens || [])
     } catch {
-      setMetas([])
+      try {
+        const list = await pb.collection('metas_indicadores').getFullList<MetaItem>()
+        setMetas(list)
+      } catch {
+        setMetas([])
+      }
     }
   }
 
   useEffect(() => {
     void load(papel)
-    if (user?.role === 'admin') void loadMetas()
+    void loadMetas()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [papel])
 
@@ -341,6 +353,30 @@ export default function PainelDirecao() {
     // 3. Receita fechada
     const receitaFechadaTotal = negociosGanhos.reduce((acc, n) => acc + (Number(n.valor) || 0), 0)
     const ticketMedio = negociosGanhos.length > 0 ? receitaFechadaTotal / negociosGanhos.length : 0
+
+    // Req 2: Meta Mensal de Vendas no mês corrente
+    // Negócios com estágio fechado_ganho cuja data de fechamento cai no mês atual
+    // (usa data_ganho se disponível, senão updated ou created)
+    const agora = new Date()
+    const mesAtual = agora.getMonth()
+    const anoAtual = agora.getFullYear()
+
+    const negociosGanhosMesAtual = rawNegocios.filter((n) => {
+      const isGanho = n.estagio === 'fechado_ganho' || n.status === 'ganho'
+      if (!isGanho) return false
+      const rawItem = n as Record<string, unknown>
+      const dataStr = (rawItem.data_ganho || rawItem.updated || rawItem.created) as
+        | string
+        | undefined
+      if (!dataStr) return false
+      const d = new Date(String(dataStr).replace(' ', 'T'))
+      return d.getMonth() === mesAtual && d.getFullYear() === anoAtual
+    })
+
+    const valorFechadoMesAtual = negociosGanhosMesAtual.reduce(
+      (acc, n) => acc + (Number(n.valor) || 0),
+      0,
+    )
 
     // 4. Valores em negociação (especificamente em estágio de proposta)
     const emProposta = rawNegocios.filter((n) => n.estagio === 'proposta' && !n.arquivado)
@@ -388,6 +424,8 @@ export default function PainelDirecao() {
       taxaConversao,
       receitaFechadaTotal,
       ticketMedio,
+      valorFechadoMesAtual,
+      negociosGanhosMesAtual,
       emProposta,
       valorEmProposta,
       topClientes,
@@ -395,6 +433,43 @@ export default function PainelDirecao() {
       interacoesPorTipo,
     }
   }, [rawNegocios, rawClientes, rawInteracoes])
+
+  // Meta Mensal de Vendas (Req 2)
+  const metaVendasItem = useMemo(() => {
+    return metas.find((m) => m.chave === 'meta_vendas_mensal' && m.ativo) || null
+  }, [metas])
+
+  const salvarMetaVendas = async () => {
+    const v = Number(metaVendasInput)
+    if (!Number.isFinite(v) || v <= 0) return
+    setSalvandoMetaVendas(true)
+    try {
+      if (metaVendasItem) {
+        await pb.send(`/backend/v1/metas/${metaVendasItem.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ valor_meta: v }),
+        })
+      } else {
+        await pb.send('/backend/v1/metas', {
+          method: 'POST',
+          body: JSON.stringify({
+            chave: 'meta_vendas_mensal',
+            papel: 'comercial',
+            valor_meta: v,
+            periodicidade: 'mensal',
+            descricao: 'Meta mensal de vendas contratadas em novos negócios ganhos.',
+          }),
+        })
+      }
+      setMetaVendasEditando(false)
+      await loadMetas()
+      await load(papel)
+    } catch {
+      setError('Falha ao atualizar a meta mensal de vendas.')
+    } finally {
+      setSalvandoMetaVendas(false)
+    }
+  }
 
   const salvarMeta = async (m: MetaItem) => {
     const v = Number(editValores[m.id])
@@ -440,9 +515,12 @@ export default function PainelDirecao() {
         >
           <ArrowLeft className="w-4 h-4" /> Voltar
         </button>
-        <span className="text-xs rounded-full bg-[#141414] border border-[#C9A227]/40 px-3 py-1 text-[#E8C766] font-semibold">
-          Camada CEO
-        </span>
+        <div className="flex items-center gap-3">
+          <SinoNotificacoes />
+          <span className="text-xs rounded-full bg-[#141414] border border-[#C9A227]/40 px-3 py-1 text-[#E8C766] font-semibold">
+            Camada CEO
+          </span>
+        </div>
       </header>
       <main className="max-w-6xl mx-auto p-4 sm:p-8">
         {user?.role === 'admin' && (
@@ -604,6 +682,202 @@ export default function PainelDirecao() {
                   <span className="text-xs bg-[#FFFDF0] text-[#854D0E] border border-[#C9A227]/40 px-2.5 py-1 rounded-full font-medium">
                     {rawNegocios.length} negócios monitorados
                   </span>
+                </div>
+
+                {/* REQUISITO 2: Meta Mensal de Vendas (Acompanhamento e Configuração) */}
+                <div className="bg-gradient-to-br from-[#141414] via-[#1A1A1A] to-[#0A0A0A] border border-[#C9A227]/50 rounded-2xl p-6 sm:p-7 text-white shadow-lg relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-[#C9A227]/10 rounded-bl-full pointer-events-none" />
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#C9A227]/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-[#222222] border border-[#C9A227]/40 flex items-center justify-center text-[#E8C766]">
+                        <Target className="w-6 h-6 text-[#E8C766]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-playfair text-xl font-bold text-white">
+                            Meta Mensal de Vendas
+                          </h3>
+                          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#C9A227]/20 border border-[#C9A227]/40 text-[#E8C766]">
+                            {new Date().toLocaleDateString('pt-BR', {
+                              month: 'long',
+                              year: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-400 mt-0.5">
+                          Acompanhamento do valor fechado em novos negócios ganhos neste mês
+                          corrente
+                        </p>
+                      </div>
+                    </div>
+
+                    {user?.role === 'admin' && (
+                      <div>
+                        {!metaVendasEditando ? (
+                          <button
+                            onClick={() => {
+                              setMetaVendasInput(String(metaVendasItem?.valor_meta || '50000'))
+                              setMetaVendasEditando(true)
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/60 bg-[#222] hover:bg-[#C9A227] text-xs font-semibold text-[#E8C766] hover:text-[#0A0A0A] transition-all cursor-pointer"
+                          >
+                            <Settings2 className="w-3.5 h-3.5" />
+                            <span>{metaVendasItem ? 'Ajustar Meta' : 'Definir Meta'}</span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <div className="relative">
+                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-400 font-medium">
+                                R$
+                              </span>
+                              <input
+                                type="number"
+                                min="0"
+                                step="1000"
+                                value={metaVendasInput}
+                                onChange={(e) => setMetaVendasInput(e.target.value)}
+                                className="w-32 bg-[#0A0A0A] border border-[#C9A227] rounded-lg pl-8 pr-2.5 py-1 text-sm font-semibold text-white text-right focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
+                                placeholder="Valor"
+                                autoFocus
+                              />
+                            </div>
+                            <button
+                              onClick={() => void salvarMetaVendas()}
+                              disabled={salvandoMetaVendas}
+                              className="px-3 py-1 rounded-lg bg-[#C9A227] text-[#0A0A0A] text-xs font-bold hover:bg-[#E8C766] transition-colors disabled:opacity-50"
+                            >
+                              {salvandoMetaVendas ? 'Salvando...' : 'Salvar'}
+                            </button>
+                            <button
+                              onClick={() => setMetaVendasEditando(false)}
+                              disabled={salvandoMetaVendas}
+                              className="px-2.5 py-1 rounded-lg border border-neutral-700 text-xs text-neutral-300 hover:text-white"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Estado da Meta: Definida ou Não Definida */}
+                  {!metaVendasItem || metaVendasItem.valor_meta <= 0 ? (
+                    <div className="mt-5 p-5 rounded-xl bg-[#222222]/80 border border-dashed border-[#C9A227]/40 text-center">
+                      <Target className="w-8 h-8 text-[#C9A227] mx-auto mb-2 opacity-80" />
+                      <p className="text-sm font-semibold text-white">
+                        Nenhuma meta mensal de vendas configurada
+                      </p>
+                      <p className="text-xs text-neutral-400 max-w-md mx-auto mt-1 mb-3">
+                        Defina o valor alvo de novos contratos para este mês para acompanhar o
+                        termômetro de vendas da equipe em tempo real.
+                      </p>
+                      {user?.role === 'admin' ? (
+                        <button
+                          onClick={() => {
+                            setMetaVendasInput('50000')
+                            setMetaVendasEditando(true)
+                          }}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#C9A227] text-[#0A0A0A] text-xs font-bold hover:bg-[#E8C766] transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Definir meta do mês (ex: R$ 50.000)</span>
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[#E8C766] font-medium">
+                          Solicite à diretoria a configuração da meta mensal.
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    (() => {
+                      const metaValor = metaVendasItem.valor_meta
+                      const realizado = analytics.valorFechadoMesAtual
+                      const pct = Math.min(100, Math.max(0, (realizado / metaValor) * 100))
+                      const restante = Math.max(0, metaValor - realizado)
+                      const atingida = realizado >= metaValor
+
+                      return (
+                        <div className="mt-5 space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="bg-[#0A0A0A]/60 border border-[#C9A227]/25 rounded-xl p-3.5">
+                              <span className="text-[11px] uppercase tracking-wider text-neutral-400 block font-medium">
+                                Fechado no Mês
+                              </span>
+                              <p className="font-playfair text-2xl sm:text-3xl font-bold text-white mt-1">
+                                {realizado.toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                  maximumFractionDigits: 0,
+                                })}
+                              </p>
+                              <span className="text-[10px] text-emerald-400 font-medium">
+                                {analytics.negociosGanhosMesAtual.length} negócio(s) ganho(s)
+                              </span>
+                            </div>
+
+                            <div className="bg-[#0A0A0A]/60 border border-[#C9A227]/25 rounded-xl p-3.5">
+                              <span className="text-[11px] uppercase tracking-wider text-neutral-400 block font-medium">
+                                Meta Estabelecida
+                              </span>
+                              <p className="font-playfair text-2xl sm:text-3xl font-bold text-[#E8C766] mt-1">
+                                {metaValor.toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                  maximumFractionDigits: 0,
+                                })}
+                              </p>
+                              <span className="text-[10px] text-neutral-400">
+                                {atingida
+                                  ? '🎉 Meta 100% atingida!'
+                                  : `${pct.toFixed(1)}% do objetivo alcançado`}
+                              </span>
+                            </div>
+
+                            <div className="bg-[#0A0A0A]/60 border border-[#C9A227]/25 rounded-xl p-3.5">
+                              <span className="text-[11px] uppercase tracking-wider text-neutral-400 block font-medium">
+                                Restante para a Meta
+                              </span>
+                              <p className="font-playfair text-2xl sm:text-3xl font-bold text-white mt-1">
+                                {restante.toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                  maximumFractionDigits: 0,
+                                })}
+                              </p>
+                              <span
+                                className={`text-[10px] font-medium ${atingida ? 'text-emerald-400' : 'text-[#E8C766]'}`}
+                              >
+                                {atingida ? 'Superou a meta mensal' : 'Faltam para atingir o alvo'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Barra de Progresso Dourada */}
+                          <div className="space-y-1.5 pt-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-neutral-300 font-medium flex items-center gap-1.5">
+                                Progresso de Realização
+                                {atingida && (
+                                  <span className="text-emerald-400 font-bold">✓ Bateu a Meta</span>
+                                )}
+                              </span>
+                              <span className="font-bold text-[#E8C766] text-sm">
+                                {pct.toFixed(0)}%
+                              </span>
+                            </div>
+                            <div className="h-3.5 w-full bg-[#0A0A0A] border border-[#C9A227]/30 rounded-full overflow-hidden p-0.5">
+                              <div
+                                className="h-full bg-gradient-to-r from-[#C9A227] via-[#E8C766] to-[#F3E5AB] rounded-full transition-all duration-500 shadow-sm"
+                                style={{ width: `${Math.max(2, pct)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })()
+                  )}
                 </div>
 
                 {/* Cards KPIs Comerciais */}

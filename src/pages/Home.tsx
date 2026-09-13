@@ -12,6 +12,10 @@ import {
   Briefcase,
   ListTodo,
   Crown,
+  Target,
+  Award,
+  Layers,
+  ArrowRight,
   ClipboardList,
   CalendarCheck,
   BarChart3,
@@ -33,6 +37,17 @@ type Contadores = {
   meuDia: { atrasadas: number; tarefas: number; acoes: number } | null
 }
 
+type MetricasHome = {
+  clientesAtivos: number
+  negociosAbertosQtd: number
+  negociosAbertosValor: number
+  taxaFechamento: number
+  ganhosCount: number
+  encerradosCount: number
+  carregando: boolean
+  erro: string | null
+}
+
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
   const { user, isValid, isLoading, logout } = useAuth()
@@ -40,6 +55,16 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const isAdmin = user?.role === 'admin'
   const { toast } = useToast()
   const [contadores, setContadores] = useState<Contadores>({ operacao: null, meuDia: null })
+  const [metricas, setMetricas] = useState<MetricasHome>({
+    clientesAtivos: 0,
+    negociosAbertosQtd: 0,
+    negociosAbertosValor: 0,
+    taxaFechamento: 0,
+    ganhosCount: 0,
+    encerradosCount: 0,
+    carregando: true,
+    erro: null,
+  })
 
   useEffect(() => {
     // A-23: a tela de entrada diz onde está o problema — contadores de
@@ -76,6 +101,66 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
       if (vivo) setContadores(r)
     }
     void carregar()
+
+    // 1. Dashboard de métricas na Home
+    const carregarMetricas = async () => {
+      try {
+        const [clientesRes, negociosRes] = await Promise.all([
+          pb.collection('clientes').getFullList({
+            filter: 'status = "ativo"',
+          }),
+          pb.collection('negocios').getFullList({
+            filter: 'arquivado = false',
+          }),
+        ])
+
+        if (!vivo) return
+
+        const clientesAtivos = clientesRes.length
+
+        // Negócios em aberto: não fechados (nem ganho nem perdido)
+        const abertos = negociosRes.filter(
+          (n) =>
+            n.estagio !== 'fechado_ganho' &&
+            n.estagio !== 'fechado_perdido' &&
+            n.status !== 'ganho' &&
+            n.status !== 'perdido',
+        )
+        const negociosAbertosQtd = abertos.length
+        const negociosAbertosValor = abertos.reduce((acc, n) => acc + (Number(n.valor) || 0), 0)
+
+        // Negócios ganhos e perdidos para taxa de fechamento
+        const ganhos = negociosRes.filter(
+          (n) => n.estagio === 'fechado_ganho' || n.status === 'ganho',
+        )
+        const perdidos = negociosRes.filter(
+          (n) => n.estagio === 'fechado_perdido' || n.status === 'perdido',
+        )
+        const encerradosCount = ganhos.length + perdidos.length
+        const taxaFechamento = encerradosCount > 0 ? (ganhos.length / encerradosCount) * 100 : 0
+
+        setMetricas({
+          clientesAtivos,
+          negociosAbertosQtd,
+          negociosAbertosValor,
+          taxaFechamento,
+          ganhosCount: ganhos.length,
+          encerradosCount,
+          carregando: false,
+          erro: null,
+        })
+      } catch (err) {
+        if (!vivo) return
+        setMetricas((prev) => ({
+          ...prev,
+          carregando: false,
+          erro: msgErro(err) || 'Não foi possível carregar as métricas operacionais.',
+        }))
+      }
+    }
+
+    void carregarMetricas()
+
     return () => {
       vivo = false
     }
@@ -246,6 +331,135 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
 
             {/* Gold Accent Line */}
             <div className="h-1 w-20 bg-gradient-to-r from-[#C9A227] to-[#E8C766] rounded-full mt-3 mb-4" />
+
+            {/* Dashboard de Métricas na Home (Cards Dourados Consistentes com Painel de Direção) */}
+            <div className="mt-6 mb-2">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
+                  <span className="text-xs uppercase font-bold tracking-[0.15em] text-[#A8862B]">
+                    Panorama em Tempo Real
+                  </span>
+                </div>
+                {metricas.carregando && (
+                  <span className="text-[11px] text-[#A8862B] flex items-center gap-1.5 font-medium">
+                    <span className="w-3.5 h-3.5 border-2 border-[#C9A227] border-t-transparent rounded-full animate-spin" />
+                    Atualizando dados...
+                  </span>
+                )}
+              </div>
+
+              {metricas.erro ? (
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center justify-between">
+                  <span>{metricas.erro}</span>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="underline font-semibold ml-2 text-amber-900"
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+                  {/* Card 1: Clientes Ativos */}
+                  <div
+                    onClick={() => navigate('/contatos')}
+                    className="group bg-gradient-to-br from-[#141414] to-[#0A0A0A] border border-[#C9A227]/40 hover:border-[#E8C766] p-4 sm:p-5 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#C9A227]/5 rounded-bl-full pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold text-[#E8C766]">
+                        Clientes Ativos
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-[#222222] border border-[#C9A227]/30 flex items-center justify-center text-[#E8C766] group-hover:scale-105 transition-transform">
+                        <Users className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-playfair text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                        {metricas.carregando ? '—' : metricas.clientesAtivos}
+                      </span>
+                      <span className="text-xs text-[#E8C766]/80 font-medium">na carteira</span>
+                    </div>
+                    <div className="mt-3 pt-2.5 border-t border-[#C9A227]/20 flex items-center justify-between text-[11px] text-[#E8C766]/90 group-hover:text-white transition-colors">
+                      <span>Ver base de clientes</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Card 2: Negócios em Aberto */}
+                  <div
+                    onClick={() => navigate('/pipeline')}
+                    className="group bg-gradient-to-br from-[#141414] to-[#0A0A0A] border border-[#C9A227]/40 hover:border-[#E8C766] p-4 sm:p-5 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#C9A227]/5 rounded-bl-full pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold text-[#E8C766]">
+                        Negócios em Aberto
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-[#222222] border border-[#C9A227]/30 flex items-center justify-center text-[#E8C766] group-hover:scale-105 transition-transform">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-playfair text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                          {metricas.carregando ? '—' : metricas.negociosAbertosQtd}
+                        </span>
+                        <span className="text-xs text-[#E8C766]/80 font-medium">no funil</span>
+                      </div>
+                      <p className="text-xs font-semibold text-[#E8C766] mt-0.5">
+                        {metricas.carregando
+                          ? '—'
+                          : metricas.negociosAbertosValor.toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                              maximumFractionDigits: 0,
+                            })}{' '}
+                        <span className="text-[10px] text-neutral-400 font-normal">em volume</span>
+                      </p>
+                    </div>
+                    <div className="mt-3 pt-2.5 border-t border-[#C9A227]/20 flex items-center justify-between text-[11px] text-[#E8C766]/90 group-hover:text-white transition-colors">
+                      <span>Acessar pipeline</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Card 3: Taxa de Fechamento */}
+                  <div
+                    onClick={() => navigate('/painel-direcao?papel=comercial')}
+                    className="group bg-gradient-to-br from-[#141414] to-[#0A0A0A] border border-[#C9A227]/40 hover:border-[#E8C766] p-4 sm:p-5 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#C9A227]/5 rounded-bl-full pointer-events-none transition-opacity group-hover:opacity-100 opacity-60" />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold text-[#E8C766]">
+                        Taxa de Fechamento
+                      </span>
+                      <div className="w-8 h-8 rounded-lg bg-[#222222] border border-[#C9A227]/30 flex items-center justify-center text-[#E8C766] group-hover:scale-105 transition-transform">
+                        <Award className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-playfair text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                        {metricas.carregando ? '—' : `${metricas.taxaFechamento.toFixed(0)}%`}
+                      </span>
+                      <span className="text-xs text-[#E8C766]/80 font-medium">
+                        ganhos ÷ encerrados
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">
+                      {metricas.carregando
+                        ? '—'
+                        : `${metricas.ganhosCount} ganho(s) de ${metricas.encerradosCount} concluído(s)`}
+                    </p>
+                    <div className="mt-3 pt-2.5 border-t border-[#C9A227]/20 flex items-center justify-between text-[11px] text-[#E8C766]/90 group-hover:text-white transition-colors">
+                      <span>Análise no Painel</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#C9A227] group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <p className="font-inter text-base sm:text-lg text-[#6B7280] leading-relaxed">
               <span>
