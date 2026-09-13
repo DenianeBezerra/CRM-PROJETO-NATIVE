@@ -647,20 +647,25 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
   if (!Array.isArray(criados.negocios)) criados.negocios = []
   if (!Array.isArray(criados.clientes)) criados.clientes = []
   if (!Array.isArray(criados.empresas)) criados.empresas = []
-  console.log(
-    'T322 desfazer: raw=',
-    String(lote.getString('criados')).slice(0, 200),
-    '| negocios=',
-    criados.negocios.length,
-    'clientes=',
-    criados.clientes.length,
-    'empresas=',
-    criados.empresas.length,
-  )
   var removidos = { negocios: 0, clientes: 0, empresas: 0 }
   var negs = criados.negocios || []
   for (var i = 0; i < negs.length; i++) {
     try {
+      // permanencias_negocio tem referência OBRIGATÓRIA ao negócio — apagar antes (lição T3.22)
+      var perms = $app.findRecordsByFilter(
+        'permanencias_negocio',
+        'negocio = "' + negs[i] + '"',
+        '',
+        500,
+        0,
+      )
+      for (var p = 0; p < perms.length; p++) {
+        try {
+          $app.delete(perms[p])
+        } catch (errPerm) {
+          console.log('T322 delete permanencia falhou:', negs[i], String(errPerm))
+        }
+      }
       $app.delete($app.findRecordById('negocios', negs[i]))
       removidos.negocios++
     } catch (errNeg) {
