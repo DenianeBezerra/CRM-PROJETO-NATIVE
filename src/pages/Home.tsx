@@ -33,7 +33,9 @@ type Contadores = {
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
-  const { user, isValid, isLoading, logout, isAdmin } = useAuth()
+  const { user, isValid, isLoading, logout } = useAuth()
+  // isAdmin é derivado do papel do usuário (o AuthContext não o expõe).
+  const isAdmin = user?.role === 'admin'
   const { toast } = useToast()
   const [contadores, setContadores] = useState<Contadores>({ operacao: null, meuDia: null })
 
