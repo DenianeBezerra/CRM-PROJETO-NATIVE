@@ -13,7 +13,6 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
->>>>>>>
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
 import { msgErro } from '@/lib/erro'
@@ -36,7 +35,9 @@ import { ptBR } from 'date-fns/locale'
 // Fonte única: GET /backend/v1/agenda-conteudos?mes=YYYY-MM (mesma base do módulo,
 // sem duplicação). Clique na data abre o painel do dia com todas as peças previstas:
 // título, canal, formato, etapa, pacote, link rastreável com cópia e url de publicação.
-// Visual: padrão harmonizado T3.09 (ícone preto + glifo dourado, CTA dourado, bege claro).
+// Ajustes da CEO (13/09): rótulos por extenso; destaque de seleção só com conteúdo;
+// previsto × publicado distintos (publicado em verde com a data efetiva).
+// Botão "Novo conteúdo" leva à criação na tela /conteudos.
 
 type ItemAgenda = {
   id: string
@@ -200,9 +201,7 @@ export default function AgendaEditorial() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                navigate('/conteudos?novo=1&data=' + mes + '-15')
-              }}
+              onClick={() => navigate('/conteudos?novo=1')}
               className="text-xs rounded-full px-3 py-1.5 font-semibold bg-[#0A0A0A] text-[#E8C766] inline-flex items-center gap-1"
             >
               <Plus className="w-3.5 h-3.5" /> Novo conteúdo
@@ -215,7 +214,6 @@ export default function AgendaEditorial() {
             </button>
           </div>
         </div>
->>>>>>>
 
         {loading ? (
           <p className="text-sm text-[#6B7280]">Carregando agenda...</p>
@@ -255,7 +253,6 @@ export default function AgendaEditorial() {
                           ? 'border-[#E5E7EB] bg-white hover:border-[#C9A227]/60'
                           : 'border-[#E5E7EB]/60 bg-white/50'
                     } ${noMes ? '' : 'opacity-40'}`}
->>>>>>>
                   >
                     <span
                       className={`text-xs font-bold ${isToday(d) ? 'inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-[#E8C766]' : 'text-[#0A0A0A]'}`}
@@ -281,7 +278,6 @@ export default function AgendaEditorial() {
                         )}
                       </span>
                     )}
->>>>>>>
                   </button>
                 )
               })}
@@ -328,7 +324,6 @@ export default function AgendaEditorial() {
                               ? `Publicado em ${it.data_efetiva ? format(parseISO(it.data_efetiva), 'dd/MM') : '—'}`
                               : `Prevista · ${etapaLabel[it.status] || it.status}`}
                           </span>
->>>>>>>
                           <span className="text-[10px] rounded-full px-2 py-0.5 font-medium bg-white border border-[#E5E7EB] text-[#374151]">
                             {formatoLabel[it.formato] || it.formato}
                           </span>
