@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { pb } from '@/api/pocketbase'
+import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, PenTool, RefreshCw, Link2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
