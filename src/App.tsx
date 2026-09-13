@@ -23,6 +23,7 @@ import FichaOperacional from './pages/FichaOperacional'
 import VisaoCoordenacao from './pages/VisaoCoordenacao'
 import Implantacoes from './pages/Implantacoes'
 import Relatorios from './pages/Relatorios'
+import Conteudos from './pages/Conteudos'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -195,6 +196,14 @@ const App = () => (
                 <AdminRoute>
                   <Relatorios />
                 </AdminRoute>
+              }
+            />
+            <Route
+              path="/conteudos"
+              element={
+                <ProtectedRoute>
+                  <Conteudos />
+                </ProtectedRoute>
               }
             />
           </Route>

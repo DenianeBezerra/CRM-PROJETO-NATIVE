@@ -1,0 +1,154 @@
+import { useEffect, useState } from 'react'
+import { pb } from '@/api/pocketbase'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft, PenTool, RefreshCw, Link2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/use-toast'
+
+type Conteudo = {
+  id: string
+  titulo_interno: string
+  formato: string
+  canais_destino: string[]
+  tema: string
+  status: string
+  data_prevista: string
+  atrasado: boolean
+  serie: string
+  campanha: string
+}
+
+const etapaLabel: Record<string, string> = {
+  ideia: 'Ideia',
+  pauta_aprovada: 'Pauta aprovada',
+  roteiro: 'Roteiro',
+  producao: 'Produção',
+  edicao: 'Edição',
+  aprovacao: 'Aprovação',
+  pronto_para_publicar: 'Pronto p/ publicar',
+  agendado: 'Agendado',
+  publicado: 'Publicado',
+  arquivado: 'Arquivado',
+}
+
+const dataBR = (s: string) => {
+  if (!s || s.startsWith('0001-01-01')) return ''
+  return new Date(s.replace(' ', 'T')).toLocaleDateString('pt-BR')
+}
+
+export default function Conteudos() {
+  const navigate = useNavigate()
+  const { toast } = useToast()
+  const [itens, setItens] = useState<Conteudo[]>([])
+  const [loading, setLoading] = useState(true)
+  const [gerando, setGerando] = useState<string>('')
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const r = await pb.send<{ total: number; itens: Conteudo[] }>('/backend/v1/conteudos', {})
+      setItens(r.itens || [])
+    } catch {
+      toast({ title: 'Não foi possível carregar os conteúdos', variant: 'destructive' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+  }, [])
+
+  const gerarLinks = async (id: string) => {
+    setGerando(id)
+    try {
+      await pb.send(`/backend/v1/conteudos/${id}/links`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      })
+      toast({ title: 'Links rastreáveis gerados por canal' })
+      await load()
+    } catch {
+      toast({ title: 'Não foi possível gerar os links', variant: 'destructive' })
+    } finally {
+      setGerando('')
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#FDFCF9] p-4 sm:p-8">
+      <div className="max-w-5xl mx-auto">
+        <Button variant="ghost" onClick={() => navigate('/home')} className="mb-4 -ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
+        </Button>
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-6">
+          <div>
+            <h1 className="font-playfair text-2xl font-bold text-[#0A0A0A]">Conteúdo</h1>
+            <p className="text-sm text-[#6B7280] mt-1">
+              Agenda editorial — do tema ao link rastreável. O CRM decide e registra; a publicação
+              segue na ferramenta da social media.
+            </p>
+          </div>
+          <Button onClick={() => void load()} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-1" /> Atualizar
+          </Button>
+        </div>
+
+        {loading ? (
+          <p className="text-sm text-[#6B7280]">Carregando...</p>
+        ) : itens.length === 0 ? (
+          <div className="p-8 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] text-center">
+            <PenTool className="w-8 h-8 text-[#A8862B] mx-auto mb-3" />
+            <p className="text-sm text-[#6B7280]">
+              Nenhum conteúdo ainda. A criação pela API já está ativa — a tela de cadastro completa
+              chega na próxima leva.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {itens.map((c) => (
+              <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#0A0A0A] text-[#E8C766]">
+                    {etapaLabel[c.status] || c.status}
+                  </span>
+                  <span className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#F7F5F1] text-[#6B7280]">
+                    {c.formato}
+                  </span>
+                  {(c.canais_destino || []).map((ch) => (
+                    <span
+                      key={ch}
+                      className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#F7F5F1] text-[#6B7280]"
+                    >
+                      {ch}
+                    </span>
+                  ))}
+                  {c.atrasado && (
+                    <span className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-red-100 text-red-700">
+                      atrasado
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm font-semibold text-[#0A0A0A]">{c.titulo_interno}</p>
+                <p className="text-xs text-[#6B7280] mt-0.5">
+                  {c.tema}
+                  {c.serie ? ` · série: ${c.serie}` : ''}
+                  {c.campanha ? ` · campanha: ${c.campanha}` : ''}
+                  {c.data_prevista ? ` · prevista ${dataBR(c.data_prevista)}` : ''}
+                </p>
+                <button
+                  onClick={() => void gerarLinks(c.id)}
+                  disabled={gerando === c.id}
+                  className="mt-2 text-xs font-semibold text-[#A8862B] hover:underline disabled:opacity-50 inline-flex items-center gap-1"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                  {gerando === c.id ? 'Gerando...' : 'Gerar links rastreáveis'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
