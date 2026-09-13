@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   LogOut,
@@ -24,11 +24,55 @@ import { useToast } from '@/hooks/use-toast'
 import pb from '@/lib/pocketbase/client'
 import { LOGO_WHITE } from '@/assets/logo'
 import SinoNotificacoes from '@/components/SinoNotificacoes'
+import { msgErro } from '@/lib/erro'
+
+type Contadores = {
+  operacao: { atrasadas: number; excecoes: number } | null
+  meuDia: { atrasadas: number; tarefas: number; acoes: number } | null
+}
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
-  const { user, isValid, isLoading, logout } = useAuth()
+  const { user, isAdmin } = useAuth()
   const { toast } = useToast()
+  const [contadores, setContadores] = useState<Contadores>({ operacao: null, meuDia: null })
+
+  useEffect(() => {
+    // A-23: a tela de entrada diz onde está o problema — contadores de
+    // pendências operacionais nos cartões (destaque visual quando > 0).
+    let vivo = true
+    const carregar = async () => {
+      const r: Contadores = { operacao: null, meuDia: null }
+      try {
+        const op = await pb.send<{ atrasadas_efetivas?: number; excecoes_abertas?: number }>(
+          '/backend/v1/visao/operacao-resumo',
+          {},
+        )
+        r.operacao = { atrasadas: op.atrasadas_efetivas || 0, excecoes: op.excecoes_abertas || 0 }
+      } catch {
+        /* contador opcional — ausência não bloqueia a home */
+      }
+      try {
+        const md = await pb.send<{
+          obrigacoes_atrasadas?: unknown[]
+          tarefas_abertas?: unknown[]
+          acoes_vencidas?: unknown[]
+        }>('/backend/v1/meu-dia', {})
+        r.meuDia = {
+          atrasadas: (md.obrigacoes_atrasadas || []).length,
+          tarefas: (md.tarefas_abertas || []).length,
+          acoes: (md.acoes_vencidas || []).length,
+        }
+      } catch {
+        /* idem */
+      }
+      if (vivo) setContadores(r)
+    }
+    void carregar()
+    return () => {
+      vivo = false
+    }
+  }, [])
 
   const handleDeactivateDemoFixture = async () => {
     try {
@@ -81,6 +125,28 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   }
 
   const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'Deniane')
+  const isAdmin = user?.role === 'admin'
+  // A-23: badge de pendência — só aparece quando há problema (> 0).
+  const badge = (n: number) =>
+    n > 0 ? (
+      <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-bold ml-1">
+        {n}
+      </span>
+    ) : null
+  const opAtrasadas = contadores.operacao?.atrasadas ?? 0
+  const opExcecoes = contadores.operacao?.excecoes ?? 0
+  const mdPend =
+    (contadores.meuDia?.atrasadas ?? 0) +
+    (contadores.meuDia?.tarefas ?? 0) +
+    (contadores.meuDia?.acoes ?? 0)
+  // A-22: um nome por destino em todo o sistema.
+  const nomeDestino: Record<string, string> = {
+    '/dashboard': 'Dashboard comercial',
+    '/oportunidades': 'Oportunidades',
+    '/contatos': 'Contatos',
+    '/operacional': 'Operação do dia',
+  }
+  const rotulo = (path: string) => nomeDestino[path] || path
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F5F1] text-[#0A0A0A]">
@@ -160,8 +226,8 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
 
             <p className="font-inter text-base sm:text-lg text-[#6B7280] leading-relaxed">
               <span>
-                Sua central comercial está ativa. Acompanhe contatos, oportunidades e
-                resultados.{' '}
+                Sua central de gestão está ativa: operação, comercial, conteúdo e cadastro em um só
+                lugar.{' '}
               </span>
               {adminOnly && user?.role === 'admin' ? (
                 <>
@@ -192,28 +258,28 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                     onClick={() => navigate('/oportunidades')}
                     className="font-semibold text-[#A8862B] underline"
                   >
-                    Abrir oportunidades
+                    {rotulo('/oportunidades')}
                   </button>{' '}
                   ·{' '}
                   <button
                     onClick={() => navigate('/contatos')}
                     className="font-semibold text-[#A8862B] underline"
                   >
-                    Abrir contatos
+                    {rotulo('/contatos')}
                   </button>{' '}
                   ·{' '}
                   <button
                     onClick={() => navigate('/operacional')}
                     className="font-semibold text-[#A8862B] underline"
                   >
-                    Painel operacional
+                    {rotulo('/operacional')}
                   </button>{' '}
                   ·{' '}
                   <button
                     onClick={() => navigate('/dashboard')}
                     className="font-semibold text-[#A8862B] underline"
                   >
-                    Dashboard comercial
+                    {rotulo('/dashboard')}
                   </button>{' '}
                   ·{' '}
                   <button
@@ -230,7 +296,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           {/* Highlights & Modules Preview */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-10 pt-8 border-t border-[#E5E7EB]">
             {/* Card 0: Painel de Direção — camada CEO (T3.10, admin) */}
-            {user?.role === 'admin' && (
+            {isAdmin && (
               <button
                 onClick={() => navigate('/painel-direcao')}
                 className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -251,7 +317,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             )}
 
             {/* Card: Visão de coordenação (T3.15 — admin) */}
-            {user?.role === 'admin' && (
+            {isAdmin && (
               <button
                 onClick={() => navigate('/visao-coordenacao')}
                 className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -260,7 +326,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                  Visão de coordenação
+                  Visão de coordenação{badge(opExcecoes)}
                 </h3>
                 <p className="text-xs text-[#6B7280] mt-1">
                   Matriz de clientes por obrigação, exceções por analista e carga do time.
@@ -272,7 +338,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             )}
 
             {/* Card: Relatórios agendados (T3.19 — admin) */}
-            {user?.role === 'admin' && (
+            {isAdmin && (
               <button
                 onClick={() => navigate('/relatorios')}
                 className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -293,7 +359,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             )}
 
             {/* Card: Implantações (T3.16 — admin) */}
-            {user?.role === 'admin' && (
+            {isAdmin && (
               <button
                 onClick={() => navigate('/implantacoes')}
                 className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -312,6 +378,26 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               </button>
             )}
 
+            {/* M-21: telas de trabalho diário primeiro — Meu dia e Operação do dia. */}
+            {/* Card: Meu dia — fila pessoal (T3.08) */}
+            <button
+              onClick={() => navigate('/meu-dia')}
+              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                <ListTodo className="w-5 h-5" />
+              </div>
+              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
+                Meu dia{badge(mdPend)}
+              </h3>
+              <p className="text-xs text-[#6B7280] mt-1">
+                Tarefas, ações vencidas e menções atribuídas a você.
+              </p>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
+                Abrir meu dia →
+              </span>
+            </button>
+
             {/* Card: Operação do dia (T3.13) */}
             <button
               onClick={() => navigate('/operacao-dia')}
@@ -320,30 +406,15 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
                 <CalendarCheck className="w-5 h-5" />
               </div>
-              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Operação do dia</h3>
+              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
+                Operação do dia{badge(opAtrasadas + opExcecoes)}
+              </h3>
               <p className="text-xs text-[#6B7280] mt-1">
                 Rotinas do dia geradas pela ficha operacional — atrasos, exceções e baixa em 1
                 toque.
               </p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
                 Abrir operação do dia →
-              </span>
-            </button>
-
-            {/* Card 1: Meu dia — fila pessoal (T3.08) */}
-            <button
-              onClick={() => navigate('/meu-dia')}
-              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                <ListTodo className="w-5 h-5" />
-              </div>
-              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Meu dia</h3>
-              <p className="text-xs text-[#6B7280] mt-1">
-                Tarefas, ações vencidas e menções atribuídas a você.
-              </p>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                Abrir meu dia →
               </span>
             </button>
 
@@ -419,8 +490,12 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               </span>
             </button>
 
-            {/* Card 3: Contas Corporativas */}
-            <div className="p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/40 transition-colors">
+            {/* B-22: Contas & Empresas ganha link como os demais cartões.
+                Destino provisório: /contatos (a página própria é pendência da Fase 3). */}
+            <button
+              onClick={() => navigate('/contatos')}
+              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
+            >
               <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
                 <Building2 className="w-5 h-5" />
               </div>
@@ -430,14 +505,17 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               <p className="text-xs text-[#6B7280] mt-1">
                 Segmentação executiva de carteiras e tomadores de decisão.
               </p>
-            </div>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
+                Abrir contas e empresas →
+              </span>
+            </button>
           </div>
 
           {/* System Status Footer */}
           <div className="mt-8 pt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-[#6B7280]">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#C9A227]" />
-              <span>Conexão criptografada de ponta a ponta</span>
+              <span>Conexão segura</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
