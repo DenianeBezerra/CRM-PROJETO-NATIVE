@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, PenTool, RefreshCw, Link2, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
+import { tagProva } from '@/lib/prova'
 
 type Conteudo = {
   id: string
@@ -187,6 +188,7 @@ export default function Conteudos() {
               return (
                 <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-xl p-4">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
+                    {tagProva(c.titulo_interno, c.tema)}
                     <span className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#0A0A0A] text-[#E8C766]">
                       {etapaLabel[c.status] || c.status}
                     </span>

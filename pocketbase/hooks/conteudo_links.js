@@ -46,13 +46,23 @@ routerAdd(
     }
     if (!campanhaSlug) {
       var ano = new Date().getFullYear()
+      var LINHA_ABR = {
+        bpo_financeiro: 'bpo',
+        tesouraria: 'tesouraria',
+        controladoria: 'controladoria',
+        cfo_as_a_service: 'cfo',
+        consultoria: 'consultoria',
+        institucional: 'institucional',
+      }
       var linha = String(r.get('linha_solucao') || 'conteudo')
-      var tema = String(r.get('titulo_interno') || r.get('tema') || 'conteudo')
+      var tema = String(r.get('tema') || 'conteudo')
         .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
-        .slice(0, 60)
-      campanhaSlug = ano + '-' + linha + '-' + (tema || 'conteudo')
+        .slice(0, 40)
+      campanhaSlug = ano + '-' + (LINHA_ABR[linha] || linha) + '-' + (tema || 'conteudo')
     }
     var meio = 'organico'
     if (cid) {

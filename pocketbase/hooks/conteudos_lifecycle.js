@@ -31,6 +31,16 @@ routerAdd(
     var canais = body.canais_destino || []
     if (!titulo) return e.json(400, { error: 'Informe o título interno.' })
     if (!tema) return e.json(400, { error: 'Informe o tema.' })
+    // Ajuste 2 (CEO 16/09): tema é o ASSUNTO tratado, curto (3–4 palavras) —
+    // ele compõe o identificador D17. Título longo não entra no slug.
+    var palavrasTema = tema.split(/\s+/).filter(Boolean)
+    if (palavrasTema.length > 4)
+      return e.json(400, {
+        error:
+          'Tema com ' +
+          palavrasTema.length +
+          ' palavras — o limite é 4, pois o tema compõe o identificador de campanha (D17). Resuma o assunto; o detalhe vai no título.',
+      })
     var FORMATOS = [
       'post_estatico',
       'carrossel',
@@ -86,12 +96,23 @@ routerAdd(
     // registra a campanha mínima — o identificador nasce imutável no 1º uso.
     if (!String(body.campanha || '').trim()) {
       var anoC = new Date().getFullYear()
-      var temaC = String(titulo || tema || 'conteudo')
+      // Ajustes 1+2 (CEO 16/09): linha abreviada e tema curto, TUDO com hífen.
+      var LINHA_ABR = {
+        bpo_financeiro: 'bpo',
+        tesouraria: 'tesouraria',
+        controladoria: 'controladoria',
+        cfo_as_a_service: 'cfo',
+        consultoria: 'consultoria',
+        institucional: 'institucional',
+      }
+      var temaC = String(tema || 'conteudo')
         .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
-        .slice(0, 60)
-      var slugC = anoC + '-' + linha + '-' + (temaC || 'conteudo')
+        .slice(0, 40)
+      var slugC = anoC + '-' + (LINHA_ABR[linha] || linha) + '-' + (temaC || 'conteudo')
       var colCamp = $app.findCollectionByNameOrId('campanhas')
       var campRec = new Record(colCamp)
       campRec.set('nome', titulo)
