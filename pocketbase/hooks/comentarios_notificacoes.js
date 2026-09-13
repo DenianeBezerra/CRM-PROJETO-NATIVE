@@ -62,6 +62,46 @@ routerAdd(
       fontesComErro.push('tarefas')
     }
 
+    // 1b. T3.20 (C-01/B-12): obrigações ATRASADAS atribuídas a mim entram na fila
+    // pessoal — atraso é por DATA (data_prevista < hoje), não por status armazenado.
+    var obrigacoesAtrasadas = []
+    try {
+      var hojeISO = new Date().toISOString().slice(0, 10)
+      var obsMeu = $app.findRecordsByFilter(
+        'obrigacoes',
+        "responsavel = {:u} && status != 'concluida' && status != 'nao_aplicavel' && data_prevista <= {:dia}",
+        'prazo_limite',
+        100,
+        0,
+        { u: actor.id, dia: hojeISO + ' 23:59:59.000Z' },
+      )
+      for (var ob = 0; ob < obsMeu.length; ob++) {
+        var o = obsMeu[ob]
+        var dpM = String(o.get('data_prevista') || '')
+        var atrasoM = false
+        if (dpM && dpM.indexOf('0001-01-01') !== 0) {
+          var fimDiaM = Date.parse(dpM.slice(0, 10) + 'T23:59:59Z')
+          if (!isNaN(fimDiaM) && fimDiaM < agora) atrasoM = true
+        }
+        if (!atrasoM) continue
+        var clienteNomeM = ''
+        try {
+          clienteNomeM = String(
+            $app.findRecordById('empresas', String(o.get('cliente') || '')).get('nome') || '',
+          )
+        } catch (_) {}
+        obrigacoesAtrasadas.push({
+          id: o.id,
+          tipo: String(o.get('tipo') || ''),
+          cliente_nome: clienteNomeM,
+          data_prevista: dpM,
+          status: String(o.get('status') || ''),
+        })
+      }
+    } catch (errOB) {
+      fontesComErro.push('obrigacoes_atrasadas')
+    }
+
     // 2. Oportunidades ativas com próxima ação vencida onde sou responsável.
     var acoesVencidas = []
     try {
@@ -156,6 +196,7 @@ routerAdd(
     return e.json(200, {
       usuario: actor.id,
       tarefas_abertas: { total: tarefas.length, itens: tarefas },
+      obrigacoes_atrasadas: { total: obrigacoesAtrasadas.length, itens: obrigacoesAtrasadas },
       acoes_vencidas: { total: acoesVencidas.length, itens: acoesVencidas },
       mencoes_recentes: { total: mencoes.length, itens: mencoes },
       notificacoes_nao_lidas: naoLidas,

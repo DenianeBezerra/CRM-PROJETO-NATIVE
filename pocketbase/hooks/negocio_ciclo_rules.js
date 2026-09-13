@@ -71,6 +71,9 @@ onRecordUpdateRequest((e) => {
   }
 
   // ---- 2) Reabertura auditável ----
+  // T3.20 (C-03): com status derivado da etapa, "reabrir para ganho/perdido" não
+  // existe mais como status — a etapa final é que decide. A justificativa continua
+  // obrigatória para sair da pausa.
   if (antes === 'pausado' && depois !== 'pausado') {
     const justificativa = String(e.requestInfo().body.justificativa_reabertura || '').trim()
     if (justificativa.length < 10) {
@@ -79,9 +82,6 @@ onRecordUpdateRequest((e) => {
       )
     }
     e.record.set('justificativa_reabertura', justificativa)
-    if (depois === 'ganho' || depois === 'perdido') {
-      throw new Error('Reabertura não pode apontar direto para status final.')
-    }
     // Reabrir restaura o fluxo saudável: próxima ação futura volta a ser
     // exigida (o guard oportunidade_saudavel também roda neste update).
   }

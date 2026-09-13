@@ -97,9 +97,26 @@ routerAdd(
       }
       var proxima = null
       var concluidasCiclo = 0
+      // T3.20 (C-01/B-06): atraso é por DATA — data_prevista < hoje e não concluída,
+      // independentemente do status armazenado (o status pode estar defasado entre crons).
       for (var o = 0; o < obs.length; o++) {
         var st = String(obs[o].get('status') || '')
-        if (contagem[st] !== undefined) contagem[st]++
+        var dpO = String(obs[o].get('data_prevista') || '')
+        var atrasoEfetivo = false
+        if (
+          st !== 'concluida' &&
+          st !== 'nao_aplicavel' &&
+          dpO &&
+          dpO.indexOf('0001-01-01') !== 0
+        ) {
+          var fimDia = Date.parse(dpO.slice(0, 10) + 'T23:59:59Z')
+          if (!isNaN(fimDia) && fimDia < agora) atrasoEfetivo = true
+        }
+        if (atrasoEfetivo) {
+          contagem.atrasada++
+        } else if (contagem[st] !== undefined) {
+          contagem[st]++
+        }
         if (st === 'concluida') concluidasCiclo++
         if (st === 'prevista' || st === 'em_execucao') {
           var prazo = parseData(String(obs[o].get('prazo_limite') || ''))
@@ -111,8 +128,8 @@ routerAdd(
             }
           }
         }
-        // carga por analista (pendentes)
-        if (st === 'prevista' || st === 'em_execucao' || st === 'atrasada') {
+        // carga por analista (pendentes) — T3.20: inclui atraso efetivo por data
+        if (st === 'prevista' || st === 'em_execucao' || st === 'atrasada' || atrasoEfetivo) {
           var resp = String(obs[o].get('responsavel') || '')
           if (resp) {
             if (!analistas[resp]) analistas[resp] = { pendentes: 0, clientes: {} }
@@ -154,11 +171,19 @@ routerAdd(
         var cid = String(ex.get('cliente') || '')
         var aberta = parseData(String(ex.get('aberta_em') || ''))
         var dias = aberta ? Math.floor((agora - aberta) / DIA) : null
+        // T3.20 (C-04/B-05/B-10): data exibida em BRT (UTC-3) — mesma data em todas as telas
+        var abertaMs = parseData(String(ex.get('aberta_em') || ''))
+        var abertaBRT = ''
+        if (abertaMs) {
+          var dBR = new Date(abertaMs - 3 * 3600000)
+          abertaBRT = dBR.toISOString().slice(0, 10)
+        }
         var item = {
           tipo: String(ex.get('tipo') || ''),
           empresa: empresas[cid] || cid,
           descricao: String(ex.get('descricao') || '').slice(0, 140),
-          aberta_em: String(ex.get('aberta_em') || '').slice(0, 10),
+          aberta_em: abertaBRT || String(ex.get('aberta_em') || '').slice(0, 10),
+          aberta_em_brt: abertaBRT,
           dias_aberta: dias,
           escalada_coordenacao: ex.get('escalada_coordenacao') === true,
           reincidencia: Number(ex.get('reincidencia') || 0),
@@ -251,7 +276,19 @@ routerAdd(
         var cid = String(obs[o].get('cliente') || '')
         var st = String(obs[o].get('status') || '')
         var tipo = String(obs[o].get('tipo') || '')
-        if (st === 'atrasada') {
+        // T3.20 (C-01): atraso efetivo por data também entra no resumo comercial
+        var dpC = String(obs[o].get('data_prevista') || '')
+        var atrasoEfetivoC = false
+        if (
+          st !== 'concluida' &&
+          st !== 'nao_aplicavel' &&
+          dpC &&
+          dpC.indexOf('0001-01-01') !== 0
+        ) {
+          var fimDiaC = Date.parse(dpC.slice(0, 10) + 'T23:59:59Z')
+          if (!isNaN(fimDiaC) && fimDiaC < Date.now()) atrasoEfetivoC = true
+        }
+        if (st === 'atrasada' || atrasoEfetivoC) {
           atrasosPorCliente[cid] = (atrasosPorCliente[cid] || 0) + 1
         }
         if (tipo === 'fechamento' && st === 'concluida') {

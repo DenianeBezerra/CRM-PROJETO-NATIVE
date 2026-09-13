@@ -81,6 +81,7 @@ export default function MeuDia() {
   const [error, setError] = useState('')
   const [resultado, setResultado] = useState<Record<string, string>>({})
   const [obrigacoes, setObrigacoes] = useState<ObrigacaoItem[]>([])
+  const [obrigacoesAtrasadas, setObrigacoesAtrasadas] = useState<ObrigacaoItem[]>([])
   const [baixandoOb, setBaixandoOb] = useState<Record<string, boolean>>({})
 
   const load = async () => {
@@ -101,7 +102,11 @@ export default function MeuDia() {
         `/backend/v1/obrigacoes?dia=${dia}&meus=1`,
         {},
       )
-      setObrigacoes(ob.itens || [])
+      // T3.20 (C-01/B-12): atrasadas por DATA entram em bloco próprio na fila pessoal
+      const todas = ob.itens || []
+      const comFlag = todas as (ObrigacaoItem & { atrasada_efetiva?: boolean })[]
+      setObrigacoes(comFlag.filter((o) => !o.atrasada_efetiva))
+      setObrigacoesAtrasadas(comFlag.filter((o) => o.atrasada_efetiva))
     } catch {
       setObrigacoes([])
     }
@@ -318,6 +323,43 @@ export default function MeuDia() {
             Aviso: algumas fontes falharam na leitura ({data.fontes_com_erro.join(', ')}) — os dados
             exibidos podem estar incompletos.
           </p>
+        )}
+
+        {/* T3.20 (C-01/B-12) — Obrigações atrasadas (por data) em destaque */}
+        {obrigacoesAtrasadas.length > 0 && (
+          <section className="mt-8 p-5 rounded-xl bg-red-50/60 border border-red-200">
+            <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+              <Clock className="w-5 h-5" />
+            </div>
+            <h2 className="font-playfair font-bold text-base mb-1">
+              Atrasadas ({obrigacoesAtrasadas.length})
+            </h2>
+            <p className="text-xs text-[#6B7280] mb-3">
+              Venceram em dias anteriores — são trabalho de hoje, com prioridade.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {obrigacoesAtrasadas.map((o) => (
+                <div key={o.id} className="bg-white border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-[10px] rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700">
+                      {tipoLabel[o.tipo] || o.tipo}
+                    </span>
+                    <span className="text-[10px] text-[#6B7280]">
+                      prevista {dataBR(o.data_prevista)}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold">{o.cliente_nome || 'Cliente'}</p>
+                  <button
+                    onClick={() => void baixarObrigacao(o)}
+                    disabled={!!baixandoOb[o.id]}
+                    className="mt-2 text-xs font-semibold text-[#A8862B] hover:underline disabled:opacity-50"
+                  >
+                    {baixandoOb[o.id] ? 'Baixando...' : 'Dar baixa'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* T3.13 — Obrigações operacionais (mesma fonte da T3.12, meus=1) */}

@@ -129,8 +129,15 @@ export default function OperacaoDia() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meus])
 
-  const atrasadas = useMemo(() => obrigacoes.filter((o) => o.status === 'atrasada'), [obrigacoes])
-  const doDia = useMemo(() => obrigacoes.filter((o) => o.status !== 'atrasada'), [obrigacoes])
+  // T3.20 (C-01): atraso é por DATA (atrasada_efetiva do backend) — obrigação atrasada é obrigação de hoje
+  const atrasadas = useMemo(
+    () => obrigacoes.filter((o) => o.atrasada_efetiva || o.status === 'atrasada'),
+    [obrigacoes],
+  )
+  const doDia = useMemo(
+    () => obrigacoes.filter((o) => !o.atrasada_efetiva && o.status !== 'atrasada'),
+    [obrigacoes],
+  )
   const grupos = useMemo(() => {
     const m = new Map<string, { nome: string; cliente: string; itens: Obrigacao[] }>()
     for (const o of doDia) {
@@ -390,7 +397,7 @@ export default function OperacaoDia() {
                         {e.aberta_em && (
                           <span className="text-xs text-[#6B7280]">
                             {' '}
-                            · desde {dataBR(e.aberta_em)}
+                            · aberta em {dataBR(e.aberta_em)} (data de abertura)
                           </span>
                         )}
                       </div>

@@ -104,6 +104,8 @@ const fmt = (v: number | null, unidade: string) => {
     })
   if (unidade === 'percentual') return `${(v * 100).toFixed(0)}%`
   if (unidade === 'segundos') {
+    // T3.20 (C-04/B-03): zero segundo é valor impossível para p50 — sem intervalo mensurável
+    if (v <= 0) return '—'
     if (v < 3600) return `${Math.round(v / 60)} min`
     if (v < 86400) return `${Math.round(v / 3600)} h`
     return `${Math.round(v / 86400)} d`
@@ -299,7 +301,9 @@ export default function PainelDirecao() {
                         </p>
                         <p className="font-playfair text-2xl font-bold mt-1">
                           {k.unidade === 'distribuicao'
-                            ? Object.keys(k.valor || {}).length + ' itens'
+                            ? Object.keys(k.valor || {}).length > 0
+                              ? Object.keys(k.valor || {}).length + ' itens'
+                              : '—'
                             : fmt(k.valor as number | null, k.unidade)}
                         </p>
                         {k.unidade === 'distribuicao' &&

@@ -1,10 +1,13 @@
 // T2.01 — CA-2-036: validação server-side dos campos comerciais canônicos.
 // Model hooks (dentro da transação do próprio save) — sem request hook transacional.
-// Regras: score 0–100 (também na coleção), status coerente com etapa,
-// data_entrada automática na criação.
+// T3.20 — SPEC-3-020 (C-03): etapa do funil é a FONTE ÚNICA da verdade — status e
+// probabilidade DERIVAM da etapa em toda gravação (create e update). Status divergente
+// da etapa não é mais rejeitado: é SOBRESCRITO com o valor derivado (a etapa vence).
+// Ganho exige valor > 0 e data_ganho (B-14). Probabilidade: 100 no ganho, 0 na perda,
+// editável apenas em etapas intermediárias (B-15).
 onRecordCreate((e) => {
   const stage = String(e.record.get('estagio') || '').trim()
-  let status = String(e.record.get('status') || '').trim()
+  const statusEnviado = String(e.record.get('status') || '').trim()
 
   const score = e.record.get('score')
   if (score !== undefined && score !== null && String(score) !== '') {
@@ -14,22 +17,29 @@ onRecordCreate((e) => {
     }
   }
 
+  // ---- C-03: status derivado da etapa (a etapa vence) ----
+  let statusDerivado = 'em_negociacao'
+  if (stage === 'fechado_ganho') statusDerivado = 'ganho'
+  else if (stage === 'fechado_perdido') statusDerivado = 'perdido'
+  e.record.set('status', statusDerivado)
+
+  // ---- C-03: probabilidade derivada da etapa ----
   if (stage === 'fechado_ganho') {
-    if (!status) {
-      status = 'ganho'
-      e.record.set('status', status)
-    } else if (status !== 'ganho') {
-      throw new Error('Status divergente: oportunidade ganha exige status "ganho".')
-    }
+    e.record.set('probabilidade', 100)
   } else if (stage === 'fechado_perdido') {
-    if (!status) {
-      status = 'perdido'
-      e.record.set('status', status)
-    } else if (status !== 'perdido') {
-      throw new Error('Status divergente: oportunidade perdida exige status "perdido".')
+    e.record.set('probabilidade', 0)
+  }
+
+  // ---- B-14: ganho exige valor > 0 e data_ganho ----
+  if (stage === 'fechado_ganho') {
+    const valor = Number(e.record.get('valor') || 0)
+    if (!Number.isFinite(valor) || valor <= 0) {
+      throw new Error('Ganho exige o valor da mensalidade maior que zero.')
     }
-  } else if (status === 'ganho' || status === 'perdido') {
-    throw new Error('Status divergente: "ganho"/"perdido" só valem em etapas finais.')
+    const dg = String(e.record.get('data_ganho') || '')
+    if (!dg || dg.startsWith('0001-01-01')) {
+      e.record.set('data_ganho', new Date().toISOString())
+    }
   }
 
   const entrada = String(e.record.get('data_entrada') || '')
@@ -45,7 +55,7 @@ onRecordCreate((e) => {
 // de ser criado (provado por API em 2026-09-12: 8+ ganhos, 0 handoffs).
 onRecordUpdate((e) => {
   const stage = String(e.record.get('estagio') || '').trim()
-  const status = String(e.record.get('status') || '').trim()
+  const statusEnviado = String(e.record.get('status') || '').trim()
 
   const score = e.record.get('score')
   if (score !== undefined && score !== null && String(score) !== '') {
@@ -55,16 +65,31 @@ onRecordUpdate((e) => {
     }
   }
 
-  if (stage === 'fechado_ganho' && status && status !== 'ganho') {
-    throw new Error('Status divergente: oportunidade ganha exige status "ganho".')
+  // ---- C-03: status derivado da etapa (a etapa vence) ----
+  let statusDerivado = 'em_negociacao'
+  if (stage === 'fechado_ganho') statusDerivado = 'ganho'
+  else if (stage === 'fechado_perdido') statusDerivado = 'perdido'
+  e.record.set('status', statusDerivado)
+
+  // ---- C-03/B-15: probabilidade derivada da etapa ----
+  if (stage === 'fechado_ganho') {
+    e.record.set('probabilidade', 100)
+  } else if (stage === 'fechado_perdido') {
+    e.record.set('probabilidade', 0)
   }
-  if (stage === 'fechado_perdido' && status && status !== 'perdido') {
-    throw new Error('Status divergente: oportunidade perdida exige status "perdido".')
-  }
-  if (stage && stage !== 'fechado_ganho' && stage !== 'fechado_perdido') {
-    if (status === 'ganho' || status === 'perdido') {
-      throw new Error('Status divergente: "ganho"/"perdido" só valem em etapas finais.')
+
+  // ---- B-14: transição para ganho exige valor > 0 ----
+  const beforeStage = String(e.record.original().get('estagio') || '').trim()
+  if (stage === 'fechado_ganho' && beforeStage !== 'fechado_ganho') {
+    const valor = Number(e.record.get('valor') || 0)
+    if (!Number.isFinite(valor) || valor <= 0) {
+      throw new Error('Ganho exige o valor da mensalidade maior que zero.')
+    }
+    const dg = String(e.record.get('data_ganho') || '')
+    if (!dg || dg.startsWith('0001-01-01')) {
+      e.record.set('data_ganho', new Date().toISOString())
     }
   }
+
   e.next()
 }, 'negocios')
