@@ -102,7 +102,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
     if (!isLoading && !isValid) {
       navigate('/', { replace: true })
     }
-  }, [isLoading, navigate])
+  }, [navigate])
 
   const handleLogout = () => {
     logout()
