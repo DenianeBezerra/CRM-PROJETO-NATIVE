@@ -10,6 +10,9 @@ routerAdd(
   (e) => {
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
+    // A-24 (CEO 16/09): relatórios agendados são camada de direção — só admin.
+    if (String(actor.get('role') || '') !== 'admin')
+      return e.json(403, { error: 'Relatórios agendados são exclusivos da direção.' })
     var rs = []
     try {
       rs = $app.findRecordsByFilter('relatorios_agendados', '', '-created', 200, 0)
