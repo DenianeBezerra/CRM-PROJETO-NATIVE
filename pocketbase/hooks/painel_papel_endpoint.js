@@ -344,8 +344,8 @@ routerAdd(
         valor_propostas_abertas: valorPropostasAbertas,
         propostas_paradas: propostasParadas,
         conversao:
-          ganhos + perdasNoPeriodo(negocios, i, f) > 0
-            ? ganhos / (ganhos + perdasNoPeriodo(negocios, i, f))
+          ganhos + perdasNoPeriodo(negocios, i, f, true) > 0
+            ? ganhos / (ganhos + perdasNoPeriodo(negocios, i, f, true))
             : null,
         mrr: mrr,
         receita_nova: receitaNova,
@@ -362,11 +362,12 @@ routerAdd(
         negocios_parados: paradosSemAtividade,
       }
     }
-    var perdasNoPeriodo = function (negs, i, f) {
+    var perdasNoPeriodo = function (negs, i, f, excluirMigracao) {
       var c = 0
       for (var i2 = 0; i2 < negs.length; i2++) {
         if (
           String(negs[i2].get('status') || '') === 'perdido' &&
+          (!excluirMigracao || String(negs[i2].get('entrada_origem') || '') !== 'migracao') &&
           dentro(negs[i2].get('updated'), i, f)
         )
           c++

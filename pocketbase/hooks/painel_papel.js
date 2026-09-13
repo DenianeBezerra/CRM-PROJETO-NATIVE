@@ -157,12 +157,7 @@ routerAdd(
         var estagio = String(n.get('estagio') || '')
         var arquivado = n.get('arquivado') === true
         // Ganho no período → receita nova
-        var ehMigracao = String(n.get('entrada_origem') || '') === 'migracao' // CA-3-115: fora dos indicadores de funil
-        if (
-          status === 'ganho' &&
-          !ehMigracao &&
-          dentro(n.get('data_ganho') || n.get('updated'), i, f)
-        ) {
+        if (status === 'ganho' && dentro(n.get('data_ganho') || n.get('updated'), i, f)) {
           ganhos++
           receitaNova += Number(n.get('valor') || 0)
         }
@@ -254,7 +249,6 @@ routerAdd(
         }
         if (
           String(n3.get('status') || '') === 'ganho' &&
-          String(n3.get('entrada_origem') || '') !== 'migracao' &&
           dentro(n3.get('data_ganho') || n3.get('updated'), i, f)
         ) {
           var dG3 = String(n3.get('data_ganho') || '')
@@ -341,8 +335,8 @@ routerAdd(
         valor_propostas_abertas: valorPropostasAbertas,
         propostas_paradas: propostasParadas,
         conversao:
-          ganhos + perdasNoPeriodo(negocios, i, f, true) > 0
-            ? ganhos / (ganhos + perdasNoPeriodo(negocios, i, f, true))
+          ganhos + perdasNoPeriodo(negocios, i, f) > 0
+            ? ganhos / (ganhos + perdasNoPeriodo(negocios, i, f))
             : null,
         mrr: mrr,
         receita_nova: receitaNova,
@@ -359,12 +353,11 @@ routerAdd(
         negocios_parados: paradosSemAtividade,
       }
     }
-    var perdasNoPeriodo = function (negs, i, f, excluirMigracao) {
+    var perdasNoPeriodo = function (negs, i, f) {
       var c = 0
       for (var i2 = 0; i2 < negs.length; i2++) {
         if (
           String(negs[i2].get('status') || '') === 'perdido' &&
-          (!excluirMigracao || String(negs[i2].get('entrada_origem') || '') !== 'migracao') &&
           dentro(negs[i2].get('updated'), i, f)
         )
           c++

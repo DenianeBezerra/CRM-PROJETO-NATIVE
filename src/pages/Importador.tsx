@@ -144,7 +144,9 @@ export default function Importador() {
     try {
       const r = await pb.send<{ total: number; itens: Lote[] }>('/backend/v1/importador/lotes', {})
       setLotes(r.itens || [])
-    } catch {}
+    } catch {
+      /* listagem de lotes é acessório — falha silenciosa */
+    }
   }
   useEffect(() => {
     void carregarLotes()
