@@ -1,13 +1,11 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.21 (Módulo de Conteúdo — Leva A concluída; Leva B autorizada)
+- task_id: T3.22 (Importador por planilha — tipo 1 implementado)
 - champion: Deni.Ai
-- spec: 04-fase-atual/specs/SPEC-3-021-modulo-conteudo-leva-a.md + SPEC-3-021B-leva-b-agenda-editorial.md
-- etapa: implementando (T3.22 tipo 1 isolado — AUTORIZADO pela CEO após 4 ajustes na SPEC; parada p/ validação antes dos tipos 2/3)
-- autorizacao_implementacao: Leva A confirmada (CEO 14/09 09:19 "sim"); Leva B AUTORIZADA (CEO 13/09 — "Leva B autorizada, na ordem já definida")
-- decisoes_fechadas: D17 slug ano-linha-tema imutável (SÓ HÍFEN, linha abreviada); D18 destino=/entrada; D19 direção + aprovador reserva c/ ausência registrada; D20 semanal + 30 dias por peça; D21 90 dias c/ 2 exceções; D22 séries Newsletter e Deni Entrevista; D23 desempenho na ordenação quando houver dado medido; D24 lista plana substituída pela VISÃO 3 (não pelo painel do dia) — lista permanece até a Visão 3 existir
-- ajustes_recorte_CEO: links rastreáveis na Leva A; biblioteca mínima na Leva A
-- ultima_acao: RETORNO DA CEO (13/09 ~12:00) sobre criação de conteúdo e calendário: entrega ACEITA; 3 ajustes do calendário corretos; CEO vai testar o modo lote com a agenda real até 30/09 — item permanece NÃO VERIFICADO até a confirmação (2ª vez que validação no navegador fica pendente; combinado mantido). Importador por planilha REAFIRMADO como requisito para 3 tipos: (1) clientes ativos com empresa+contato+contrato, (2) listas de prospecção sem oportunidade, (3) base LinkedIn 8k+ contatos com estágio próprio — prioridade ACIMA da Visão 3 e do quadro anual. Regra nova de arquivo: 2 falhas pontuais no mesmo arquivo → reescrita completa. Sequência definida: sync desta rodada → importador (3 tipos) → Visão 3 → quadro anual. Site institucional com blocos de modelo não substituídos (latim + tabela em dólar) a sanear ANTES de direcionar tráfego do D18 (fora do CRM). Antes disso: fase.md e changelog.md do Skip restaurados byte-exato a partir do GitHub (o Skip estava atrás do GitHub); STATUS.md e estado-atual.md atualizados com o retorno.
-- pendencias: (1) confirmação da CEO do modo lote (agenda até 30/09); (2) sync GitHub desta rodada; (3) importador por planilha nos 3 tipos (clientes ativos, prospecção, LinkedIn 8k+) — prioridade alta; (4) Visão 3 e quadro anual (depois do importador); (5) página própria de Empresa (após a Leva B); (6) estender BuscaGlobal ao Layout (baixa).
-- proxima_acao: implementar o TIPO 1 do importador (clientes ativos: empresa+contato+contrato(s), migração fora dos indicadores, sistema de gestão + serviços obrigatórios, múltiplos serviços c/ valor próprio) e PARAR p/ validação da CEO; modo lote da T3.21 permanece NÃO VERIFICADO
-- atualizado_em: 2026-09-13T12:40:00-03:00
+- spec: 04-fase-atual/specs/ (SPEC-3-022 v3)
+- etapa: aguardando_teste_humano (validação da CEO do tipo 1 — parada obrigatória antes dos tipos 2/3)
+- autorizacao_implementacao: tipo 1 isolado AUTORIZADO pela CEO após 4 ajustes na SPEC (13/09)
+- ultima_acao: T3.22 tipo 1 IMPLEMENTADO E PROVADO (QA verde v0.0.654): hook importador_tipo1.js (4 rotas), migrations 0204/0205, UI /importador com pré-visualização obrigatória (CA-3-116), dedup ignorar/atualizar, lotes desfazíveis + card na home. RED 4/GREEN 9 por API; renderização confirmada no navegador real (AP-1130); base limpa (0 registros de prova). Sync GitHub da governança executado nesta rodada (STATUS/changelog/fase/estado byte-exatos).
+- pendencias: (1) validação da CEO do tipo 1 (preview https://tela-de-login-crm-a400a--preview.goskip.app/importador); (2) tipos 2 (prospecção, cadência 7) e 3 (LinkedIn, cadência 5) após validação; (3) modo lote da agenda (T3.21) NÃO VERIFICADO pela CEO; (4) Visão 3 e quadro anual (depois do importador); (5) página própria de Empresa (após a Leva B); (6) estender BuscaGlobal ao Layout (baixa).
+- proxima_acao: aguardar validação da CEO do tipo 1; em seguida, tipos 2 e 3 do importador
+- atualizado_em: 2026-09-13T13:20:00-03:00
