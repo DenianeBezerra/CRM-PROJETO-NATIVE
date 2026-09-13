@@ -157,6 +157,7 @@ export default function BuscaGlobal() {
                 <button
                   key={em.id}
                   onClick={() => ir('/contatos')}
+                  title="Página própria de empresa é pendência — leva para contatos por ora"
                   className="w-full text-left px-2 py-2 rounded-lg hover:bg-[#F7F5F1] flex items-start gap-2"
                 >
                   <Building2 className="w-4 h-4 text-[#A8862B] mt-0.5" />
