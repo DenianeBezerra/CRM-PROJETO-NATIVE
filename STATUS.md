@@ -2,9 +2,9 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 21/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.21 — Módulo de Conteúdo (Leva A concluída; Leva B item 1 — calendário + painel do dia — concluído; aguardando confirmação da CEO do modo lote)
+**Task ativa:** T3.22 — Importador por planilha (SPEC-3-022 publicada — aguardando autorização de implementação; modo lote da T3.21 permanece NÃO VERIFICADO até o teste da CEO)
 **Última task concluída:** T3.20 — Causas comuns C-03 + C-01 + C-04 (2026-09-14 09:15, teste executado pela Deni.Ai a pedido da CEO; v0.0.576)
-**Versão atual:** v0.0.637 (QA verde — Leva B item 1: calendário + painel do dia)
+**Versão atual:** v0.0.640 (QA verde — governança restaurada byte-exato)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** não publicada (decisão da cliente)
 **Governança GitHub:** sincronizada via push_files programático (byte-exato)
@@ -63,3 +63,4 @@
 - **Roteiro da peça publicada**: redigido por IA na validação — se for publicar de verdade, a CEO reescreve antes; como registro de validação, mantém sem marcação de prova.
 - **Combinado de processo (AP-2026-09-13-1130)**: entrega não é concluída sem renderização confirmada no navegador; automação inconclusiva = sinalizar "verificação não possível", nunca QA verde só com build.
 - **Retorno CEO 13/09 (criação de conteúdo e calendário)**: entrega aceita; 3 ajustes do calendário corretos; modo lote será testado pela CEO com a agenda real até 30/09 — item permanece NÃO VERIFICADO até a confirmação; importador por planilha permanece requisito para clientes ativos, prospecção e base LinkedIn (8k+ contatos), prioridade ACIMA da Visão 3 e do quadro anual; regra de arquivo: 2 falhas pontuais no mesmo arquivo → reescrita completa, sem novas tentativas; sequência: sync desta rodada → importador (3 tipos) → Visão 3 → quadro anual; site institucional com blocos de modelo não substituídos (latim + tabela em dólar) precisa ser saneado ANTES de o tráfego do D18 ser direcionado (fora do CRM).
+- **Regras permanentes (retorno 13/09 ~12:18)**: GitHub é a FONTE DA VERDADE da governança (Skip = cópia sincronizada; divergência → GitHub prevalece sem avaliação caso a caso); sync ao final de CADA rodada; rodada consumida por correção de processo → interromper e informar no meio do caminho; 2 falhas pontuais no mesmo arquivo → reescrita completa.
