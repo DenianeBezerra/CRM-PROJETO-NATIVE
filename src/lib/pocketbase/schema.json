@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T01:33:38.998Z",
+  "generatedAt": "2026-09-13T01:34:52.798Z",
   "collections": [
     {
       "name": "users",
@@ -4421,8 +4421,57 @@
         "update": null,
         "delete": null
       },
-      "fields": [],
-      "indexes": []
+      "fields": [
+        {
+          "name": "empresa",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "modelo",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "padrao"
+          ]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "em_andamento",
+            "concluida",
+            "cancelada"
+          ]
+        },
+        {
+          "name": "responsavel",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "data_inicio",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_conclusao",
+          "type": "date",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_implantacoes_empresa ON implantacoes (empresa)"
+      ]
     },
     {
       "name": "implantacao_etapas",
@@ -4434,8 +4483,73 @@
         "update": null,
         "delete": null
       },
-      "fields": [],
-      "indexes": []
+      "fields": [
+        {
+          "name": "implantacao",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "implantacoes"
+        },
+        {
+          "name": "ordem",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "titulo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "responsavel",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "prazo",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "pendente",
+            "em_andamento",
+            "concluida",
+            "nao_aplicavel"
+          ]
+        },
+        {
+          "name": "evidencia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "concluida_em",
+          "type": "date",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_impl_etapas_impl ON implantacao_etapas (implantacao, ordem)"
+      ]
     }
   ]
 }
