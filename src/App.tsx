@@ -27,7 +27,6 @@ import Conteudos from './pages/Conteudos'
 import AgendaEditorial from './pages/AgendaEditorial'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
->>>>>>>
 import ErrorBoundary from './components/ErrorBoundary'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isValid, isLoading } = useAuth()
@@ -219,7 +218,6 @@ const App = () => (
                 }
               />
             </Route>
->>>>>>>
             {/* T3.02 — rota pública do formulário (sem login, por token) */}
             <Route path="/formulario/:token" element={<FormularioPublico />} />
             {/* T3.07 — Porta 1: formulário público de entrada (sem login) */}

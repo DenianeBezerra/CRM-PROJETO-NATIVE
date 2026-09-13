@@ -22,7 +22,6 @@ import {
   endOfMonth,
   endOfWeek,
   format,
-  isSameDay,
   isSameMonth,
   isToday,
   parseISO,
@@ -130,14 +129,17 @@ export default function AgendaEditorial() {
     })
   }, [mes])
 
-  const itensDia = diaSel ? (dias[diaSel]?.itens || []) : []
+  const itensDia = diaSel ? dias[diaSel]?.itens || [] : []
 
   const copiar = async (texto: string, rotulo: string) => {
     try {
       await navigator.clipboard.writeText(texto)
       toast({ title: `Link copiado — ${rotulo}` })
     } catch {
-      toast({ title: 'Não foi possível copiar — selecione e copie manualmente.', variant: 'destructive' })
+      toast({
+        title: 'Não foi possível copiar — selecione e copie manualmente.',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -149,7 +151,10 @@ export default function AgendaEditorial() {
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A]">
       <header className="sticky top-0 z-30 w-full bg-[#0A0A0A] border-b border-[#C9A227]/25 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <button onClick={() => navigate('/conteudos')} className="flex items-center gap-2 text-sm text-[#E8C766]">
+        <button
+          onClick={() => navigate('/conteudos')}
+          className="flex items-center gap-2 text-sm text-[#E8C766]"
+        >
           <ArrowLeft className="w-4 h-4" /> Conteúdo
         </button>
         <span className="text-xs rounded-full bg-[#141414] border border-[#C9A227]/40 px-3 py-1 text-[#E8C766] font-semibold">
@@ -191,25 +196,31 @@ export default function AgendaEditorial() {
               Hoje
             </button>
           </div>
-          <button onClick={() => void load(mes)} className="text-xs font-semibold text-[#A8862B] hover:underline inline-flex items-center gap-1">
->>>>>>>
+          <button
+            onClick={() => void load(mes)}
+            className="text-xs font-semibold text-[#A8862B] hover:underline inline-flex items-center gap-1"
+          >
             <RefreshCw className="w-3.5 h-3.5" /> Atualizar
           </button>
         </div>
->>>>>>>
 
         {loading ? (
           <p className="text-sm text-[#6B7280]">Carregando agenda...</p>
         ) : erro ? (
           <div className="p-6 rounded-xl bg-red-50 border border-red-200">
-            <p className="text-sm text-red-700 font-semibold">Não foi possível carregar a agenda.</p>
+            <p className="text-sm text-red-700 font-semibold">
+              Não foi possível carregar a agenda.
+            </p>
             <p className="text-xs text-red-600 mt-1">{erro}</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-1">
               {['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'].map((d) => (
-                <div key={d} className="text-center text-[10px] font-semibold uppercase tracking-wide text-[#6B7280] py-1">
+                <div
+                  key={d}
+                  className="text-center text-[10px] font-semibold uppercase tracking-wide text-[#6B7280] py-1"
+                >
                   {d}
                 </div>
               ))}
@@ -264,7 +275,8 @@ export default function AgendaEditorial() {
               <div className="mt-6 p-8 rounded-xl bg-white border border-[#E5E7EB] text-center">
                 <CalendarDays className="w-8 h-8 text-[#A8862B] mx-auto mb-3" />
                 <p className="text-sm text-[#6B7280]">
-                  Nenhuma peça prevista em {mesLabel}. Peças aparecem aqui quando têm data prevista definida.
+                  Nenhuma peça prevista em {mesLabel}. Peças aparecem aqui quando têm data prevista
+                  definida.
                 </p>
               </div>
             )}
@@ -275,7 +287,10 @@ export default function AgendaEditorial() {
                   <h2 className="font-playfair text-xl font-bold capitalize">
                     {format(parseISO(diaSel), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </h2>
-                  <button onClick={() => setDiaSel('')} className="text-xs text-[#6B7280] hover:text-[#0A0A0A]">
+                  <button
+                    onClick={() => setDiaSel('')}
+                    className="text-xs text-[#6B7280] hover:text-[#0A0A0A]"
+                  >
                     Fechar painel
                   </button>
                 </div>
@@ -294,7 +309,10 @@ export default function AgendaEditorial() {
                             {formatoLabel[it.formato] || it.formato}
                           </span>
                           {(it.canais_destino || []).map((ch) => (
-                            <span key={ch} className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#F7F5F1] text-[#6B7280]">
+                            <span
+                              key={ch}
+                              className="text-[10px] rounded-full px-2 py-0.5 font-semibold bg-[#F7F5F1] text-[#6B7280]"
+                            >
                               {canalLabel[ch] || ch}
                             </span>
                           ))}
@@ -320,8 +338,12 @@ export default function AgendaEditorial() {
                           {it.tema}
                           {it.serie ? ` · série: ${it.serie}` : ''}
                           {it.campanha ? ` · campanha: ${it.campanha}` : ''}
-                          {it.responsavel_producao_nome ? ` · resp.: ${it.responsavel_producao_nome}` : ''}
-                          {it.data_efetiva ? ` · publicada em ${format(parseISO(it.data_efetiva), 'dd/MM/yyyy')}` : ''}
+                          {it.responsavel_producao_nome
+                            ? ` · resp.: ${it.responsavel_producao_nome}`
+                            : ''}
+                          {it.data_efetiva
+                            ? ` · publicada em ${format(parseISO(it.data_efetiva), 'dd/MM/yyyy')}`
+                            : ''}
                         </p>
                         <div className="mt-2 flex items-center gap-3 flex-wrap">
                           {Object.entries(it.links_rastreaveis || {}).map(([canal, url]) => (
@@ -331,7 +353,8 @@ export default function AgendaEditorial() {
                               className="text-xs font-semibold text-[#A8862B] hover:underline inline-flex items-center gap-1"
                               title={url}
                             >
-                              <Link2 className="w-3.5 h-3.5" /> Copiar link {canalLabel[canal] || canal}
+                              <Link2 className="w-3.5 h-3.5" /> Copiar link{' '}
+                              {canalLabel[canal] || canal}
                               <Copy className="w-3 h-3" />
                             </button>
                           ))}
@@ -343,7 +366,8 @@ export default function AgendaEditorial() {
                               rel="noreferrer"
                               className="text-xs font-semibold text-emerald-700 hover:underline inline-flex items-center gap-1"
                             >
-                              <ExternalLink className="w-3.5 h-3.5" /> Publicado em {canalLabel[canal] || canal}
+                              <ExternalLink className="w-3.5 h-3.5" /> Publicado em{' '}
+                              {canalLabel[canal] || canal}
                             </a>
                           ))}
                         </div>
