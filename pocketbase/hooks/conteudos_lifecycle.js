@@ -9,19 +9,7 @@
 // Regras: pronto_para_publicar exige pacote completo; aceite só aprovador (ou
 // reserva com ausência registrada — D19); publicado exige url em ≥1 canal e
 // grava data_efetiva; retrocesso exige motivo; toda transição grava evento.
-// Runtime goja: TODOS os helpers inline (AP-0200).
-var ETAPAS = [
-  'ideia',
-  'pauta_aprovada',
-  'roteiro',
-  'producao',
-  'edicao',
-  'aprovacao',
-  'pronto_para_publicar',
-  'agendado',
-  'publicado',
-  'arquivado',
-]
+// Runtime goja: TODOS os helpers inline (AP-0200) — ETAPAS inline no callback.
 
 routerAdd(
   'POST',
@@ -473,6 +461,18 @@ routerAdd(
   (e) => {
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
+    var ETAPAS = [
+      'ideia',
+      'pauta_aprovada',
+      'roteiro',
+      'producao',
+      'edicao',
+      'aprovacao',
+      'pronto_para_publicar',
+      'agendado',
+      'publicado',
+      'arquivado',
+    ]
     var r
     try {
       r = $app.findRecordById('conteudos', e.request.pathValue('id'))

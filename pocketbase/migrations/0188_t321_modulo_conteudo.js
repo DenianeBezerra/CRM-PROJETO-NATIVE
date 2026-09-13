@@ -348,8 +348,8 @@ migrate(
         }),
       )
       col.fields.add(new TextField({ name: 'destino_link', max: 500 }))
-      col.fields.add(new JsonField({ name: 'links_rastreaveis', maxSize: 2000000 }))
-      col.fields.add(new JsonField({ name: 'url_publicacao', maxSize: 2000000 }))
+      col.fields.add(new JSONField({ name: 'links_rastreaveis', maxSize: 2000000 }))
+      col.fields.add(new JSONField({ name: 'url_publicacao', maxSize: 2000000 }))
       col.fields.add(new TextField({ name: 'observacoes', max: 2000 }))
       col.fields.add(new AutodateField({ name: 'created', onCreate: true, onUpdate: false }))
       col.fields.add(new AutodateField({ name: 'updated', onCreate: true, onUpdate: true }))
