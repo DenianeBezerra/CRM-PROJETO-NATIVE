@@ -631,8 +631,18 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
   }
   if (String(lote.get('status') || '') !== 'aplicado')
     return e.json(400, { error: 'Lote já desfeito.' })
+  // JSONField no JSVM pode voltar como string — parse defensivo (lição T3.21).
   var criados = lote.get('criados') || {}
+  if (typeof criados === 'string') {
+    try {
+      criados = JSON.parse(criados)
+    } catch (_) {
+      criados = {}
+    }
+  }
+  if (!criados || typeof criados !== 'object') criados = {}
   var removidos = { negocios: 0, clientes: 0, empresas: 0 }
+=======
   var negs = criados.negocios || []
   for (var i = 0; i < negs.length; i++) {
     try {
