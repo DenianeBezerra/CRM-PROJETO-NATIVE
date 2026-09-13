@@ -22,6 +22,7 @@ import PainelDirecao from './pages/PainelDirecao'
 import FichaOperacional from './pages/FichaOperacional'
 import VisaoCoordenacao from './pages/VisaoCoordenacao'
 import Implantacoes from './pages/Implantacoes'
+import Relatorios from './pages/Relatorios'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -185,6 +186,14 @@ const App = () => (
               element={
                 <AdminRoute>
                   <Implantacoes />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/relatorios"
+              element={
+                <AdminRoute>
+                  <Relatorios />
                 </AdminRoute>
               }
             />
