@@ -20,6 +20,7 @@ import MeuDia from './pages/MeuDia'
 import OperacaoDia from './pages/OperacaoDia'
 import PainelDirecao from './pages/PainelDirecao'
 import FichaOperacional from './pages/FichaOperacional'
+import VisaoCoordenacao from './pages/VisaoCoordenacao'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -168,6 +169,14 @@ const App = () => (
                 <ProtectedRoute>
                   <FichaOperacional />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/visao-coordenacao"
+              element={
+                <AdminRoute>
+                  <VisaoCoordenacao />
+                </AdminRoute>
               }
             />
           </Route>
