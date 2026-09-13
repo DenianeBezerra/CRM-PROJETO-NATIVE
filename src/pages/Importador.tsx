@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { msgErro } from '@/lib/erro'
 
-// T3.22 — SPEC-3-022 (tipo 1): importador de clientes ativos por planilha.
-// Pré-visualização é BLOQUEIO obrigatório (CA-3-116); migração fora dos indicadores (CA-3-115).
+// T3.22 v4 — SPEC-3-022: planilha A (empresas) + planilha B (contatos adicionais).
+// Dedup SEM pré-seleção (decisão CEO: escolha explícita em decisão que grava dado).
 
 type Linha = {
   razao_social: string
@@ -18,15 +18,31 @@ type Linha = {
   sistema_outro?: string
   data_inicio: string
   vigencia?: string
+  natureza_registro?: string
+  cargo_contato?: string
+  analista_titular?: string
   servicos: { servico: string; valor_mensal: number }[]
 }
+type LinhaB = {
+  cnpj: string
+  nome: string
+  email?: string
+  telefone?: string
+  cargo?: string
+  papel_operacional: string
+}
+type AvisoB = { linha: number; nome: string; outra_empresa: string; aviso: string }
 type Preview = {
   total_enviado: number
+  total_b: number
   validas: number
+  validas_b: number
   invalidas: number
-  erros: { linha: number; erros: string[] }[]
+  erros: { planilha: string; linha: number; erros: string[] }[]
+  avisos_b: AvisoB[]
   duplicadas_empresa: number
   duplicadas_contato: number
+  duplicadas_b: number
   atualizacoes_empresa: number
   atualizacoes_contato: number
   amostra: Linha[]
@@ -41,9 +57,10 @@ type Lote = {
   criado_em: string
 }
 
-const CSV_HEADER =
-  'razao_social;cnpj;contato_nome;contato_email;telefone;setor;sistema;sistema_outro;data_inicio;vigencia;servicos;valores'
-const SERVICOS = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
+const CSV_HEADER_A =
+  'razao_social;cnpj;contato_nome;contato_email;telefone;setor;sistema;sistema_outro;data_inicio;vigencia;servicos;valores;natureza_registro;cargo_contato;analista_titular'
+const CSV_HEADER_B = 'cnpj;nome;email;telefone;cargo;papel_operacional'
+const NATUREZAS = ['cliente', 'empresa do grupo', 'projeto']
 
 const dataBR = (s: string | null) =>
   !s
@@ -56,9 +73,11 @@ const dataBR = (s: string | null) =>
 export default function Importador() {
   const navigate = useNavigate()
   const [texto, setTexto] = useState('')
+  const [textoB, setTextoB] = useState('')
   const [arquivoNome, setArquivoNome] = useState('')
-  const [dedupEmpresas, setDedupEmpresas] = useState('ignorar')
-  const [dedupContatos, setDedupContatos] = useState('ignorar')
+  const [dedupEmpresas, setDedupEmpresas] = useState('')
+  const [dedupContatos, setDedupContatos] = useState('')
+  const [decisoes, setDecisoes] = useState<Record<string, string>>({})
   const [preview, setPreview] = useState<Preview | null>(null)
   const [resultado, setResultado] = useState<{
     lote_id: string
@@ -68,7 +87,7 @@ export default function Importador() {
   const [erro, setErro] = useState('')
   const [ocupado, setOcupado] = useState(false)
 
-  const parseCsv = (raw: string): Linha[] => {
+  const parseCsvA = (raw: string): Linha[] => {
     const linhas = raw
       .split(/\r?\n/)
       .map((l) => l.trim())
@@ -97,6 +116,26 @@ export default function Importador() {
         data_inicio: p[8] || '',
         vigencia: p[9] || '',
         servicos,
+        natureza_registro: p[12] || '',
+        cargo_contato: p[13] || '',
+        analista_titular: p[14] || '',
+      }
+    })
+  }
+  const parseCsvB = (raw: string): LinhaB[] => {
+    const linhas = raw
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l && !l.toLowerCase().startsWith('cnpj;'))
+    return linhas.map((l) => {
+      const p = l.split(';').map((x) => x.trim())
+      return {
+        cnpj: p[0] || '',
+        nome: p[1] || '',
+        email: p[2] || '',
+        telefone: p[3] || '',
+        cargo: p[4] || '',
+        papel_operacional: p[5] || '',
       }
     })
   }
@@ -105,25 +144,30 @@ export default function Importador() {
     try {
       const r = await pb.send<{ total: number; itens: Lote[] }>('/backend/v1/importador/lotes', {})
       setLotes(r.itens || [])
-    } catch {
-      /* silencioso */
-    }
+    } catch {}
   }
   useEffect(() => {
     void carregarLotes()
   }, [])
 
+  const dedupOk = dedupEmpresas !== '' && dedupContatos !== ''
+
   const preVisualizar = async () => {
     setErro('')
     setPreview(null)
     setResultado(null)
-    const linhas = parseCsv(texto)
+    setDecisoes({})
+    const linhas = parseCsvA(texto)
     if (linhas.length === 0) return setErro('Nenhuma linha válida encontrada no texto colado.')
     setOcupado(true)
     try {
       const r = await pb.send<Preview>('/backend/v1/importador/preview', {
         method: 'POST',
-        body: { linhas, dedup: { empresas: dedupEmpresas, contatos: dedupContatos } },
+        body: {
+          linhas,
+          linhas_b: parseCsvB(textoB),
+          dedup: { empresas: dedupEmpresas, contatos: dedupContatos },
+        },
       })
       setPreview(r)
     } catch (e) {
@@ -137,22 +181,25 @@ export default function Importador() {
     setErro('')
     setOcupado(true)
     try {
-      const linhas = parseCsv(texto)
+      const linhas = parseCsvA(texto)
       const r = await pb.send<{ lote_id: string; criados: Record<string, string[]> }>(
         '/backend/v1/importador/tipo1',
         {
           method: 'POST',
           body: {
             linhas,
+            linhas_b: parseCsvB(textoB),
             confirm: true,
             arquivo_nome: arquivoNome || 'colado',
             dedup: { empresas: dedupEmpresas, contatos: dedupContatos },
+            decisoes_vinculo: decisoes,
           },
         },
       )
       setResultado(r)
       setPreview(null)
       setTexto('')
+      setTextoB('')
       void carregarLotes()
     } catch (e) {
       setErro(msgErro(e, 'Falha ao gravar o lote.'))
@@ -175,7 +222,9 @@ export default function Importador() {
   }
 
   const baixarTemplate = () => {
-    const blob = new Blob([CSV_HEADER + '\n'], { type: 'text/csv;charset=utf-8' })
+    const blob = new Blob([CSV_HEADER_A + '\n' + CSV_HEADER_B + '\n'], {
+      type: 'text/csv;charset=utf-8',
+    })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = 'template_importador_tipo1.csv'
@@ -196,7 +245,7 @@ export default function Importador() {
           Importador — clientes ativos
         </h1>
         <p className="text-sm text-[#6B7280] mt-1">
-          Tipo 1 (SPEC-3-022): empresa + contato + contrato por serviço. Entrada marcada como
+          Tipo 1 (SPEC-3-022): empresa, contatos e contratos. Entrada marcada como
           <strong> migração</strong> — fora dos indicadores de conversão, ciclo e origem; entra
           apenas no MRR.
         </p>
@@ -210,7 +259,7 @@ export default function Importador() {
         <div className="mt-6 p-4 sm:p-5 rounded-xl bg-white border border-[#E5E7EB]">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-playfair font-bold text-base text-[#0A0A0A]">
-              1. Cole o conteúdo da planilha (CSV ;)
+              1. Planilha A — empresas (CSV ;)
             </h2>
             <button
               onClick={baixarTemplate}
@@ -223,7 +272,17 @@ export default function Importador() {
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             rows={8}
-            placeholder={CSV_HEADER}
+            placeholder={CSV_HEADER_A}
+            className="w-full p-3 rounded-lg border border-[#E5E7EB] text-xs font-mono focus:outline-none focus:border-[#C9A227]"
+          />
+          <h2 className="font-playfair font-bold text-base text-[#0A0A0A] mt-4 mb-2">
+            1b. Planilha B — contatos adicionais (opcional)
+          </h2>
+          <textarea
+            value={textoB}
+            onChange={(e) => setTextoB(e.target.value)}
+            rows={4}
+            placeholder={CSV_HEADER_B}
             className="w-full p-3 rounded-lg border border-[#E5E7EB] text-xs font-mono focus:outline-none focus:border-[#C9A227]"
           />
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -238,6 +297,7 @@ export default function Importador() {
               onChange={(e) => setDedupEmpresas(e.target.value)}
               className="p-2 rounded-lg border border-[#E5E7EB] text-sm"
             >
+              <option value="">Duplicata de empresa: escolha…</option>
               <option value="ignorar">Duplicata de empresa: ignorar</option>
               <option value="atualizar">Duplicata de empresa: atualizar</option>
             </select>
@@ -246,13 +306,15 @@ export default function Importador() {
               onChange={(e) => setDedupContatos(e.target.value)}
               className="p-2 rounded-lg border border-[#E5E7EB] text-sm"
             >
+              <option value="">Duplicata de contato: escolha…</option>
               <option value="ignorar">Duplicata de contato: ignorar</option>
               <option value="atualizar">Duplicata de contato: atualizar</option>
             </select>
           </div>
           <button
             onClick={preVisualizar}
-            disabled={ocupado}
+            disabled={ocupado || !dedupOk}
+            title={!dedupOk ? 'Escolha o tratamento de duplicatas (obrigatório).' : ''}
             className="mt-4 px-4 py-2 rounded-lg bg-[#C9A227] text-white text-sm font-semibold hover:bg-[#A8862B] disabled:opacity-50"
           >
             {ocupado ? 'Processando...' : 'Pré-visualizar (obrigatório)'}
@@ -267,7 +329,11 @@ export default function Importador() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
               <div className="p-3 rounded-lg bg-[#F7F5F1]">
                 <div className="text-2xl font-bold text-[#0A0A0A]">{preview.validas}</div>
-                <div className="text-xs text-[#6B7280]">válidas</div>
+                <div className="text-xs text-[#6B7280]">empresas válidas</div>
+              </div>
+              <div className="p-3 rounded-lg bg-[#F7F5F1]">
+                <div className="text-2xl font-bold text-[#0A0A0A]">{preview.validas_b}</div>
+                <div className="text-xs text-[#6B7280]">contatos adicionais</div>
               </div>
               <div className="p-3 rounded-lg bg-[#F7F5F1]">
                 <div className="text-2xl font-bold text-red-600">{preview.invalidas}</div>
@@ -275,34 +341,56 @@ export default function Importador() {
               </div>
               <div className="p-3 rounded-lg bg-[#F7F5F1]">
                 <div className="text-2xl font-bold text-[#0A0A0A]">
-                  {preview.duplicadas_empresa}
+                  {preview.duplicadas_empresa +
+                    preview.duplicadas_contato +
+                    (preview.duplicadas_b || 0)}
                 </div>
-                <div className="text-xs text-[#6B7280]">dup. empresa</div>
-              </div>
-              <div className="p-3 rounded-lg bg-[#F7F5F1]">
-                <div className="text-2xl font-bold text-[#0A0A0A]">
-                  {preview.duplicadas_contato}
-                </div>
-                <div className="text-xs text-[#6B7280]">dup. contato</div>
+                <div className="text-xs text-[#6B7280]">duplicatas</div>
               </div>
             </div>
             {preview.erros.length > 0 && (
               <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 max-h-40 overflow-y-auto">
                 {preview.erros.map((er) => (
-                  <div key={er.linha}>
-                    Linha {er.linha}: {er.erros.join('; ')}
+                  <div key={er.planilha + er.linha}>
+                    Planilha {er.planilha}, linha {er.linha}: {er.erros.join('; ')}
+                  </div>
+                ))}
+              </div>
+            )}
+            {(preview.avisos_b || []).length > 0 && (
+              <div className="mt-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">
+                {(preview.avisos_b as AvisoB[]).map((av) => (
+                  <div key={av.linha} className="flex items-center justify-between gap-2 py-1">
+                    <span>
+                      Linha B{av.linha} ({av.nome}): {av.aviso}
+                    </span>
+                    <select
+                      value={decisoes['B' + av.linha] || ''}
+                      onChange={(e) =>
+                        setDecisoes((d) => ({ ...d, ['B' + av.linha]: e.target.value }))
+                      }
+                      className="p-1 rounded border border-[#E5E7EB] text-xs"
+                    >
+                      <option value="">Decidir…</option>
+                      <option value="vincular">Vincular a esta empresa</option>
+                      <option value="ignorar">Ignorar (mantém vínculo atual)</option>
+                    </select>
                   </div>
                 ))}
               </div>
             )}
             <div className="mt-3 text-xs text-[#6B7280]">
               Ações: {preview.atualizacoes_empresa} empresa(s) atualizada(s),{' '}
-              {preview.atualizacoes_contato} contato(s) atualizado(s). Amostra:{' '}
-              {preview.amostra.length} de {preview.validas}.
+              {preview.atualizacoes_contato} contato(s) atualizado(s).
             </div>
             <button
               onClick={gravar}
-              disabled={ocupado || preview.validas === 0 || preview.invalidas > 0}
+              disabled={
+                ocupado ||
+                preview.validas === 0 ||
+                preview.invalidas > 0 ||
+                (preview.avisos_b || []).some((av) => !decisoes['B' + av.linha])
+              }
               className="mt-4 px-4 py-2 rounded-lg bg-[#0A0A0A] text-[#E8C766] text-sm font-semibold hover:opacity-90 disabled:opacity-40"
             >
               Confirmar e gravar lote
@@ -318,7 +406,9 @@ export default function Importador() {
             <div className="text-sm text-[#374151]">
               {resultado.criados.empresas?.length || 0} empresa(s),{' '}
               {resultado.criados.clientes?.length || 0} contato(s),{' '}
-              {resultado.criados.negocios?.length || 0} negócio(s) criados.
+              {resultado.criados.negocios?.length || 0} negócio(s),{' '}
+              {resultado.criados.fichas?.length || 0} ficha(s) operacional(is) (em implantação, só
+              bloco 9).
             </div>
           </div>
         )}
@@ -337,7 +427,8 @@ export default function Importador() {
                     {l.arquivo_nome} — {l.status === 'aplicado' ? 'aplicado' : 'desfeito'}
                   </div>
                   <div className="text-xs text-[#6B7280]">
-                    {dataBR(l.criado_em)} · {l.contagens?.validas ?? 0} linha(s) válida(s)
+                    {dataBR(l.criado_em)} · {l.contagens?.validas ?? 0} empresa(s) ·{' '}
+                    {l.contagens?.validas_b ?? 0} contato(s) adicional(is)
                   </div>
                 </div>
                 {l.status === 'aplicado' && (
