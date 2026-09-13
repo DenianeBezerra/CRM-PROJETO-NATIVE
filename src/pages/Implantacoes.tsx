@@ -161,15 +161,30 @@ export default function Implantacoes() {
       await abrirDetalhe(detalhe.id)
       await load()
     } catch (err: unknown) {
-      const response =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { pendencias?: string[]; error?: string } } }).response
-          : undefined
-      if (response?.data?.pendencias) {
-        setChecklist(response.data.pendencias)
+      // PocketBase ClientResponseError: err.response.data = corpo da resposta,
+      // mas rotas custom podem vir em err.data ou err.response.data.data
+      const e2 = err as {
+        data?: { pendencias?: string[]; error?: string }
+        response?: {
+          data?: {
+            pendencias?: string[]
+            error?: string
+            data?: { pendencias?: string[]; error?: string }
+          }
+        }
+      }
+      const corpo = e2?.response?.data?.pendencias
+        ? e2.response.data
+        : e2?.response?.data?.data?.pendencias
+          ? e2.response.data.data
+          : e2?.data?.pendencias
+            ? e2.data
+            : null
+      if (corpo?.pendencias) {
+        setChecklist(corpo.pendencias)
       }
       toast({
-        title: response?.data?.error || 'Conclusão bloqueada',
+        title: corpo?.error || e2?.response?.data?.error || 'Conclusão bloqueada',
         variant: 'destructive',
       })
     }
