@@ -9,6 +9,10 @@
 // automaticamente (valor = mensalidade); Consultoria/CFO só entram se
 // recorrencia = mensal (campo decidido no ganho).
 // Runtime goja: lógica inline em cada callback (AP-0200); datas PB " " → "T".
+// T3.18 — SPEC-3-018: 6 KPIs novos no painel de direção (negócios por etapa,
+// taxa de conversão por etapa, ciclo médio de venda, origem dos ganhos, motivo
+// de perda, negócios parados — completando os 10 indicadores do backlog §2.2)
+// + POST/PATCH /metas admin-only (metas editáveis pela CEO, auditadas).
 routerAdd(
   'GET',
   '/backend/v1/painel/{papel}',
@@ -221,6 +225,76 @@ routerAdd(
           if (!isNaN(msP) && msP < agoraMs) tarefasVencidas++
         }
       }
+      // ---- T3.18: novos KPIs (backlog Etapa 3 §2.2) ----
+      var porEtapa = {}
+      var paradosSemAtividade = 0
+      var cicloDias = []
+      var origemGanhos = {}
+      var motivoPerda = {}
+      var entraramEtapa = {}
+      var avancaramEtapa = {}
+      for (var i3 = 0; i3 < negocios.length; i3++) {
+        var n3 = negocios[i3]
+        var st3 = String(n3.get('estagio') || '')
+        var arq3 = n3.get('arquivado') === true
+        if (!arq3 && FINAL.indexOf(st3) < 0) {
+          var chaveEtapa = st3 || 'sem_etapa'
+          var e3 = porEtapa[chaveEtapa] || { qtd: 0, valor: 0 }
+          e3.qtd++
+          e3.valor += Number(n3.get('valor') || 0)
+          porEtapa[chaveEtapa] = e3
+          // negócios parados: sem atividade registrada (updated) há mais de N dias
+          var up3 = Date.parse(String(n3.get('updated') || '').replace(' ', 'T'))
+          if (!isNaN(up3) && (agoraMs - up3) / 86400000 > limiteParadaDias) paradosSemAtividade++
+        }
+        if (
+          String(n3.get('status') || '') === 'ganho' &&
+          dentro(n3.get('data_ganho') || n3.get('updated'), i, f)
+        ) {
+          var dG3 = String(n3.get('data_ganho') || '')
+          var dE3 = String(n3.get('data_entrada') || '')
+          if (dG3 && dG3.indexOf('0001-01-01') !== 0 && dE3 && dE3.indexOf('0001-01-01') !== 0) {
+            var msG3 = Date.parse(dG3.replace(' ', 'T'))
+            var msE3 = Date.parse(dE3.replace(' ', 'T'))
+            if (!isNaN(msG3) && !isNaN(msE3) && msG3 > msE3)
+              cicloDias.push((msG3 - msE3) / 86400000)
+          }
+          var canal3 =
+            String(n3.get('canal') || '') || String(n3.get('origem') || '') || 'sem_origem'
+          var og3 = origemGanhos[canal3] || { qtd: 0, valor: 0 }
+          og3.qtd++
+          og3.valor += Number(n3.get('valor') || 0)
+          origemGanhos[canal3] = og3
+        }
+        if (String(n3.get('status') || '') === 'perdido' && dentro(n3.get('updated'), i, f)) {
+          var mp3 = String(n3.get('motivo_perda') || '') || 'sem_motivo'
+          motivoPerda[mp3] = (motivoPerda[mp3] || 0) + 1
+        }
+      }
+      // taxa de conversão por etapa: entraram vs. avançaram no período (permanencias)
+      for (var pe3 = 0; pe3 < permanencias.length; pe3++) {
+        var pm3 = permanencias[pe3]
+        var et3 = String(pm3.get('etapa') || '') || 'sem_etapa'
+        if (dentro(pm3.get('entrou_em'), i, f)) entraramEtapa[et3] = (entraramEtapa[et3] || 0) + 1
+        var saiu3 = String(pm3.get('saiu_em') || '')
+        if (saiu3 && saiu3.indexOf('0001-01-01') !== 0 && dentro(saiu3, i, f))
+          avancaramEtapa[et3] = (avancaramEtapa[et3] || 0) + 1
+      }
+      var taxaPorEtapa = {}
+      for (var et4 in entraramEtapa) {
+        taxaPorEtapa[et4] = {
+          entraram: entraramEtapa[et4],
+          avancaram: avancaramEtapa[et4] || 0,
+          taxa: entraramEtapa[et4] > 0 ? (avancaramEtapa[et4] || 0) / entraramEtapa[et4] : null,
+        }
+      }
+      var cicloMedio = null
+      if (cicloDias.length > 0) {
+        var somaCiclo = 0
+        for (var cd = 0; cd < cicloDias.length; cd++) somaCiclo += cicloDias[cd]
+        cicloMedio = somaCiclo / cicloDias.length
+      }
+
       // Primeira resposta p50 (permanencias: entrada → primeira mudança de etapa)
       var primeiras = []
       var porNegocio = {}
@@ -271,6 +345,12 @@ routerAdd(
         oportunidades_paradas: paradas,
         primeira_resposta_p50_segundos: p50,
         tempo_decisao_dias: tempoDecisao,
+        negocios_por_etapa: porEtapa,
+        taxa_conversao_por_etapa: taxaPorEtapa,
+        ciclo_medio_venda_dias: cicloMedio,
+        origem_ganhos: origemGanhos,
+        motivo_perda: motivoPerda,
+        negocios_parados: paradosSemAtividade,
       }
     }
     var perdasNoPeriodo = function (negs, i, f) {
@@ -336,7 +416,19 @@ routerAdd(
     }
 
     var variacao = function (a, b) {
-      if (a == null || b == null || b === 0) return null
+      if (a == null || b == null) return null
+      if (typeof a === 'object' || typeof b === 'object') {
+        var ta = 0
+        var tb = 0
+        if (a && typeof a === 'object')
+          for (var k in a) ta += a[k] && a[k].qtd ? a[k].qtd : typeof a[k] === 'number' ? a[k] : 0
+        if (b && typeof b === 'object')
+          for (var k2 in b)
+            tb += b[k2] && b[k2].qtd ? b[k2].qtd : typeof b[k2] === 'number' ? b[k2] : 0
+        if (tb === 0) return null
+        return ((ta - tb) / tb) * 100
+      }
+      if (b === 0) return null
       return ((a - b) / b) * 100
     }
 
@@ -373,6 +465,7 @@ routerAdd(
               null,
               'percentual',
             ),
+            kpi('origem_ganhos', atual.origem_ganhos, anterior.origem_ganhos, null, 'distribuicao'),
           ],
         },
         {
@@ -407,6 +500,28 @@ routerAdd(
               'numero',
             ),
             kpi('conversao', atual.conversao, anterior.conversao, null, 'percentual'),
+            kpi(
+              'negocios_por_etapa',
+              atual.negocios_por_etapa,
+              anterior.negocios_por_etapa,
+              null,
+              'distribuicao',
+            ),
+            kpi(
+              'taxa_conversao_por_etapa',
+              atual.taxa_conversao_por_etapa,
+              anterior.taxa_conversao_por_etapa,
+              null,
+              'distribuicao',
+            ),
+            kpi('motivo_perda', atual.motivo_perda, anterior.motivo_perda, null, 'distribuicao'),
+            kpi(
+              'negocios_parados',
+              atual.negocios_parados,
+              anterior.negocios_parados,
+              null,
+              'numero',
+            ),
           ],
         },
         {
@@ -415,6 +530,13 @@ routerAdd(
             kpi('mrr', atual.mrr, anterior.mrr, null, 'moeda'),
             kpi('receita_nova', atual.receita_nova, anterior.receita_nova, null, 'moeda'),
             kpi('ticket_medio', atual.ticket_medio, anterior.ticket_medio, null, 'moeda'),
+            kpi(
+              'ciclo_medio_venda_dias',
+              atual.ciclo_medio_venda_dias,
+              anterior.ciclo_medio_venda_dias,
+              null,
+              'dias',
+            ),
           ],
         },
         {
@@ -539,6 +661,157 @@ routerAdd(
 
 // CRUD de metas via API admin (a UI usa a coleção diretamente; regras já
 // garantem admin-only). Endpoint de listagem para o painel mostrar metas.
+// T3.18: POST cria e PATCH edita — admin-only, auditado (meta_configurada).
+routerAdd(
+  'POST',
+  '/backend/v1/metas',
+  (e) => {
+    var actor = e.auth
+    if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
+    if (String(actor.get('role') || '') !== 'admin')
+      return e.json(403, { error: 'Edição de metas é exclusiva do admin.' })
+    var body = e.requestInfo().body
+    var chave = String(body.chave || '').trim()
+    var papel = String(body.papel || '').trim()
+    var valor = Number(body.valor_meta)
+    var periodicidade = String(body.periodicidade || 'mensal').trim()
+    var descricao = String(body.descricao || '').trim()
+    if (!chave) return e.json(400, { error: 'Informe a chave do indicador.' })
+    var Papeis = ['direcao', 'comercial', 'controladoria', 'administracao']
+    if (Papeis.indexOf(papel) < 0)
+      return e.json(400, {
+        error: 'Papel inválido. Use: direcao, comercial, controladoria ou administracao.',
+      })
+    if (!Number.isFinite(valor) || valor < 0)
+      return e.json(400, { error: 'valor_meta deve ser número maior ou igual a zero.' })
+    if (['mensal', 'semanal', 'trimestral', 'anual'].indexOf(periodicidade) < 0)
+      return e.json(400, {
+        error: 'Periodicidade inválida. Use: mensal, semanal, trimestral ou anual.',
+      })
+    var dup = []
+    try {
+      dup = $app.findRecordsByFilter(
+        'metas_indicadores',
+        'chave = {:c} && papel = {:p} && ativo = true',
+        '',
+        1,
+        0,
+        { c: chave, p: papel },
+      )
+    } catch (_) {}
+    if (dup.length > 0)
+      return e.json(400, {
+        error: 'Já existe meta ativa para este indicador e papel. Edite a existente.',
+      })
+    var col = $app.findCollectionByNameOrId('metas_indicadores')
+    var rec = new Record(col)
+    rec.set('chave', chave)
+    rec.set('papel', papel)
+    rec.set('valor_meta', valor)
+    rec.set('periodicidade', periodicidade)
+    rec.set('ativo', body.ativo !== false)
+    rec.set('descricao', descricao)
+    try {
+      $app.save(rec)
+    } catch (err) {
+      return e.json(400, { error: 'Falha ao salvar meta: ' + String(err) })
+    }
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var ev = new Record(audit)
+      ev.set('entidade', 'metas_indicadores')
+      ev.set('registro_id', rec.id)
+      ev.set('acao', 'meta_configurada')
+      ev.set('ator_id', actor.id)
+      ev.set('ocorrido_em', new Date().toISOString())
+      ev.set('estado_anterior', '')
+      ev.set(
+        'estado_posterior',
+        JSON.stringify({
+          chave: chave,
+          papel: papel,
+          valor_meta: valor,
+          periodicidade: periodicidade,
+        }),
+      )
+      $app.save(ev)
+    } catch (errA) {
+      $app.logger().error('T318 auditoria meta falhou', 'error', String(errA))
+    }
+    return e.json(200, { ok: true, id: rec.id, chave: chave, papel: papel, valor_meta: valor })
+  },
+  $apis.requireAuth(),
+)
+
+routerAdd(
+  'PATCH',
+  '/backend/v1/metas/{id}',
+  (e) => {
+    var actor = e.auth
+    if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
+    if (String(actor.get('role') || '') !== 'admin')
+      return e.json(403, { error: 'Edição de metas é exclusiva do admin.' })
+    var id = e.request.pathValue('id')
+    var rec = null
+    try {
+      rec = $app.findRecordById('metas_indicadores', id)
+    } catch (_) {
+      return e.json(404, { error: 'Meta não encontrada.' })
+    }
+    var body = e.requestInfo().body
+    var antes = {
+      chave: String(rec.get('chave') || ''),
+      papel: String(rec.get('papel') || ''),
+      valor_meta: Number(rec.get('valor_meta') || 0),
+      periodicidade: String(rec.get('periodicidade') || ''),
+      ativo: rec.get('ativo') === true,
+      descricao: String(rec.get('descricao') || ''),
+    }
+    if (body.valor_meta !== undefined) {
+      var v = Number(body.valor_meta)
+      if (!Number.isFinite(v) || v < 0)
+        return e.json(400, { error: 'valor_meta deve ser número maior ou igual a zero.' })
+      rec.set('valor_meta', v)
+    }
+    if (body.ativo !== undefined) rec.set('ativo', body.ativo === true)
+    if (body.descricao !== undefined) rec.set('descricao', String(body.descricao || '').trim())
+    if (body.periodicidade !== undefined) {
+      var per = String(body.periodicidade || '').trim()
+      if (['mensal', 'semanal', 'trimestral', 'anual'].indexOf(per) < 0)
+        return e.json(400, {
+          error: 'Periodicidade inválida. Use: mensal, semanal, trimestral ou anual.',
+        })
+      rec.set('periodicidade', per)
+    }
+    try {
+      $app.save(rec)
+    } catch (err) {
+      return e.json(400, { error: 'Falha ao salvar meta: ' + String(err) })
+    }
+    try {
+      var audit2 = $app.findCollectionByNameOrId('auditoria')
+      var ev2 = new Record(audit2)
+      ev2.set('entidade', 'metas_indicadores')
+      ev2.set('registro_id', rec.id)
+      ev2.set('acao', 'meta_configurada')
+      ev2.set('ator_id', actor.id)
+      ev2.set('ocorrido_em', new Date().toISOString())
+      ev2.set('estado_anterior', JSON.stringify(antes))
+      ev2.set(
+        'estado_posterior',
+        JSON.stringify({
+          valor_meta: Number(rec.get('valor_meta') || 0),
+          ativo: rec.get('ativo') === true,
+        }),
+      )
+      $app.save(ev2)
+    } catch (errA2) {
+      $app.logger().error('T318 auditoria meta falhou', 'error', String(errA2))
+    }
+    return e.json(200, { ok: true, id: rec.id })
+  },
+  $apis.requireAuth(),
+)
 routerAdd(
   'GET',
   '/backend/v1/metas',

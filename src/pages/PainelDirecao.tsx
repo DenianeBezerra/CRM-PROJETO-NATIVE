@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, Crown, TrendingUp, Wallet, Users, Settings2 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, Crown, TrendingUp, Wallet, Users, Settings2, Target, Plus } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
+import { useAuth } from '@/contexts/AuthContext'
 
 // T3.10 — SPEC-3-010: Painel de Direção (camada CEO).
 // 12 KPIs em 4 grupos (Aquisição, Pipeline, Financeiro, Operação), cada um com
@@ -17,9 +18,10 @@ type Meta = {
   atingida: boolean
   descricao: string
 } | null
+type DistItem = { qtd: number; valor?: number }
 type Kpi = {
   kpi: string
-  valor: number | null
+  valor: number | Record<string, DistItem | number> | null
   valor_anterior: number | null
   variacao_pct: number | null
   meta: Meta
@@ -60,6 +62,12 @@ const KPI_LABEL: Record<string, string> = {
   oportunidades_paradas: 'Oportunidades paradas',
   primeira_resposta_p50_segundos: 'Primeira resposta (p50)',
   tempo_decisao_dias: 'Tempo de decisão (mediana)',
+  negocios_por_etapa: 'Negócios por etapa',
+  taxa_conversao_por_etapa: 'Conversão por etapa',
+  ciclo_medio_venda_dias: 'Ciclo médio de venda',
+  origem_ganhos: 'Origem dos ganhos',
+  motivo_perda: 'Motivo de perda',
+  negocios_parados: 'Negócios parados',
 }
 
 const KPI_DESC: Record<string, string> = {
@@ -78,6 +86,12 @@ const KPI_DESC: Record<string, string> = {
   oportunidades_paradas: 'Acima do limite de dias na etapa.',
   primeira_resposta_p50_segundos: 'Mediana da 1ª mudança de etapa.',
   tempo_decisao_dias: 'Entrada → decisão (mediana).',
+  negocios_por_etapa: 'Quantidade e valor por etapa ativa.',
+  taxa_conversao_por_etapa: 'Avanço entre etapas no período.',
+  ciclo_medio_venda_dias: 'Entrada → ganho (média do período).',
+  origem_ganhos: 'Ganhos do período por canal.',
+  motivo_perda: 'Perdas do período por motivo.',
+  negocios_parados: 'Sem atividade registrada acima do limite.',
 }
 
 const fmt = (v: number | null, unidade: string) => {
@@ -95,27 +109,111 @@ const fmt = (v: number | null, unidade: string) => {
     return `${Math.round(v / 86400)} d`
   }
   if (unidade === 'dias') return `${v.toFixed(1)} d`
+  if (unidade === 'distribuicao') return ''
   return v.toLocaleString('pt-BR')
+}
+
+const fmtDist = (valor: Record<string, DistItem | number> | null) => {
+  if (!valor || typeof valor !== 'object') return null
+  const entries = Object.entries(valor)
+  if (entries.length === 0) return null
+  return entries
+    .sort((a, b) => {
+      const qa = typeof a[1] === 'number' ? a[1] : (a[1] as DistItem).qtd
+      const qb = typeof b[1] === 'number' ? b[1] : (b[1] as DistItem).qtd
+      return qb - qa
+    })
+    .slice(0, 6)
+}
+
+type MetaItem = {
+  id: string
+  chave: string
+  papel: string
+  valor_meta: number
+  periodicidade: string
+  ativo: boolean
+  descricao: string
 }
 
 export default function PainelDirecao() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [papel, setPapel] = useState(searchParams.get('papel') || 'direcao')
   const [data, setData] = useState<Painel | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [metas, setMetas] = useState<MetaItem[]>([])
+  const [novaMeta, setNovaMeta] = useState({ chave: '', valor: '', periodicidade: 'mensal' })
+  const [editValores, setEditValores] = useState<Record<string, string>>({})
+
+  const load = async (p: string) => {
+    setLoading(true)
+    setError('')
+    try {
+      const r = await pb.send<Painel>(`/backend/v1/painel/${p}`, {})
+      setData(r)
+    } catch {
+      setError('Não foi possível carregar o painel. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
+  }
+  const loadMetas = async () => {
+    try {
+      const r = await pb.send<{ total: number; itens: MetaItem[] }>('/backend/v1/metas', {})
+      setMetas(r.itens || [])
+    } catch {
+      setMetas([])
+    }
+  }
 
   useEffect(() => {
-    void (async () => {
-      try {
-        const r = await pb.send<Painel>('/backend/v1/painel/direcao', {})
-        setData(r)
-      } catch {
-        setError('Não foi possível carregar o painel. Tente novamente.')
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [])
+    void load(papel)
+    if (user?.role === 'admin') void loadMetas()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [papel])
+
+  const trocarPapel = (p: string) => {
+    setPapel(p)
+    setSearchParams(p === 'direcao' ? {} : { papel: p })
+  }
+
+  const salvarMeta = async (m: MetaItem) => {
+    const v = Number(editValores[m.id])
+    if (!Number.isFinite(v) || v < 0) return
+    try {
+      await pb.send(`/backend/v1/metas/${m.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ valor_meta: v }),
+      })
+      await loadMetas()
+      await load(papel)
+    } catch {
+      setError('Falha ao salvar a meta.')
+    }
+  }
+  const criarMeta = async () => {
+    const v = Number(novaMeta.valor)
+    if (!novaMeta.chave || !Number.isFinite(v) || v < 0) return
+    try {
+      await pb.send('/backend/v1/metas', {
+        method: 'POST',
+        body: JSON.stringify({
+          chave: novaMeta.chave,
+          papel,
+          valor_meta: v,
+          periodicidade: novaMeta.periodicidade,
+        }),
+      })
+      setNovaMeta({ chave: '', valor: '', periodicidade: 'mensal' })
+      await loadMetas()
+      await load(papel)
+    } catch {
+      setError('Falha ao criar a meta (verifique se já não existe uma ativa).')
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A]">
@@ -131,8 +229,30 @@ export default function PainelDirecao() {
         </span>
       </header>
       <main className="max-w-6xl mx-auto p-4 sm:p-8">
+        {user?.role === 'admin' && (
+          <div className="flex items-center gap-2 mb-4">
+            {(['direcao', 'comercial', 'controladoria'] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => trocarPapel(p)}
+                className={
+                  'text-xs rounded-full px-3 py-1.5 border transition-all ' +
+                  (papel === p
+                    ? 'bg-[#0A0A0A] text-[#E8C766] border-[#C9A227] font-semibold'
+                    : 'bg-white text-[#6B7280] border-[#E5E7EB] hover:border-[#C9A227]/60')
+                }
+              >
+                {p === 'direcao' ? 'Direção' : p === 'comercial' ? 'Comercial' : 'Controladoria'}
+              </button>
+            ))}
+          </div>
+        )}
         <p className="text-xs uppercase tracking-[0.2em] text-[#A8862B] font-semibold">
-          Painel de Direção
+          {papel === 'direcao'
+            ? 'Painel de Direção'
+            : papel === 'comercial'
+              ? 'Painel Comercial'
+              : 'Painel Controladoria'}
         </p>
         <h1 className="font-playfair text-4xl font-bold">A saúde do negócio</h1>
         <p className="text-[#6B7280] mt-2 mb-2">
@@ -178,8 +298,22 @@ export default function PainelDirecao() {
                           {KPI_LABEL[k.kpi] || k.kpi}
                         </p>
                         <p className="font-playfair text-2xl font-bold mt-1">
-                          {fmt(k.valor, k.unidade)}
+                          {k.unidade === 'distribuicao'
+                            ? Object.keys(k.valor || {}).length + ' itens'
+                            : fmt(k.valor as number | null, k.unidade)}
                         </p>
+                        {k.unidade === 'distribuicao' &&
+                          fmtDist(k.valor as Record<string, DistItem | number> | null)?.map(
+                            ([chave, v]) => (
+                              <p key={chave} className="text-[11px] text-[#374151]">
+                                <span className="font-semibold">{chave}</span>
+                                {' · '}
+                                {typeof v === 'number'
+                                  ? v
+                                  : `${v.qtd}${v.valor ? ` (R$ ${Math.round(v.valor).toLocaleString('pt-BR')})` : ''}`}
+                              </p>
+                            ),
+                          )}
                         <p className="text-[10px] text-[#6B7280] mt-0.5">{KPI_DESC[k.kpi] || ''}</p>
                         {/* Meta */}
                         {k.meta && (
@@ -233,6 +367,81 @@ export default function PainelDirecao() {
                 </section>
               )
             })}
+            {user?.role === 'admin' && (
+              <section className="pt-4 border-t border-[#E5E7EB]">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766]">
+                    <Target className="w-4.5 h-4.5" />
+                  </div>
+                  <h2 className="font-playfair text-xl font-bold">Metas do painel</h2>
+                </div>
+                <div className="space-y-2">
+                  {metas
+                    .filter((m) => m.papel === papel)
+                    .map((m) => (
+                      <div
+                        key={m.id}
+                        className="bg-white border border-[#E5E7EB] rounded-lg p-3 flex items-center gap-3 text-sm"
+                      >
+                        <div className="flex-1">
+                          <p className="font-semibold">{m.chave}</p>
+                          <p className="text-[11px] text-[#6B7280]">
+                            {m.descricao || m.periodicidade}
+                          </p>
+                        </div>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          defaultValue={m.valor_meta}
+                          onChange={(e) =>
+                            setEditValores({ ...editValores, [m.id]: e.target.value })
+                          }
+                          className="w-24 border border-[#E5E7EB] rounded-lg px-2 py-1 text-right"
+                        />
+                        <button
+                          onClick={() => void salvarMeta(m)}
+                          className="text-xs font-semibold text-[#A8862B] hover:underline"
+                        >
+                          Salvar
+                        </button>
+                      </div>
+                    ))}
+                  <div className="bg-[#F7F5F1] border border-dashed border-[#C9A227]/50 rounded-lg p-3 flex flex-wrap items-center gap-2 text-sm">
+                    <input
+                      placeholder="chave do indicador (ex. mrr_minimo)"
+                      value={novaMeta.chave}
+                      onChange={(e) => setNovaMeta({ ...novaMeta, chave: e.target.value })}
+                      className="border border-[#E5E7EB] rounded-lg px-2 py-1 flex-1 min-w-[180px]"
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="valor"
+                      value={novaMeta.valor}
+                      onChange={(e) => setNovaMeta({ ...novaMeta, valor: e.target.value })}
+                      className="w-24 border border-[#E5E7EB] rounded-lg px-2 py-1 text-right"
+                    />
+                    <select
+                      value={novaMeta.periodicidade}
+                      onChange={(e) => setNovaMeta({ ...novaMeta, periodicidade: e.target.value })}
+                      className="border border-[#E5E7EB] rounded-lg px-2 py-1"
+                    >
+                      <option value="mensal">mensal</option>
+                      <option value="semanal">semanal</option>
+                      <option value="trimestral">trimestral</option>
+                      <option value="anual">anual</option>
+                    </select>
+                    <button
+                      onClick={() => void criarMeta()}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-[#0A0A0A] border border-[#C9A227] rounded-lg px-3 py-1.5 hover:bg-[#141414]"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Nova meta
+                    </button>
+                  </div>
+                </div>
+              </section>
+            )}
             {data.fontes_com_erro.length > 0 && (
               <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded">
                 Aviso: algumas fontes falharam ({data.fontes_com_erro.join(', ')}) — os números

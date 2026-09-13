@@ -34,6 +34,10 @@ routerAdd(
       'conversao_perdidas',
       'primeira_resposta',
       'tempo_por_etapa',
+      'negocios_por_etapa',
+      'origem_ganhos',
+      'motivo_perda',
+      'negocios_parados',
     ]
     if (BLOCOS.indexOf(bloco) < 0) {
       return e.json(400, { error: 'Bloco inválido. Blocos: ' + BLOCOS.join(', ') })
@@ -223,6 +227,61 @@ routerAdd(
             n++
           }
         }
+      }
+    } else if (bloco === 'negocios_por_etapa') {
+      // T3.18: negócios ativos por etapa — drill-down da distribuição
+      for (const d of filtrados) {
+        if (d.getBool('arquivado')) continue
+        const st = d.getString('estagio') || 'sem_etapa'
+        if (st === 'fechado_ganho' || st === 'fechado_perdido') continue
+        if (chave && st !== chave) continue
+        itens.push(resumoDe(d))
+        n++
+      }
+    } else if (bloco === 'origem_ganhos') {
+      // T3.18: ganhos do período por canal (atribuição T3.01)
+      for (const d of filtrados) {
+        if (d.getString('estagio') !== 'fechado_ganho') continue
+        const c2 = d.getString('canal') || d.getString('origem') || 'sem_origem'
+        if (chave && c2 !== chave) continue
+        itens.push(resumoDe(d))
+        n++
+      }
+    } else if (bloco === 'motivo_perda') {
+      // T3.18: perdas do período por motivo estruturado (T2.24)
+      for (const d of filtrados) {
+        if (d.getString('estagio') !== 'fechado_perdido') continue
+        const m = d.getString('motivo_perda') || 'sem_motivo'
+        if (chave && m !== chave) continue
+        itens.push(resumoDe(d))
+        n++
+      }
+    } else if (bloco === 'negocios_parados') {
+      // T3.18: negócios ativos sem atividade registrada (updated) há mais de N dias
+      let limite = 10
+      try {
+        const cfgs = $app.findRecordsByFilter(
+          'configuracoes_operacionais',
+          "chave = 'limite_oportunidade_parada_dias'",
+          '',
+          1,
+          0,
+        )
+        if (cfgs.length > 0) {
+          const v = Number(cfgs[0].get('valor_numero'))
+          if (Number.isFinite(v) && v >= 0) limite = v
+        }
+      } catch (_) {}
+      const agoraMs = Date.now()
+      for (const d of filtrados) {
+        if (d.getBool('arquivado')) continue
+        const st = d.getString('estagio') || ''
+        if (st === 'fechado_ganho' || st === 'fechado_perdido') continue
+        const up = Date.parse(String(d.get('updated') || '').replace(' ', 'T'))
+        if (isNaN(up)) continue
+        if ((agoraMs - up) / 86400000 <= limite) continue
+        itens.push(resumoDe(d))
+        n++
       }
     }
 
