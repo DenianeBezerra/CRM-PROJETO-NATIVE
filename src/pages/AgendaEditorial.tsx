@@ -316,8 +316,8 @@ export default function AgendaEditorial() {
                     </button>
                   </div>
                 ) : (
->>>>>>>
                   <div className="space-y-3">
+>>>>>>>
                     {itensDia.map((it) => (
                       <div key={it.id} className="border border-[#E5E7EB] rounded-lg p-3 sm:p-4">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
