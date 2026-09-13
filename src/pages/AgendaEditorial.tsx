@@ -196,6 +196,7 @@ export default function AgendaEditorial() {
             <RefreshCw className="w-3.5 h-3.5" /> Atualizar
           </button>
         </div>
+>>>>>>>
 
         {loading ? (
           <p className="text-sm text-[#6B7280]">Carregando agenda...</p>

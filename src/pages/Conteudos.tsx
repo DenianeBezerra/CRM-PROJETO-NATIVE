@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, PenTool, RefreshCw, Link2, ChevronRight, CalendarDays } from 'lucide-react'
->>>>>>>
 import { useNavigate } from 'react-router-dom'
+>>>>>>>
 import { useToast } from '@/hooks/use-toast'
 import { tagProva } from '@/lib/prova'
 
@@ -169,7 +169,8 @@ export default function Conteudos() {
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate('/conteudos/agenda')} size="sm" className="bg-[#0A0A0A] text-[#E8C766] hover:bg-[#222]">
               <CalendarDays className="w-4 h-4 mr-1" /> Calendário
-            </Button>
+            </div>
+>>>>>>>
             <Button onClick={() => void load()} variant="outline" size="sm">
               <RefreshCw className="w-4 h-4 mr-1" /> Atualizar
             </Button>
