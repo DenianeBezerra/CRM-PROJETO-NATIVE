@@ -82,6 +82,35 @@ routerAdd(
     if (body.data_prevista) rec.set('data_prevista', String(body.data_prevista))
     if (String(body.destino_link || '').trim())
       rec.set('destino_link', String(body.destino_link).trim())
+    // Peça avulsa sem campanha: gera identificador D17 (ano-linha-tema) e
+    // registra a campanha mínima — o identificador nasce imutável no 1º uso.
+    if (!String(body.campanha || '').trim()) {
+      var anoC = new Date().getFullYear()
+      var temaC = String(titulo || tema || 'conteudo')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 60)
+      var slugC = anoC + '-' + linha + '-' + (temaC || 'conteudo')
+      var colCamp = $app.findCollectionByNameOrId('campanhas')
+      var campRec = new Record(colCamp)
+      campRec.set('nome', titulo)
+      campRec.set('identificador', slugC)
+      campRec.set('tipo', 'organica')
+      campRec.set('objetivo', objetivo)
+      campRec.set('linha_solucao', linha)
+      campRec.set('status', 'planejada')
+      try {
+        $app.save(campRec)
+        rec.set('campanha', campRec.id)
+      } catch (errCamp) {
+        return e.json(400, {
+          error:
+            'Identificador de campanha já existe (slug D17 é imutável e único) — ajuste o título da peça. Detalhe: ' +
+            String(errCamp),
+        })
+      }
+    }
     if (String(body.observacoes || '').trim())
       rec.set('observacoes', String(body.observacoes).trim())
     try {
@@ -487,6 +516,11 @@ routerAdd(
     var atual = String(r.get('status') || '')
     if (ETAPAS.indexOf(destino) < 0) return e.json(400, { error: 'Etapa inválida.' })
     if (destino === atual) return e.json(400, { error: 'O conteúdo já está nesta etapa.' })
+    if (atual === 'arquivado')
+      return e.json(400, {
+        error:
+          'Conteúdo arquivado é estado terminal — não avança. Crie uma nova peça (nova edição da pauta) ou registre a decisão nas observações.',
+      })
 
     // ---- Regra 1: pronto_para_publicar exige pacote completo (cap. 6) ----
     if (destino === 'pronto_para_publicar') {

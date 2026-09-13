@@ -21,8 +21,18 @@ routerAdd(
     } catch (_) {
       return e.json(404, { error: 'Conteúdo não encontrado.' })
     }
+    var stAtual = String(r.get('status') || '')
+    if (stAtual === 'arquivado')
+      return e.json(400, {
+        error:
+          'Conteúdo arquivado não gera links — peça fora de circulação. Reative a peça (retrocesso com motivo) antes de gerar links.',
+      })
     var canais = r.get('canais_destino') || []
-    if (canais.length === 0) return e.json(400, { error: 'Conteúdo sem canal de destino.' })
+    if (canais.length === 0)
+      return e.json(400, {
+        error:
+          'Conteúdo sem canal de destino definido — edite a peça e selecione pelo menos um canal (Instagram, LinkedIn, TikTok, YouTube, Newsletter ou Site).',
+      })
     // destino (D18): destino_link do conteúdo ou /entrada
     var destino = String(r.get('destino_link') || '').trim()
     if (!destino) destino = 'https://tela-de-login-crm-a400a--preview.goskip.app/entrada'
