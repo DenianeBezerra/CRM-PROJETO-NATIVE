@@ -1,14 +1,13 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 15/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 17/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.15 — Visão de coordenação + Visão comercial (SPEC-3-015) — aguardando autorização
-**Última task concluída:** T3.14 — Exceções E1–E9 (2026-09-13 22:08, teste humano aprovado pela CEO — "Confirme e siga"; v0.0.520)
-**Próxima leva (a definir com a CEO):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
-**Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
-**Versão atual:** v0.0.519 (QA verde)
+**Task ativa:** nenhuma — T3.16 concluída; próxima leva a definir (E1–E9 conector OMIE, Leva C da ficha, backlog Etapa 3)
+**Última task concluída:** T3.16 — Implantação de cliente + RBAC (2026-09-13 23:08, teste humano aprovado pela CEO — "sim, prossiga!"; v0.0.541)
+**Versão atual:** v0.0.542 (QA verde — governança)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** não publicada (decisão da cliente)
+**Governança GitHub:** sincronizada via push_files programático (byte-exato)
 
 ## Composição da Fase 3 (em execução)
 
@@ -29,6 +28,8 @@
 | 12   | T3.12 — Motor de Rotinas + Exceções (Leva B)                          | SPEC-3-012            | ✅ Concluída — 2026-09-13 13:09 |
 | 13   | T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia      | SPEC-3-013            | ✅ Concluída — 2026-09-13 13:43 |
 | 14   | T3.14 — Exceções E1–E9 (gatilho por etapa; integração Omie p/ depois) | SPEC-3-014            | ✅ Concluída — 2026-09-13 22:08 |
+| 15   | T3.15 — Visão de coordenação + Visão comercial (Leva C p.1)           | SPEC-3-015            | ✅ Concluída — 2026-09-13 22:23 |
+| 16   | T3.16 — Implantação de cliente (cap. 7) + RBAC (cap. 8/D12)           | SPEC-3-016            | ✅ Concluída — 2026-09-13 23:08 |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3               | a definir SPEC a SPEC | Planejadas                      |
 
 ## Estado real preservado (base de dados)

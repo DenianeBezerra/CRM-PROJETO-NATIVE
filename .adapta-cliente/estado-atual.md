@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (T3.16 concluída)
+- task_id: T3.16 (Implantação de cliente + RBAC — SPEC-3-016)
 - champion: Deni.Ai
 - spec: 04-fase-atual/specs/SPEC-3-016-implantacao-cliente-rbac.md
 - etapa: concluida
-- autorizacao_implementacao: confirmada — CEO 22:32 "sim, implemente" + ajustes de processo real 22:44/22:46/22:55
-- teste_humano: aprovado — CEO 23:10 "sim, aprovado!" (teste executado pela Deni.Ai no browser real a pedido da CEO: ciclo completo até checklist de bloqueio + e-mail de boas-vindas)
-- verificacao_automatica: passou — RED/GREEN completos + regressão 200×5 + browser real; QA verde v0.0.527–0.0.540
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2310-migration-campos.md
-- ultima_acao: T3.16 concluída; governança atualizada (fase.md 17/N, STATUS, changelog 0.0.540, estado)
-- proxima_acao: aguardar decisão da CEO sobre a próxima leva (modelo de contrato no CRM — insumo recebido 23:06 — ou backlog Etapa 3)
-- atualizado_em: 2026-09-13T23:10:00-03:00
+- autorizacao_implementacao: confirmada — CEO 22:32 "sim, implemente" + ajuste de processo real 22:44/22:46 + pedido de assinatura 22:55
+- teste_humano: aprovado — CEO 2026-09-13 23:08 "sim, prossiga! Atenção, o nosso envio de contrato segue via clicksign para a assinatura, o CRM deve integrar também ao app de contratos?" (confirma o teste executado pela Deni.Ai a pedido da CEO em 22:57)
+- verificacao_automatica: passou — revalidação do zero por API em 23:00: RED (401 sem auth; 400 segunda implantação; 400 conclusão condicionada com checklist real; 403 operator) + GREEN (lista/detalhe AG 200, 3 etapas reais) + regressão (obrigacoes/visao-coordenacao/visao-comercial 200); estado real intacto (ficha Felicidade preservada, 13 obrigações, 3 exceções abertas)
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2312-drift-fase-md-status.md
+- ultima_acao: conclusão da T3.16 — governança atualizada (fase.md com restauração das linhas T3.08–T3.12, STATUS, changelog, estado), QA pipeline e sync GitHub
+- proxima_acao: nenhuma — aguardar decisão da CEO sobre a próxima leva (E1–E9 conector OMIE, Leva C da ficha, backlog Etapa 3) e resposta sobre integração ClickSign
+- atualizado_em: 2026-09-13T23:12:00-03:00
