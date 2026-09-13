@@ -102,7 +102,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
     if (!isLoading && !isValid) {
       navigate('/', { replace: true })
     }
-  }, [isValid, isLoading, navigate])
+  }, [isLoading, navigate])
 
   const handleLogout = () => {
     logout()
@@ -125,7 +125,6 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   }
 
   const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'Deniane')
-  const isAdmin = user?.role === 'admin'
   // A-23: badge de pendência — só aparece quando há problema (> 0).
   const badge = (n: number) =>
     n > 0 ? (
