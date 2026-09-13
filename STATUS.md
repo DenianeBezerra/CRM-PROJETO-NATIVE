@@ -1,22 +1,22 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 17/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 18/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma — T3.16 concluída; próxima leva a definir (E1–E9 conector OMIE, Leva C da ficha, backlog Etapa 3)
-**Última task concluída:** T3.16 — Implantação de cliente + RBAC (2026-09-13 23:08, teste humano aprovado pela CEO — "sim, prossiga!"; v0.0.541)
-**Versão atual:** v0.0.542 (QA verde — governança)
+**Task ativa:** nenhuma — T3.17 concluída; próxima leva a definir (integração ClickSign, E1–E9 conector OMIE, Leva C da ficha, backlog Etapa 3)
+**Última task concluída:** T3.17 — Modelo de contrato no CRM (2026-09-14 00:00, teste humano aprovado pela CEO — "aprovado!"; v0.0.558)
+**Versão atual:** v0.0.558 (QA verde — provas + limpeza + governança)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** não publicada (decisão da cliente)
 **Governança GitHub:** sincronizada via push_files programático (byte-exato)
 
 ## Composição da Fase 3 (em execução)
 
-| Leva | Tasks                                                                 | SPEC                  | Status                          |
-| ---- | --------------------------------------------------------------------- | --------------------- | ------------------------------- |
-| 1    | T3.01 + canais Comunidade/Spotify/Podcast                             | SPEC-3-000            | ✅ Concluída — 2026-09-12       |
-| 2    | T3.02 — formulários inteligentes                                      | SPEC-3-001            | ✅ Concluída — 2026-09-13       |
-| 2b   | T3.02b — ficha de preparação da proposta                              | SPEC-3-001b           | ✅ Concluída — 2026-09-13 00:16 |
-| 3    | T3.03 — WhatsApp P1                                                   | SPEC-3-002            | ✅ Concluída — 2026-09-13 08:10 |
+| Leva | Tasks                                                                         | SPEC                  | Status                          |
+| ---- | ----------------------------------------------------------------------------- | --------------------- | ------------------------------- |
+| 1    | T3.01 + canais Comunidade/Spotify/Podcast                                     | SPEC-3-000            | ✅ Concluída — 2026-09-12       |
+| 2    | T3.02 — formulários inteligentes                                              | SPEC-3-001            | ✅ Concluída — 2026-09-13       |
+| 2b   | T3.02b — ficha de preparação da proposta                                      | SPEC-3-001b           | ✅ Concluída — 2026-09-13 00:16 |
+| 3    | T3.03 — WhatsApp P1                                                           | SPEC-3-002            | ✅ Concluída — 2026-09-13 08:10 |
 | 4    | T3.04 — Timeline 360º                                                 | SPEC-3-003            | ✅ Concluída — 2026-09-13 08:55 |
 | 5    | T3.05 — E-mail P1                                                     | SPEC-3-004            | ✅ Concluída — 2026-09-13 09:05 |
 | 6    | T3.06 — Automações Se/Então (§12)                                     | SPEC-3-005            | ✅ Concluída — 2026-09-13 09:25 |
@@ -30,13 +30,15 @@
 | 14   | T3.14 — Exceções E1–E9 (gatilho por etapa; integração Omie p/ depois) | SPEC-3-014            | ✅ Concluída — 2026-09-13 22:08 |
 | 15   | T3.15 — Visão de coordenação + Visão comercial (Leva C p.1)           | SPEC-3-015            | ✅ Concluída — 2026-09-13 22:23 |
 | 16   | T3.16 — Implantação de cliente (cap. 7) + RBAC (cap. 8/D12)           | SPEC-3-016            | ✅ Concluída — 2026-09-13 23:08 |
-| 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3               | a definir SPEC a SPEC | Planejadas                      |
+| 17   | T3.17 — Modelo de contrato no CRM (passo anterior ao ClickSign)       | SPEC-3-017            | ✅ Concluída — 2026-09-14 00:00 |
+| 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign | a definir SPEC a SPEC | Planejadas               |
 
 ## Estado real preservado (base de dados)
 
 - Ficha operacional real da Felicidade Collective (9 blocos + canais/bancos/pessoas, 18 versões).
 - 13 obrigações (12 previstas + 1 bloqueada) e 4 exceções (3 abertas + 1 resolvida) geradas pelo motor.
 - 3 leads reais da Porta 1 na base.
+- 0 contratos de prova (limpeza 0182) — o contrato real nasce na próxima venda.
 
 ## Decisões da CEO (13/09)
 
@@ -45,5 +47,6 @@
 - **D2 — relato livre**: opcional, mínimo 30 caracteres se preenchido. **IMPLEMENTADA** (v0.0.455–0.0.459).
 - **D5 — retenção de leads que não fecharam**: 24 meses da coleta ou do último contato. **IMPLEMENTADA** (v0.0.456–0.0.459).
 - **MRR**: contratos BPO/Tesouraria/Controladoria = 12 meses renováveis; valor no CRM = mensalidade (base do Painel Direção).
+- **Fluxo do contrato (23:23)**: proposta aprovada → contrato → restante do fluxo; proposta não aprovada → identificar a objeção (motivo estruturado T2.24).
 - **Direção Leva B (verbatim)**: "o painel só entrega valor se as tarefas chegarem nele sozinhas, geradas pelo motor de rotinas a partir da ficha operacional... a ficha operacional precisa vir antes do painel, ou pelo menos junto."
 - **Harmonização visual dos cards**: padrão dos cards de módulo da home (ícone preto + glifo dourado, CTA dourado) — aplicado na T3.09 e exigido nas próximas telas.
