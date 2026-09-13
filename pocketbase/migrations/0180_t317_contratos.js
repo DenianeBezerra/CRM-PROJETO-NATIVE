@@ -28,7 +28,6 @@ migrate(
         updateRule: null,
         deleteRule: null,
         fields: [],
-        indexes: ['CREATE INDEX idx_contratos_negocio ON contratos (negocio, versao)'],
       })
       app.save(col)
       col.fields.add(
@@ -61,6 +60,7 @@ migrate(
       col.fields.add(new DateField({ name: 'gerado_em', required: false }))
       col.fields.add(new AutodateField({ name: 'created', onCreate: true, onUpdate: false }))
       col.fields.add(new AutodateField({ name: 'updated', onCreate: true, onUpdate: true }))
+      col.indexes.push('CREATE INDEX idx_contratos_negocio ON contratos (negocio, versao)')
       app.save(col)
     }
 
