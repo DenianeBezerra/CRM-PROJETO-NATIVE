@@ -1,13 +1,12 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.19 (Relatórios agendados — SPEC-3-019)
+- task_id: T3.20 (Causas comuns C-03 + C-01 + C-04 — SPEC-3-020)
 - champion: Deni.Ai
-- spec: 04-fase-atual/specs/SPEC-3-019-relatorios-agendados.md
-- etapa: concluida
-- autorizacao_implementacao: confirmada — CEO 2026-09-14 07:30 "sim" (após relatório de análise da T3.19)
-- teste_humano: aprovado — teste executado pela Deni.Ai a pedido da CEO (browser real, 4 testes: página /relatorios, envio manual na prova e no agendamento real com e-mail entregue, criação de agendamento real, ativar/desativar) + confirmação da CEO "prossiga" 08:00
-- verificacao_automatica: passou — revalidação do zero: RED (401 sem token; 403 operator POST /relatorios; 403 operator POST /{id}/enviar) + GREEN (GET /relatorios 200 admin; POST /{id}/enviar no agendamento real → {"ok":true,"enviados":1,"falhas":0}; log da plataforma "email sent" ×4) + cron "relatorios_agendados" em produção (11:15 UTC, ok, sem envio indevido). QA verde v0.0.571.
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2350-jsvm-escopo-arquivo-template.md (da implementação; conclusão sem novo AP)
-- ultima_acao: T3.19 CONCLUÍDA — governança atualizada (fase.md 20/N, STATUS, changelog 0.0.572, estado) e sincronizada no GitHub byte-exato
-- proxima_acao: nenhuma — aguardar CEO definir a próxima leva (candidatas: V.ia estágio 1, perfis/visibilidade/backup, catálogo de serviços, integração ClickSign, conector Omie)
-- atualizado_em: 2026-09-14T08:20:00-03:00
+- spec: 04-fase-atual/specs/SPEC-3-020-causas-comuns-c03-c01-c04.md
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — CEO 2026-09-14 08:45 "SIM" (após relatório de análise da T3.20)
+- teste_humano: pendente
+- verificacao_automatica: passou — C-03: PATCH status divergente é sobrescrito pela etapa (Proposta CFO → em_negociacao/novo); reconciliação 0187 aplicada; ganho sem valor → 400 (B-14). C-01: obrigação real adiada para 11/09 (status 'bloqueada') aparece como atrasada_efetiva em /obrigacoes, entra na fila pessoal /meu-dia (B-12), matriz da coordenação conta atrasada=1 (B-06), visão comercial operacao_em_dia=false — estado real restaurado após as provas. C-04: exceções em BRT (2026-09-12); p50=0 → travessão. Regressão: painel/metas/ficha/contratos/relatórios/exceções 200; motor intacto (18 obrigações da ficha real). QA verde v0.0.574–0.0.576.
+- ultima_acao: T3.20 implementada — evidência em evidencias/spec-3-020/
+- proxima_acao: aguardar teste humano da CEO
+- atualizado_em: 2026-09-14T09:05:00-03:00
