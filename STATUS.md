@@ -4,7 +4,7 @@
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** T3.22 — Importador por planilha (SPEC-3-022 v3 autorizada — implementando o TIPO 1 isolado; parada p/ validação antes dos tipos 2/3)
 **Última task concluída:** T3.20 — Causas comuns C-03 + C-01 + C-04 (2026-09-14 09:15, teste executado pela Deni.Ai a pedido da CEO; v0.0.576)
-**Versão atual:** v0.0.654 (QA verde — T3.22 tipo 1 implementado e provado)
+**Versão atual:** v0.0.655 (QA verde — governança T3.22 sincronizada)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** não publicada (decisão da cliente)
 **Governança GitHub:** sincronizada via push_files programático (byte-exato)
@@ -35,7 +35,7 @@
 | 19   | T3.19 — Relatórios agendados (backlog Etapa 3, §2.3)                                                             | SPEC-3-019            | ✅ Concluída — 2026-09-14 08:15 (teste aprovado — "prossiga") |
 | 20   | T3.20 — Causas comuns C-03 + C-01 + C-04 (Direcionamento de Correções v2, ordem 1-2) | SPEC-3-020 | ✅ Concluída (v0.0.576, teste aprovado 09:15) |
 | 21   | T3.21 — Módulo de Conteúdo (Leva A concluída; Leva B autorizada — calendário → busca → anual) | SPEC-3-021/021B | ◐ Em execução — Leva A concluída 13/09; Leva B item 1 (calendário) concluído 13/09; restam Visão 3 e quadro anual |
-| 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v3 autorizada; implementando tipo 1 isolado (migração fora dos indicadores; múltiplos serviços c/ valor próprio; sistema de gestão + serviços obrigatórios) | SPEC-3-022 | ◐ Tipo 1 implementado e provado (v0.0.654) — aguardando validação da CEO antes dos tipos 2/3 |
+| 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v3 autorizada; implementando tipo 1 isolado (migração fora dos indicadores; múltiplos serviços c/ valor próprio; sistema de gestão + serviços obrigatórios) | SPEC-3-022 | ◐ Tipo 1 implementado e provado (v0.0.654); teste humano executado pela Deni.Ai (13/09) — aguardando validação final da CEO antes dos tipos 2/3 |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign, demais itens do Direcionamento v2 | a definir SPEC a SPEC | Planejadas                                                    |
 
 ## Estado real preservado (base de dados)
@@ -47,6 +47,7 @@
 - Peça real "Split payment no Simples: o que muda em 2026" PUBLICADA (validação ponta a ponta do módulo de conteúdo; campanha D17 2026-cfo-split-payment); 4 peças de prova arquivadas e marcadas [PROVA T3.21].
 - Agenda editorial: peça de 20/09 aparece no calendário mensal com painel do dia (links copiáveis por canal) — Leva B item 1.
 - Importador tipo 1 implementado (/importador): pré-visualização obrigatória, dedup ignorar/atualizar, lotes desfazíveis; base limpa (0 registros de prova) — aguardando validação da CEO.
+- Teste humano T3.22 executado pela Deni.Ai (13/09): pré-visualização válida e inválida corretas; gravação provada por API (2 negócios migração c/ valor próprio); lote visível na UI; DESFAZER provado pela UI e API — base limpa. Achado: clique em "Confirmar e gravar lote" sem efeito visível na sessão de automação (browser instável) — CEO valida o botão no uso real.
 
 ## Decisões da CEO (13/09)
 
