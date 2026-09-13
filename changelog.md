@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.573] — 2026-09-14 — T3.20 analisada, SPEC-3-020 publicada (aguardando autorização)
+
+- 2026-09-14 · [Deni.Ai] · Direcionamento de Correções v2 da CEO (uploads/481342f5) recebido e investigado ANTES de qualquer correção, como a CEO pediu. **B-19 esclarecido com evidência da base real:** o motor CONSOME a ficha — as 18 obrigações vêm todas da ficha da Felicidade (inu2vsqgkwhkp8n); a AG tem 0 fichas/0 obrigações; fechamento só é gerado se o bloco 8 (prazo_entrega) existir; os "blocos vazios" são os campos que a UI da ficha ainda não cadastra (A-19/A-20 do próprio documento). **C-03 confirmado:** negócio 8tn1jwwd8xsk2u5 tem status=em_negociacao com estagio=novo; ek8vvnaisupsnga é ganho com valor 0 e data_ganho vazio (B-14/A-14). **C-01 confirmado no motor:** obrigação vencida 11/09 segue 'prevista' (avaliador E1 usa prazo 48h) — a regra correta é atraso por DATA, não por status. **C-04 confirmado:** p50=0 exibido, datas UTC vs BRT divergentes. SPEC-3-020 publicada (C-03 + C-01 + C-04, ordem 1 e 2 do cap. 9). Nada implementado — estado `aguardando_autorizacao`.
+
 ## [0.0.572] — 2026-09-14 — T3.19 concluída
 
 - 2026-09-14 · [Deni.Ai] · **T3.19 — Relatórios agendados** CONCLUÍDA (CEO "prossiga" 08:00). Revalidação do zero por API: RED (401 sem token; 403 operator POST /relatorios; 403 operator POST /{id}/enviar) + GREEN (GET /relatorios 200 admin; envio manual no agendamento real → {"ok":true,"enviados":1,"falhas":0}, log da plataforma "email sent", assunto "CRM Vibratto — Resumo da Direção (2026-09-01 a 2026-09-13)"). Cron "relatorios_agendados" provado em produção (execução 11:15 UTC, status ok, sem envio indevido — fail-safe de dia/hora correto). Estado real preservado: agendamento real "Resumo da direção — semanal (real)" ATIVO (segunda 11:00 UTC = 08:00 BRT, deniane@vibratto.com.br); t319_prova desativado. Fase 3: 20/N.
