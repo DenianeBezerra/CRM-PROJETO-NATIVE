@@ -2,7 +2,7 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 15/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma (T3.14 concluída)
+**Task ativa:** T3.15 — Visão de coordenação + Visão comercial (SPEC-3-015) — aguardando autorização
 **Última task concluída:** T3.14 — Exceções E1–E9 (2026-09-13 22:08, teste humano aprovado pela CEO — "Confirme e siga"; v0.0.520)
 **Próxima leva (a definir com a CEO):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
