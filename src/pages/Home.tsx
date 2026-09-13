@@ -56,14 +56,17 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
       }
       try {
         const md = await pb.send<{
-          obrigacoes_atrasadas?: unknown[]
-          tarefas_abertas?: unknown[]
-          acoes_vencidas?: unknown[]
+          obrigacoes_atrasadas?: { total?: number } | unknown[]
+          tarefas_abertas?: { total?: number } | unknown[]
+          acoes_vencidas?: { total?: number } | unknown[]
         }>('/backend/v1/meu-dia', {})
+        // A API devolve {itens, total} — aceitar ambos os formatos.
+        const totalDe = (v: { total?: number } | unknown[] | undefined) =>
+          Array.isArray(v) ? v.length : (v?.total ?? 0)
         r.meuDia = {
-          atrasadas: (md.obrigacoes_atrasadas || []).length,
-          tarefas: (md.tarefas_abertas || []).length,
-          acoes: (md.acoes_vencidas || []).length,
+          atrasadas: totalDe(md.obrigacoes_atrasadas),
+          tarefas: totalDe(md.tarefas_abertas),
+          acoes: totalDe(md.acoes_vencidas),
         }
       } catch {
         /* idem */
