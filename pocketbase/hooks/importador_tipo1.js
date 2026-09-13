@@ -663,21 +663,27 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
     try {
       $app.delete($app.findRecordById('negocios', negs[i]))
       removidos.negocios++
-    } catch (_) {}
+    } catch (errNeg) {
+      console.log('T322 delete negocio falhou:', negs[i], String(errNeg))
+    }
   }
   var clis = criados.clientes || []
   for (var j = 0; j < clis.length; j++) {
     try {
       $app.delete($app.findRecordById('clientes', clis[j]))
       removidos.clientes++
-    } catch (_) {}
+    } catch (errCli) {
+      console.log('T322 delete cliente falhou:', clis[j], String(errCli))
+    }
   }
   var emps = criados.empresas || []
   for (var k = 0; k < emps.length; k++) {
     try {
       $app.delete($app.findRecordById('empresas', emps[k]))
       removidos.empresas++
-    } catch (_) {}
+    } catch (errEmp) {
+      console.log('T322 delete empresa falhou:', emps[k], String(errEmp))
+    }
   }
   lote.set('status', 'desfeito')
   lote.set('desfeito_em', new Date().toISOString())
