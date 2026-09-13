@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Eye,
   EyeOff,
   Loader2,
   ShieldCheck,
   AlertCircle,
+  Clock,
   KeyRound,
   FlaskConical,
 } from 'lucide-react'
@@ -19,8 +20,11 @@ const G4_APPROVED = import.meta.env.VITE_G4_APPROVED === 'true'
 
 export default function Index() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login, isValid, isLoading: authLoading } = useAuth()
   const { toast } = useToast()
+
+  const sessaoExpirada = searchParams.get('sessao') === 'expirada'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -30,8 +34,11 @@ export default function Index() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
 
   useEffect(() => {
-    if (!authLoading && isValid) navigate('/home', { replace: true })
-  }, [isValid, authLoading, navigate])
+    // Só redireciona automaticamente para /home se NÃO estiver explicitamente com sessao=expirada
+    if (!authLoading && isValid && !sessaoExpirada) {
+      navigate('/home', { replace: true })
+    }
+  }, [isValid, authLoading, navigate, sessaoExpirada])
 
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {}
@@ -170,6 +177,20 @@ export default function Index() {
               Acesse sua conta para continuar.
             </p>
           </div>
+          {sessaoExpirada && !errorMessage && (
+            <div
+              role="status"
+              className="mb-6 p-4 rounded-lg bg-[#FFFBEB] border border-[#C9A227]/50 text-[#854D0E] text-sm flex items-start gap-3 shadow-sm"
+            >
+              <Clock className="w-5 h-5 flex-shrink-0 mt-0.5 text-[#C9A227]" />
+              <div className="flex-1">
+                <span className="font-semibold block text-[#0A0A0A]">Sessão expirada</span>
+                <span className="text-xs sm:text-sm text-[#78350F]">
+                  Sua sessão expirou. Entre novamente.
+                </span>
+              </div>
+            </div>
+          )}
           {errorMessage && (
             <div
               role="alert"

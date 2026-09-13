@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
@@ -31,20 +32,71 @@ import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isValid, isLoading } = useAuth()
-  if (isLoading)
+  const { isValid, isLoading, validateSession } = useAuth()
+  const [checking, setChecking] = useState(true)
+  const [sessionValid, setSessionValid] = useState(isValid)
+
+  useEffect(() => {
+    let mounted = true
+    if (isLoading) return
+
+    if (!isValid) {
+      setSessionValid(false)
+      setChecking(false)
+      return
+    }
+
+    // Se no client consta como válido, valida ativamente contra o servidor
+    void validateSession().then((ok) => {
+      if (mounted) {
+        setSessionValid(ok)
+        setChecking(false)
+      }
+    })
+
+    return () => {
+      mounted = false
+    }
+  }, [isValid, isLoading, validateSession])
+
+  if (isLoading || checking)
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0A0A] text-white">
         <p className="text-sm font-medium text-[#E8C766]">Verificando credenciais...</p>
       </div>
     )
-  if (!isValid) return <Navigate to="/" replace />
+  if (!sessionValid) return <Navigate to="/?sessao=expirada" replace />
   return <>{children}</>
 }
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isValid, isLoading } = useAuth()
-  if (isLoading) return null
-  if (!isValid) return <Navigate to="/" replace />
+  const { user, isValid, isLoading, validateSession } = useAuth()
+  const [checking, setChecking] = useState(true)
+  const [sessionValid, setSessionValid] = useState(isValid)
+
+  useEffect(() => {
+    let mounted = true
+    if (isLoading) return
+
+    if (!isValid) {
+      setSessionValid(false)
+      setChecking(false)
+      return
+    }
+
+    void validateSession().then((ok) => {
+      if (mounted) {
+        setSessionValid(ok)
+        setChecking(false)
+      }
+    })
+
+    return () => {
+      mounted = false
+    }
+  }, [isValid, isLoading, validateSession])
+
+  if (isLoading || checking) return null
+  if (!sessionValid) return <Navigate to="/?sessao=expirada" replace />
   if (user?.role !== 'admin') return <Navigate to="/home" replace />
   return <>{children}</>
 }

@@ -24,6 +24,7 @@ interface AuthContextType {
     pass: string,
   ) => Promise<{ success: boolean; user?: AuthUser; error?: string }>
   logout: () => void
+  validateSession: () => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -63,10 +64,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsValid(pb.authStore.isValid)
     })
 
+    // Tenta refresh / validação rápida se já constar autenticado localmente
+    if (pb.authStore.isValid && pb.authStore.token) {
+      void pb
+        .collection('users')
+        .authRefresh()
+        .catch(() => {
+          // Se o refresh falhar (ex: token revogado no server), limpa e invalida
+          pb.authStore.clear()
+          setUser(null)
+          setToken(null)
+          setIsValid(false)
+        })
+    }
+
     return () => {
       unsubscribe()
     }
   }, [])
+
+  const validateSession = async (): Promise<boolean> => {
+    if (!pb.authStore.isValid || !pb.authStore.token) {
+      if (isValid) setIsValid(false)
+      if (user) setUser(null)
+      return false
+    }
+
+    try {
+      const refreshed = await pb.collection('users').authRefresh()
+      const mapped = mapAuthRecord(refreshed.record)
+      setUser(mapped)
+      setToken(refreshed.token)
+      setIsValid(true)
+      return true
+    } catch (err: unknown) {
+      // 401 ou token inválido: limpa o authStore
+      pb.authStore.clear()
+      setUser(null)
+      setToken(null)
+      setIsValid(false)
+      return false
+    }
+  }
 
   const login = async (email: string, pass: string) => {
     const trimmedEmail = email.trim()
@@ -124,7 +163,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isValid, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, isValid, isLoading, login, logout, validateSession }}
+    >
       {children}
     </AuthContext.Provider>
   )

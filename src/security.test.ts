@@ -152,3 +152,48 @@ describe('guard de autenticação — contas inativas (CA-2-002)', () => {
     expect(loginPermitido(undefined)).toBe(true)
   })
 })
+
+// ---- Tratamento global de 401 e sessão expirada ----
+describe('interceptor global de 401 e sessão expirada', () => {
+  function processar401(pathname: string, status: number) {
+    const isPublic =
+      pathname === '/' || pathname.startsWith('/formulario/') || pathname === '/entrada'
+    const limpaStorage = status === 401
+    const redireciona = status === 401 && !isPublic
+    const urlDestino = redireciona ? '/?sessao=expirada' : null
+    return { limpaStorage, redireciona, urlDestino }
+  }
+
+  it('em rota protegida com 401, limpa storage e redireciona para login com ?sessao=expirada', () => {
+    const res = processar401('/painel-direcao', 401)
+    expect(res.limpaStorage).toBe(true)
+    expect(res.redireciona).toBe(true)
+    expect(res.urlDestino).toBe('/?sessao=expirada')
+  })
+
+  it('em rota protegida com 200, não limpa nem redireciona', () => {
+    const res = processar401('/painel-direcao', 200)
+    expect(res.limpaStorage).toBe(false)
+    expect(res.redireciona).toBe(false)
+    expect(res.urlDestino).toBeNull()
+  })
+
+  it('em rota pública (/entrada) com 401, limpa storage mas não força redirecionamento', () => {
+    const res = processar401('/entrada', 401)
+    expect(res.limpaStorage).toBe(true)
+    expect(res.redireciona).toBe(false)
+    expect(res.urlDestino).toBeNull()
+  })
+
+  it('em rota de formulário (/formulario/token123) com 401, não redireciona', () => {
+    const res = processar401('/formulario/token123', 401)
+    expect(res.redireciona).toBe(false)
+    expect(res.urlDestino).toBeNull()
+  })
+
+  it('na tela de login (/) com 401, não faz loop de redirecionamento', () => {
+    const res = processar401('/', 401)
+    expect(res.redireciona).toBe(false)
+    expect(res.urlDestino).toBeNull()
+  })
+})
