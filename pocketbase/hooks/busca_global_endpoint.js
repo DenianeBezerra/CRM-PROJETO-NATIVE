@@ -28,11 +28,17 @@ routerAdd(
         { q: like },
       )
       for (var i = 0; i < cs.length; i++) {
+        var empresaNome = ''
+        try {
+          empresaNome = String(
+            $app.findRecordById('empresas', String(cs[i].get('empresa') || '')).get('nome') || '',
+          )
+        } catch (_) {}
         clientes.push({
           id: cs[i].id,
           nome: String(cs[i].get('nome') || ''),
           email: String(cs[i].get('email') || ''),
-          empresa: String(cs[i].get('empresa') || ''),
+          empresa: empresaNome,
         })
       }
     } catch (errC) {
