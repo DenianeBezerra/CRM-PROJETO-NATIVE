@@ -367,37 +367,31 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               </button>
             )}
 
-            {/* Card: Relatórios agendados (T3.19 — admin) */}
+            {/* Card: Relatórios agendados (T3.19 — admin) com status e último envio */}
             {isAdmin && (
               <button
                 onClick={() => navigate('/relatorios')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
+                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#C9A227]/40 hover:border-[#C9A227] hover:shadow-md transition-all cursor-pointer relative overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                  <Mail className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766]">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Ativa semanalmente
+                  </span>
                 </div>
                 <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                  Relatórios agendados
+                  Relatórios Periódicos
                 </h3>
                 <p className="text-xs text-[#6B7280] mt-1">
-                  O resumo da direção chega por e-mail no dia e hora combinados.
+                  Resumo executivo do CRM enviado às segundas-feiras para a direção.
                 </p>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                  Abrir relatórios →
-                </span>
-              </button>
-            )}
-
-            {/* Card: Implantações (T3.16 — admin) */}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/implantacoes')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                  <Rocket className="w-5 h-5" />
+                <div className="mt-3 pt-2 border-t border-[#E5E7EB] flex items-center justify-between text-[11px] text-[#A8862B] font-semibold">
+                  <span>Abrir relatórios →</span>
+                  <span className="text-neutral-500 font-normal">deniane@vibratto.com.br</span>
                 </div>
-                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Implantações</h3>
               </button>
             )}
 

@@ -15,6 +15,7 @@ import {
   Layers,
   ArrowUpRight,
   Sparkles,
+  Mail,
 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
@@ -793,6 +794,59 @@ export default function PainelDirecao() {
                 </div>
               </section>
             )}
+
+            {/* CARD: RELATÓRIOS AGENDADOS / AUTOMATIZAÇÃO */}
+            <section className="bg-white border border-[#C9A227]/40 rounded-xl p-5 shadow-sm space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766]">
+                    <Mail className="w-4.5 h-4.5" />
+                  </div>
+                  <div>
+                    <h2 className="font-playfair text-lg font-bold text-[#0A0A0A]">
+                      Relatórios Executivos Agendados
+                    </h2>
+                    <p className="text-xs text-[#6B7280]">
+                      Resumo semanal automatizado para a diretoria (deniane@vibratto.com.br)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Automação Ativa (Segundas-feiras, 07:00 BRT)
+                  </span>
+                  <button
+                    onClick={() => navigate('/relatorios')}
+                    className="text-xs font-semibold text-[#A8862B] hover:underline px-2 py-1"
+                  >
+                    Ver detalhes →
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+                <div className="bg-[#FAF9F6] p-3 rounded-lg border border-[#E5E7EB]">
+                  <span className="text-[#6B7280] block text-[11px]">Destinatário oficial</span>
+                  <span className="font-semibold text-[#0A0A0A] font-mono text-xs">
+                    deniane@vibratto.com.br
+                  </span>
+                </div>
+                <div className="bg-[#FAF9F6] p-3 rounded-lg border border-[#E5E7EB]">
+                  <span className="text-[#6B7280] block text-[11px]">Conteúdo do resumo</span>
+                  <span className="font-semibold text-[#0A0A0A]">
+                    Funil, negócios por estágio e receita fechada
+                  </span>
+                </div>
+                <div className="bg-[#FAF9F6] p-3 rounded-lg border border-[#E5E7EB]">
+                  <span className="text-[#6B7280] block text-[11px]">Status de envio</span>
+                  <span className="font-semibold text-emerald-700">
+                    Persistido no histórico & pronto para envio
+                  </span>
+                </div>
+              </div>
+            </section>
 
             {/* SEÇÃO DINÂMICA: VISÃO CONTROLADORIA */}
             {papel === 'controladoria' && (

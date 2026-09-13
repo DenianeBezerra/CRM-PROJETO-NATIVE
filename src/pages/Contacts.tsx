@@ -16,6 +16,9 @@ import {
   User,
   ExternalLink,
   ShieldAlert,
+  Upload,
+  FileSpreadsheet,
+  CheckCircle2,
 } from 'lucide-react'
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/contexts/AuthContext'
@@ -129,6 +132,24 @@ export default function Contacts() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
+  // Modal Importador de CSV
+  const [showCsvModal, setShowCsvModal] = useState(false)
+  const [csvText, setCsvText] = useState('')
+  const [csvFileName, setCsvFileName] = useState('')
+  const [csvPreviewRows, setCsvPreviewRows] = useState<Array<Record<string, string>>>([])
+  const [csvTotalRows, setCsvTotalRows] = useState(0)
+  const [csvError, setCsvError] = useState<string | null>(null)
+  const [importingCsv, setImportingCsv] = useState(false)
+  const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(
+    null,
+  )
+  const [importResult, setImportResult] = useState<{
+    importados: number
+    ignoradosEmail: number
+    rejeitados: number
+    detalhesRejeitados: string[]
+  } | null>(null)
+
   const loadData = async () => {
     setLoading(true)
     setLoadError(null)
@@ -208,6 +229,328 @@ export default function Contacts() {
     setNovaEmpresa('')
     setEmpresaInlineError(null)
     setShowModal(true)
+  }
+
+  // Funções do Importador de Contatos CSV
+  const openCsvModal = () => {
+    setCsvText('')
+    setCsvFileName('')
+    setCsvPreviewRows([])
+    setCsvTotalRows(0)
+    setCsvError(null)
+    setImportProgress(null)
+    setImportResult(null)
+    setShowCsvModal(true)
+  }
+
+  const closeCsvModal = () => {
+    setShowCsvModal(false)
+    setCsvText('')
+    setCsvFileName('')
+    setCsvPreviewRows([])
+    setCsvTotalRows(0)
+    setCsvError(null)
+    setImportProgress(null)
+    setImportResult(null)
+  }
+
+  // Parser flexível de linha CSV respeitando aspas
+  const parseCsvLine = (line: string, delimiter: string): string[] => {
+    const result: string[] = []
+    let current = ''
+    let inQuotes = false
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i]
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"'
+          i++
+        } else {
+          inQuotes = !inQuotes
+        }
+      } else if (char === delimiter && !inQuotes) {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += char
+      }
+    }
+    result.push(current.trim())
+    return result
+  }
+
+  const normalizarCabecalho = (header: string): string => {
+    return header
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '')
+  }
+
+  const mapearColuna = (headerNorm: string): string | null => {
+    if (headerNorm === 'nome' || headerNorm === 'name' || headerNorm === 'contato') return 'nome'
+    if (headerNorm === 'empresa' || headerNorm === 'company' || headerNorm === 'organizacao')
+      return 'empresa'
+    if (headerNorm === 'email' || headerNorm === 'correio' || headerNorm === 'mail') return 'email'
+    if (
+      headerNorm === 'telefone' ||
+      headerNorm === 'celular' ||
+      headerNorm === 'phone' ||
+      headerNorm === 'whatsapp' ||
+      headerNorm === 'tel'
+    )
+      return 'telefone'
+    if (headerNorm === 'cidade' || headerNorm === 'city' || headerNorm === 'municipio')
+      return 'cidade'
+    if (headerNorm === 'origem' || headerNorm === 'source' || headerNorm === 'canal')
+      return 'origem'
+    if (headerNorm === 'status' || headerNorm === 'situacao') return 'status'
+    if (
+      headerNorm === 'observacoes' ||
+      headerNorm === 'obs' ||
+      headerNorm === 'notas' ||
+      headerNorm === 'notes'
+    )
+      return 'observacoes'
+    return null
+  }
+
+  const processarTextoCsv = (text: string) => {
+    setCsvError(null)
+    setImportResult(null)
+    const rawLines = text.split(/\r\n|\n|\r/).filter((l) => l.trim().length > 0)
+    if (rawLines.length === 0) {
+      setCsvPreviewRows([])
+      setCsvTotalRows(0)
+      return
+    }
+
+    if (rawLines.length > 501) {
+      setCsvError(
+        'O arquivo excede o limite máximo permitido de 500 contatos por importação. Por favor, divida o arquivo.',
+      )
+      return
+    }
+
+    // Detectar delimitador (vírgula, ponto e vírgula ou tab)
+    const headerLine = rawLines[0]
+    let delimiter = ','
+    const countComma = (headerLine.match(/,/g) || []).length
+    const countSemi = (headerLine.match(/;/g) || []).length
+    const countTab = (headerLine.match(/\t/g) || []).length
+    if (countSemi > countComma && countSemi >= countTab) delimiter = ';'
+    else if (countTab > countComma && countTab > countSemi) delimiter = '\t'
+
+    const headers = parseCsvLine(headerLine, delimiter).map(normalizarCabecalho)
+    const mappedHeaders = headers.map(mapearColuna)
+
+    if (!mappedHeaders.includes('nome')) {
+      setCsvError(
+        'Não foi possível identificar a coluna obrigatória "Nome" nos cabeçalhos. Esperado: nome, empresa, email, telefone, cidade, origem, status, observações.',
+      )
+      return
+    }
+
+    const dataRows: Array<Record<string, string>> = []
+    for (let i = 1; i < rawLines.length; i++) {
+      const values = parseCsvLine(rawLines[i], delimiter)
+      const rowObj: Record<string, string> = {}
+      mappedHeaders.forEach((colKey, idx) => {
+        if (colKey) {
+          rowObj[colKey] = values[idx] || ''
+        }
+      })
+      dataRows.push(rowObj)
+    }
+
+    setCsvTotalRows(dataRows.length)
+    setCsvPreviewRows(dataRows.slice(0, 5))
+  }
+
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCsvFileName(file.name)
+    const reader = new FileReader()
+    reader.onload = (evt) => {
+      const content = String(evt.target?.result || '')
+      setCsvText(content)
+      processarTextoCsv(content)
+    }
+    reader.readAsText(file)
+  }
+
+  const handleCsvTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value
+    setCsvText(val)
+    processarTextoCsv(val)
+  }
+
+  const normalizarOrigem = (origemRaw: string): Cliente['origem'] => {
+    const o = origemRaw.toLowerCase().trim()
+    if (o.includes('site')) return 'site'
+    if (o.includes('indica')) return 'indicacao'
+    if (o.includes('rede') || o.includes('social') || o.includes('insta') || o.includes('link'))
+      return 'redes_sociais'
+    if (o.includes('event') || o.includes('feira')) return 'evento'
+    if (o) return 'outro'
+    return ''
+  }
+
+  const normalizarStatus = (statusRaw: string): 'ativo' | 'prospect' | 'inativo' => {
+    const s = statusRaw.toLowerCase().trim()
+    if (s.includes('ativ')) return 'ativo'
+    if (s.includes('inat')) return 'inativo'
+    return 'prospect'
+  }
+
+  const executarImportacaoCsv = async () => {
+    if (!csvText.trim()) {
+      setCsvError('Insira ou envie um arquivo CSV para continuar.')
+      return
+    }
+
+    const rawLines = csvText.split(/\r\n|\n|\r/).filter((l) => l.trim().length > 0)
+    if (rawLines.length <= 1) {
+      setCsvError('O arquivo não possui linhas de dados para importar.')
+      return
+    }
+
+    if (rawLines.length - 1 > 500) {
+      setCsvError('O limite de 500 linhas por importação foi excedido.')
+      return
+    }
+
+    setImportingCsv(true)
+    setCsvError(null)
+
+    // Detectar delimitador
+    const headerLine = rawLines[0]
+    let delimiter = ','
+    const countComma = (headerLine.match(/,/g) || []).length
+    const countSemi = (headerLine.match(/;/g) || []).length
+    const countTab = (headerLine.match(/\t/g) || []).length
+    if (countSemi > countComma && countSemi >= countTab) delimiter = ';'
+    else if (countTab > countComma && countTab > countSemi) delimiter = '\t'
+
+    const headers = parseCsvLine(headerLine, delimiter).map(normalizarCabecalho)
+    const mappedHeaders = headers.map(mapearColuna)
+
+    // Mapa de e-mails existentes na base para verificação de duplicidade
+    const existingEmails = new Set(
+      items.filter((i) => i.email).map((i) => (i.email || '').trim().toLowerCase()),
+    )
+
+    // Mapa de empresas por nome lowercase para vincular id se existir
+    const empresasMap = new Map<string, string>()
+    empresas.forEach((emp) => {
+      empresasMap.set(emp.nome.trim().toLowerCase(), emp.id)
+    })
+
+    let importados = 0
+    let ignoradosEmail = 0
+    let rejeitados = 0
+    const detalhesRejeitados: string[] = []
+
+    const totalLinhas = rawLines.length - 1
+    setImportProgress({ current: 0, total: totalLinhas })
+
+    for (let i = 1; i < rawLines.length; i++) {
+      const values = parseCsvLine(rawLines[i], delimiter)
+      const rowObj: Record<string, string> = {}
+      mappedHeaders.forEach((colKey, idx) => {
+        if (colKey) {
+          rowObj[colKey] = (values[idx] || '').trim()
+        }
+      })
+
+      const nome = rowObj.nome || ''
+      const email = (rowObj.email || '').toLowerCase()
+      const empresaNome = rowObj.empresa || ''
+      const telefone = rowObj.telefone || ''
+      const cidade = rowObj.cidade || ''
+      const origem = normalizarOrigem(rowObj.origem || '')
+      const status = normalizarStatus(rowObj.status || '')
+      const observacoes = rowObj.observacoes || ''
+
+      // Validação: Nome obrigatório
+      if (!nome || nome.length < 2) {
+        rejeitados++
+        detalhesRejeitados.push(
+          `Linha ${i + 1}: Rejeitada — nome ausente ou com menos de 2 caracteres.`,
+        )
+        setImportProgress({ current: i, total: totalLinhas })
+        continue
+      }
+
+      // Duplicidade por e-mail: pular e contar como ignorado
+      if (email && existingEmails.has(email)) {
+        ignoradosEmail++
+        setImportProgress({ current: i, total: totalLinhas })
+        continue
+      }
+
+      // Resolver ID da empresa se existir na base, ou deixar nulo
+      let empresaId: string | null = null
+      if (empresaNome) {
+        const foundId = empresasMap.get(empresaNome.toLowerCase())
+        if (foundId) {
+          empresaId = foundId
+        } else {
+          // Opcionalmente cria a empresa para vincular
+          try {
+            const nova = await pb.collection('empresas').create<Empresa>({
+              nome: empresaNome,
+              status: 'ativa',
+              natureza_registro: 'cliente',
+            })
+            empresaId = nova.id
+            empresasMap.set(empresaNome.toLowerCase(), nova.id)
+            setEmpresas((prev) => [...prev, nova])
+          } catch (_) {
+            empresaId = null
+          }
+        }
+      }
+
+      try {
+        await pb.collection('clientes').create({
+          nome,
+          empresa: empresaId,
+          email: email || null,
+          telefone: telefone || '',
+          cidade: cidade || '',
+          origem: origem || null,
+          status,
+          observacoes: observacoes || '',
+        })
+        importados++
+        if (email) existingEmails.add(email)
+      } catch (err: unknown) {
+        rejeitados++
+        detalhesRejeitados.push(
+          `Linha ${i + 1} (${nome}): Falha ao salvar — ${getErrorMessage(err)}`,
+        )
+      }
+
+      setImportProgress({ current: i, total: totalLinhas })
+    }
+
+    setImportingCsv(false)
+    setImportResult({
+      importados,
+      ignoradosEmail,
+      rejeitados,
+      detalhesRejeitados,
+    })
+
+    toast({
+      title: 'Importação concluída',
+      description: `${importados} contatos foram importados com sucesso.`,
+    })
+
+    await loadData()
   }
 
   const openEditModal = (item: Cliente) => {
@@ -487,7 +830,14 @@ export default function Contacts() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={openCsvModal}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-[#C9A227]/40 hover:bg-[#FAF9F6] text-[#0A0A0A] px-3.5 py-2.5 font-semibold text-sm shadow-2xs transition-all cursor-pointer"
+            >
+              <Upload className="w-4 h-4 text-[#A8862B]" />
+              <span>Importar CSV</span>
+            </button>
             <button
               onClick={openCreateModal}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#C9A227] hover:bg-[#B8860B] text-[#0A0A0A] px-4 py-2.5 font-semibold text-sm shadow-sm transition-all active:scale-[0.98] cursor-pointer"
@@ -667,7 +1017,7 @@ export default function Contacts() {
                     return (
                       <tr
                         key={item.id}
-                        onClick={() => openEditModal(item)}
+                        onClick={() => navigate(`/contatos/${item.id}`)}
                         className="hover:bg-[#FDFBF7] transition-colors cursor-pointer group"
                       >
                         {/* Nome */}
@@ -780,7 +1130,7 @@ export default function Contacts() {
                 return (
                   <article
                     key={item.id}
-                    onClick={() => openEditModal(item)}
+                    onClick={() => navigate(`/contatos/${item.id}`)}
                     className="bg-white rounded-xl border border-[#E5E7EB] p-4 shadow-xs hover:border-[#C9A227]/60 active:bg-[#FAF9F6] transition-all cursor-pointer"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -1108,6 +1458,249 @@ export default function Contacts() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL: IMPORTADOR DE CONTATOS VIA CSV                     */}
+      {/* ========================================================= */}
+      {showCsvModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div
+            className="bg-white rounded-2xl border border-[#C9A227]/40 shadow-2xl w-full max-w-3xl my-auto overflow-hidden animate-fade-in-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header Modal CSV */}
+            <div className="bg-[#0A0A0A] text-white px-5 sm:px-6 py-4 flex items-center justify-between border-b border-[#C9A227]/30">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#141414] border border-[#C9A227]/40 flex items-center justify-center text-[#E8C766]">
+                  <FileSpreadsheet className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="font-playfair text-lg sm:text-xl font-bold tracking-tight text-white">
+                    Importador de Contatos CSV
+                  </h2>
+                  <p className="text-[11px] text-[#E8C766]/80 font-inter">
+                    Envie uma planilha ou cole dados tabulares para cadastrar contatos em lote
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeCsvModal}
+                disabled={importingCsv}
+                className="text-neutral-400 hover:text-white p-1 rounded-md transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Conteúdo do Modal */}
+            <div className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {/* Alerta de erro */}
+              {csvError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-800 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <span>{csvError}</span>
+                </div>
+              )}
+
+              {/* Resultado pós importação */}
+              {importResult && (
+                <div className="bg-[#FAF9F6] border border-[#C9A227]/40 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-800 font-semibold text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Resumo do Processamento:</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs pt-1">
+                    <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-center">
+                      <span className="block text-lg font-bold text-emerald-700">
+                        {importResult.importados}
+                      </span>
+                      <span className="text-[11px] text-emerald-800 font-medium">Importados</span>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg text-center">
+                      <span className="block text-lg font-bold text-amber-700">
+                        {importResult.ignoradosEmail}
+                      </span>
+                      <span className="text-[11px] text-amber-800 font-medium">
+                        Ignorados (e-mail existente)
+                      </span>
+                    </div>
+                    <div className="bg-red-50 border border-red-200 p-2.5 rounded-lg text-center">
+                      <span className="block text-lg font-bold text-red-700">
+                        {importResult.rejeitados}
+                      </span>
+                      <span className="text-[11px] text-red-800 font-medium">
+                        Rejeitados (sem nome / erro)
+                      </span>
+                    </div>
+                  </div>
+
+                  {importResult.detalhesRejeitados.length > 0 && (
+                    <div className="mt-2 text-[11px] text-red-700 bg-red-50/70 p-2 rounded border border-red-200 max-h-24 overflow-y-auto">
+                      {importResult.detalhesRejeitados.map((det, idx) => (
+                        <p key={idx}>{det}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Informação sobre colunas */}
+              <div className="bg-[#FAF9F6] border border-[#E5E7EB] rounded-xl p-3.5 text-xs text-[#6B7280]">
+                <p className="font-semibold text-[#0A0A0A] mb-1">
+                  Colunas suportadas (cabeçalhos flexíveis, tolerante a acentos e maiúsculas):
+                </p>
+                <p className="leading-relaxed">
+                  <strong className="text-[#0A0A0A]">nome</strong> (obrigatório),{' '}
+                  <strong className="text-[#0A0A0A]">empresa</strong>,{' '}
+                  <strong className="text-[#0A0A0A]">email / e-mail</strong>,{' '}
+                  <strong className="text-[#0A0A0A]">telefone / whatsapp</strong>,{' '}
+                  <strong className="text-[#0A0A0A]">cidade</strong>,{' '}
+                  <strong className="text-[#0A0A0A]">origem</strong> (site, indicação, redes
+                  sociais, evento), <strong className="text-[#0A0A0A]">status</strong> (ativo,
+                  prospect, inativo), <strong className="text-[#0A0A0A]">observações</strong>.
+                </p>
+                <p className="mt-1 text-[11px] text-[#A8862B]">
+                  * Limite de até 500 linhas por arquivo. Linhas sem nome são rejeitadas. Contatos
+                  com e-mail já existente na base são ignorados.
+                </p>
+              </div>
+
+              {/* Seleção de arquivo */}
+              <div>
+                <label className="block text-xs font-semibold text-[#0A0A0A] mb-1.5">
+                  1. Selecionar arquivo .CSV
+                </label>
+                <div className="flex items-center gap-3">
+                  <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#1f1f1f] text-[#E8C766] text-xs font-semibold cursor-pointer transition-colors shadow-2xs">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Escolher arquivo .csv</span>
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      onChange={handleCsvFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                  {csvFileName && (
+                    <span className="text-xs text-[#0A0A0A] font-medium truncate">
+                      {csvFileName}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Ou colar texto CSV */}
+              <div>
+                <label className="block text-xs font-semibold text-[#0A0A0A] mb-1">
+                  2. Ou cole o conteúdo CSV abaixo
+                </label>
+                <textarea
+                  rows={4}
+                  value={csvText}
+                  onChange={handleCsvTextareaChange}
+                  placeholder="nome,empresa,email,telefone,cidade,origem,status&#10;Mariana Silva,Tech Corp,mariana@tech.com,11988887777,São Paulo,site,prospect"
+                  className="w-full text-xs font-mono rounded-lg border border-[#E5E7EB] bg-white p-2.5 outline-none focus:border-[#C9A227]"
+                />
+              </div>
+
+              {/* Barra de Progresso durante a importação */}
+              {importingCsv && importProgress && (
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between text-xs text-[#0A0A0A]">
+                    <span>Importando contatos...</span>
+                    <span className="font-semibold">
+                      {importProgress.current} de {importProgress.total} (
+                      {Math.round((importProgress.current / importProgress.total) * 100)}%)
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-[#E5E7EB] overflow-hidden">
+                    <div
+                      className="h-full bg-[#C9A227] transition-all duration-150"
+                      style={{
+                        width: `${Math.round((importProgress.current / importProgress.total) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Preview das Primeiras Linhas */}
+              {csvPreviewRows.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-[#E5E7EB]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#0A0A0A]">
+                      Pré-visualização das primeiras {csvPreviewRows.length} linhas (total:{' '}
+                      {csvTotalRows}):
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto border border-[#E5E7EB] rounded-lg">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#FAF9F6] border-b border-[#E5E7EB] text-[#6B7280]">
+                        <tr>
+                          <th className="py-2 px-3">Nome</th>
+                          <th className="py-2 px-3">Empresa</th>
+                          <th className="py-2 px-3">E-mail</th>
+                          <th className="py-2 px-3">Telefone</th>
+                          <th className="py-2 px-3">Cidade</th>
+                          <th className="py-2 px-3">Origem</th>
+                          <th className="py-2 px-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#E5E7EB]">
+                        {csvPreviewRows.map((r, i) => (
+                          <tr key={i} className="hover:bg-[#FDFBF7]">
+                            <td className="py-2 px-3 font-semibold text-[#0A0A0A]">
+                              {r.nome || '—'}
+                            </td>
+                            <td className="py-2 px-3 text-[#6B7280]">{r.empresa || '—'}</td>
+                            <td className="py-2 px-3 font-mono text-[11px]">{r.email || '—'}</td>
+                            <td className="py-2 px-3 text-[#6B7280]">{r.telefone || '—'}</td>
+                            <td className="py-2 px-3 text-[#6B7280]">{r.cidade || '—'}</td>
+                            <td className="py-2 px-3 text-[#6B7280]">{r.origem || '—'}</td>
+                            <td className="py-2 px-3 text-[#6B7280]">{r.status || 'prospect'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Rodapé do Modal CSV */}
+            <div className="p-4 sm:p-5 border-t border-[#E5E7EB] bg-[#FAF9F6] flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeCsvModal}
+                disabled={importingCsv}
+                className="rounded-lg border border-[#E5E7EB] hover:bg-white text-xs font-semibold px-4 py-2 text-[#0A0A0A] transition-colors"
+              >
+                {importResult ? 'Fechar' : 'Cancelar'}
+              </button>
+              <button
+                type="button"
+                onClick={() => void executarImportacaoCsv()}
+                disabled={importingCsv || csvTotalRows === 0}
+                className="rounded-lg bg-[#C9A227] hover:bg-[#B8860B] disabled:opacity-50 text-[#0A0A0A] text-xs font-semibold px-5 py-2 transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+              >
+                {importingCsv ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <span>Importando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Confirmar e Importar {csvTotalRows > 0 ? `(${csvTotalRows})` : ''}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

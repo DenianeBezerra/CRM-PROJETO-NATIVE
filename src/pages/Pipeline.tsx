@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import {
   Plus,
   Search,
@@ -159,6 +159,7 @@ export default function Pipeline() {
   const location = useLocation()
   const { user } = useAuth()
   const { toast } = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [negocios, setNegocios] = useState<NegocioItem[]>([])
   const [clientes, setClientes] = useState<ClienteItem[]>([])
@@ -241,6 +242,30 @@ export default function Pipeline() {
   useEffect(() => {
     void loadData()
   }, [])
+
+  // Parâmetros de navegação externa (ex: /pipeline?novo=1&cliente=<id>)
+  useEffect(() => {
+    const novoParam = searchParams.get('novo')
+    const clienteParam = searchParams.get('cliente')
+    if (novoParam === '1') {
+      setEditingItem(null)
+      setForm({
+        ...emptyForm,
+        cliente: clienteParam || '',
+        estagio: 'novo',
+      })
+      setFormErrors({})
+      setGlobalFormError(null)
+      setNovoClienteNome('')
+      setClienteInlineError(null)
+      setShowModal(true)
+      // Limpa os parâmetros da URL sem recarregar
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('novo')
+      newParams.delete('cliente')
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   // Filtragem
   const visibleNegocios = useMemo(() => {

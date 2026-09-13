@@ -444,6 +444,24 @@ routerAdd(
       $app.logger().error('T319 falha ao atualizar status', 'error', String(errS))
     }
     try {
+      var relCol = $app.findCollectionByNameOrId('relatorios')
+      var relRec = new Record(relCol)
+      relRec.set('destinatario', String(rec.get('destinatarios') || ''))
+      relRec.set('assunto', assunto)
+      relRec.set('corpo', html)
+      relRec.set(
+        'periodo',
+        new Date(inicio).toISOString().slice(0, 10) +
+          ' a ' +
+          new Date(fim).toISOString().slice(0, 10),
+      )
+      relRec.set('status', enviados > 0 ? 'enviado' : 'falhou')
+      relRec.set('criado_em', new Date().toISOString())
+      $app.save(relRec)
+    } catch (errRel) {
+      $app.logger().error('T319 persistencia relatorios falhou', 'error', String(errRel))
+    }
+    try {
       var audit = $app.findCollectionByNameOrId('auditoria')
       var ev = new Record(audit)
       ev.set('entidade', 'relatorios_agendados')
@@ -755,6 +773,24 @@ cronAdd('relatorios_agendados', '15 * * * *', () => {
       $app.save(rec)
     } catch (errS) {
       $app.logger().error('T319 cron falha status', 'error', String(errS))
+    }
+    try {
+      var relColCron = $app.findCollectionByNameOrId('relatorios')
+      var relRecCron = new Record(relColCron)
+      relRecCron.set('destinatario', String(rec.get('destinatarios') || ''))
+      relRecCron.set('assunto', assunto)
+      relRecCron.set('corpo', html)
+      relRecCron.set(
+        'periodo',
+        new Date(inicio).toISOString().slice(0, 10) +
+          ' a ' +
+          new Date(fim).toISOString().slice(0, 10),
+      )
+      relRecCron.set('status', enviados > 0 ? 'enviado' : 'falhou')
+      relRecCron.set('criado_em', new Date().toISOString())
+      $app.save(relRecCron)
+    } catch (errRelCron) {
+      $app.logger().error('T319 cron persistencia relatorios falhou', 'error', String(errRelCron))
     }
     try {
       var audit = $app.findCollectionByNameOrId('auditoria')

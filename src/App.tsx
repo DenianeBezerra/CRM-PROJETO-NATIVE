@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import Index from './pages/Index'
 import Home from './pages/Home'
 import Contacts from './pages/Contacts'
+import ContactDetail from './pages/ContactDetail'
 import Pipeline from './pages/Pipeline'
 import Opportunities from './pages/Opportunities'
 import Stages from './pages/Stages'
@@ -123,6 +124,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Contacts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/contatos/:id"
+                element={
+                  <ProtectedRoute>
+                    <ContactDetail />
                   </ProtectedRoute>
                 }
               />
