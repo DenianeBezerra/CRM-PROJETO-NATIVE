@@ -34,6 +34,7 @@ type ExcecaoItem = {
 }
 type CargaItem = {
   analista: string
+  analista_id: string
   obrigacoes_pendentes: number
   clientes_atendidos: number
 }

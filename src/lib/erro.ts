@@ -13,7 +13,7 @@ type ErroPocketBase = {
   message?: string
 }
 
-export function msgErro(e: unknown): string {
+export function msgErro(e: unknown, fallback?: string): string {
   const err = e as ErroPocketBase
   const d = err?.response?.data
   const direto = d?.error || d?.message
@@ -26,5 +26,5 @@ export function msgErro(e: unknown): string {
       .filter(Boolean)
     if (msgs.length) return msgs.join(' · ')
   }
-  return err?.message || 'Erro inesperado — tente novamente.'
+  return err?.message || fallback || 'Erro inesperado — tente novamente.'
 }

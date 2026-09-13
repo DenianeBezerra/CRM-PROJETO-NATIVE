@@ -33,6 +33,7 @@ type Obrigacao = {
   motivo_bloqueio: string
   etapa?: string
   etapa_em?: string
+  atrasada_efetiva?: boolean
 }
 type Excecao = {
   id: string

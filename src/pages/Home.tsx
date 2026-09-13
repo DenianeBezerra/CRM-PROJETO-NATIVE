@@ -174,8 +174,16 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           </div>
         </div>
 
-        {/* Right: Busca global (M-19), Notifications, User Email & Logout */}
+        {/* Right: Busca global (M-19), Notifications, Quick Link Contatos, User Email & Logout */}
         <div className="flex items-center gap-3 sm:gap-5">
+          <button
+            onClick={() => navigate('/contatos')}
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
+            title="Acessar base de contatos"
+          >
+            <Users className="w-3.5 h-3.5 text-[#C9A227]" />
+            <span>Contatos</span>
+          </button>
           <BuscaGlobal />
           <SinoNotificacoes />
           <div className="hidden sm:flex flex-col text-right">
