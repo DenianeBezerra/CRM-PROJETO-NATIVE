@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.565] — 2026-09-14 — T3.18 CONCLUÍDA (teste humano aprovado pela CEO)
+
+- 2026-09-14 · [Deni.Ai] · Task T3.18 concluída: Painel por papel + metas editáveis (SPEC-3-018, CA-3-077 a CA-3-082). Teste humano aprovado pela CEO em 2026-09-14 23:58 — "sim, siga". Revalidação do zero por API: RED (401 painel/metas sem auth; 400 papel inválido; 400 bloco inválido; 403 operator em metas) + GREEN (painel direção 21 KPIs com os 10 indicadores do §2.2; origem_ganhos julho = indicação R$ 8.336,11; metas: 3 seeds ativos, prova desativada; drill-down dos 4 blocos novos; regressão obrigações/visão/export 200). Limpeza: meta de prova desativada — base real intacta. AP-2026-09-14-0100 (variação de KPI distribuição por soma de qtd). QA verde v0.0.563–0.0.565. Fase 3: 19/N.
+
 ## [0.0.564] — 2026-09-14 — T3.18 implementada (aguardando teste humano)
 
 - 2026-09-14 · [Deni.Ai] · **T3.18 — Painel por papel + metas editáveis** implementada (CEO autorizou "sim, implemente" 00:47). Migration 0184 (auditoria.acao += meta_configurada); painel_papel_endpoint.js com 6 KPIs novos no painel de direção (negócios por etapa, taxa de conversão por etapa, ciclo médio de venda, origem dos ganhos, motivo de perda, negócios parados — completando os 10 indicadores do §2.2) + POST/PATCH /metas admin-only auditados; drill-down dos 4 blocos novos (padrão LGPD T2.40); UI PainelDirecao com seletor de papel para admin + bloco Metas (editar valor, criar meta). Provas RED 5/GREEN por API na base real (origem_ganhos julho = indicacao R$ 8.336,11; operator 403 em metas; duplicata/valor negativo 400; auditoria gravada). Limpeza: meta de prova desativada. QA verde v0.0.563–0.0.564. Evidência: evidencias/spec-3-018/. Fase 3: 18/N.

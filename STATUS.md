@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 18/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 19/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.18 — Painel por papel + metas editáveis (SPEC-3-018) — aguardando teste humano
-**Última task concluída:** T3.17 — Modelo de contrato no CRM (2026-09-14 00:00, teste humano aprovado pela CEO — "aprovado!"; v0.0.558)
-**Versão atual:** v0.0.564 (QA verde — provas + limpeza + governança)
+**Task ativa:** nenhuma — T3.18 concluída; próxima leva a definir (relatórios agendados, perfis/backup, V.ia, integração ClickSign, conector OMIE)
+**Última task concluída:** T3.18 — Painel por papel + metas editáveis (2026-09-14 23:58, teste humano aprovado pela CEO — "sim, siga"; v0.0.564)
+**Versão atual:** v0.0.565 (QA verde — provas + limpeza + governança)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** não publicada (decisão da cliente)
 **Governança GitHub:** sincronizada via push_files programático (byte-exato)
@@ -31,7 +31,7 @@
 | 15   | T3.15 — Visão de coordenação + Visão comercial (Leva C p.1)                   | SPEC-3-015            | ✅ Concluída — 2026-09-13 22:23 |
 | 16   | T3.16 — Implantação de cliente (cap. 7) + RBAC (cap. 8/D12)                   | SPEC-3-016            | ✅ Concluída — 2026-09-13 23:08 |
 | 17   | T3.17 — Modelo de contrato no CRM (passo anterior ao ClickSign)               | SPEC-3-017            | ✅ Concluída — 2026-09-14 00:00 |
-| 18   | T3.18 — Painel por papel + metas editáveis (backlog Etapa 3, camada analítica p.1) | SPEC-3-018      | 🕐 Aguardando teste humano da CEO (v0.0.563) |
+| 18   | T3.18 — Painel por papel + metas editáveis (backlog Etapa 3, camada analítica p.1) | SPEC-3-018      | ✅ Concluída — 2026-09-14 23:58 |
 | 17   | T3.17 — Modelo de contrato no CRM (passo anterior ao ClickSign)               | SPEC-3-017            | ✅ Concluída — 2026-09-14 00:00 |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign | a definir SPEC a SPEC | Planejadas                      |
 
