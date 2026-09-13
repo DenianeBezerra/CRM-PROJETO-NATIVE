@@ -3,11 +3,11 @@
 - task_id: T3.20 (Causas comuns C-03 + C-01 + C-04 — SPEC-3-020)
 - champion: Deni.Ai
 - spec: 04-fase-atual/specs/SPEC-3-020-causas-comuns-c03-c01-c04.md
-- etapa: implementando
+- etapa: aguardando_teste_humano
 - autorizacao_implementacao: confirmada — CEO 2026-09-14 08:45 "SIM" (após relatório de análise da T3.20)
 - teste_humano: pendente
 - verificacao_automatica: passou — revalidação do zero: RED (401 sem token; 403 operator POST /relatorios; 403 operator POST /{id}/enviar) + GREEN (GET /relatorios 200 admin; POST /{id}/enviar no agendamento real → {"ok":true,"enviados":1,"falhas":0}; log da plataforma "email sent" ×4) + cron "relatorios_agendados" em produção (11:15 UTC, ok, sem envio indevido). QA verde v0.0.571.
 - aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2350-jsvm-escopo-arquivo-template.md (da implementação; conclusão sem novo AP)
-- ultima_acao: Direcionamento de Correções v2 da CEO analisado — investigação da base real concluída: B-19 ESCLARECIDO (motor consome a ficha; as 18 obrigações vêm todas da ficha da Felicidade; blocos vazios = campos que a UI não cadastra = A-19/A-20), C-03 confirmado (status contradiz etapa no negócio 8tn1jwwd8xsk2u5; ganho sem valor/data em ek8vvnaisupsnga), C-01 confirmado no motor (atraso por status armazenado, não por data), C-04 confirmado (p50=0, datas UTC vs BRT). SPEC-3-020 publicada (ordem 1 e 2 do cap. 9 do documento).
-- proxima_acao: implementar T3.20 (C-03 fonte única + C-01 atraso por data + C-04 padrão de exibição)
-- atualizado_em: 2026-09-14T08:45:00-03:00
+- ultima_acao: T3.20 implementada (v0.0.574–0.0.575 QA verde) — C-03 (0187 reconciliação + hooks derivam status/probabilidade da etapa; ganho exige valor>0+data), C-01 (atrasada_efetiva por data em /obrigacoes, matriz, fila pessoal, operação do dia), C-04 (p50=0→travessão, distribuição vazia→travessão, datas BRT). Provas RED/GREEN por API na base real; estado real restaurado após as provas; regressão ok.
+- proxima_acao: aguardar teste humano da CEO
+- atualizado_em: 2026-09-14T09:05:00-03:00
