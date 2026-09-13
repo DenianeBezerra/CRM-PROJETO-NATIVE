@@ -445,16 +445,26 @@ export default function Contacts() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <nav className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => navigate('/home')}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#C9A227]/40 bg-[#141414] hover:bg-[#C9A227] text-white hover:text-[#0A0A0A] font-medium text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-all"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Voltar para Início</span>
-            <span className="sm:hidden">Início</span>
+            Home
           </button>
-        </div>
+          <button
+            onClick={() => navigate('/pipeline')}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-all"
+          >
+            Pipeline
+          </button>
+          <button
+            onClick={() => navigate('/contatos')}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#C9A227] text-[#0A0A0A] shadow-xs transition-all"
+          >
+            Contatos
+          </button>
+        </nav>
       </header>
 
       {/* ========================================================= */}

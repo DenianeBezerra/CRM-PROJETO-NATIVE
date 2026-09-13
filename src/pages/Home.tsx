@@ -174,8 +174,16 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
           </div>
         </div>
 
-        {/* Right: Busca global (M-19), Notifications, Quick Link Contatos, User Email & Logout */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        {/* Right: Navegação rápida Pipeline & Contatos, Busca global, Notificações, User & Logout */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          <button
+            onClick={() => navigate('/pipeline')}
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
+            title="Acessar Pipeline de Negócios"
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-[#C9A227]" />
+            <span>Pipeline</span>
+          </button>
           <button
             onClick={() => navigate('/contatos')}
             className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#C9A227]/30 hover:border-[#C9A227] bg-[#141414] hover:bg-[#C9A227]/10 text-xs font-semibold text-[#E8C766] transition-colors cursor-pointer"
@@ -270,10 +278,10 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               ) : (
                 <>
                   <button
-                    onClick={() => navigate('/oportunidades')}
+                    onClick={() => navigate('/pipeline')}
                     className="font-semibold text-[#A8862B] underline"
                   >
-                    {rotulo('/oportunidades')}
+                    Pipeline de negócios
                   </button>{' '}
                   ·{' '}
                   <button
@@ -281,6 +289,13 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                     className="font-semibold text-[#A8862B] underline"
                   >
                     {rotulo('/contatos')}
+                  </button>{' '}
+                  ·{' '}
+                  <button
+                    onClick={() => navigate('/oportunidades')}
+                    className="font-semibold text-[#A8862B] underline"
+                  >
+                    {rotulo('/oportunidades')}
                   </button>{' '}
                   ·{' '}
                   <button
@@ -466,22 +481,23 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               </span>
             </button>
 
-            {/* Card 1: Pipeline — clicável, leva para Oportunidades */}
+            {/* Card: Pipeline de Negócios (Kanban) */}
             <button
-              onClick={() => navigate('/oportunidades')}
+              onClick={() => navigate('/pipeline')}
               className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
             >
               <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                Pipeline Comercial
+                Pipeline de Negócios
               </h3>
               <p className="text-xs text-[#6B7280] mt-1">
-                Gestão de oportunidades e estágios de negociação em tempo real.
+                Visão Kanban dos estágios de negociação, métricas de funil e transições em tempo
+                real.
               </p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                Abrir oportunidades →
+                Abrir pipeline →
               </span>
             </button>
 
