@@ -25,6 +25,7 @@ import WhatsAppNegocio from '@/components/WhatsAppNegocio'
 import TimelineNegocio from '@/components/TimelineNegocio'
 import EmailNegocio from '@/components/EmailNegocio'
 import ComentariosNegocio from '@/components/ComentariosNegocio'
+import ContratoNegocio from '@/components/ContratoNegocio'
 
 type Oportunidade = {
   id: string
@@ -394,6 +395,7 @@ export default function Opportunities() {
   const [tlOpen, setTlOpen] = useState<Oportunidade | null>(null)
   const [emOpen, setEmOpen] = useState<Oportunidade | null>(null)
   const [comOpen, setComOpen] = useState<Oportunidade | null>(null)
+  const [contratoOpen, setContratoOpen] = useState<Oportunidade | null>(null)
   return (
     <div className="min-h-screen bg-[#F7F5F1] text-[#0A0A0A] p-4 sm:p-8">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
@@ -632,6 +634,17 @@ export default function Opportunities() {
                         >
                           Comentários
                         </button>
+                        {item.estagio === 'fechado_ganho' && (
+                          <button
+                            onClick={() => {
+                              setMenuAberto(null)
+                              setContratoOpen(item)
+                            }}
+                            className="block w-full text-left text-xs px-3 py-2 hover:bg-[#F7F5F1]"
+                          >
+                            Contrato
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1030,6 +1043,9 @@ export default function Opportunities() {
       )}
       {emOpen && <EmailNegocio negocio={emOpen} onClose={() => setEmOpen(null)} />}
       {comOpen && <ComentariosNegocio negocio={comOpen} onClose={() => setComOpen(null)} />}
+      {contratoOpen && (
+        <ContratoNegocio negocio={contratoOpen} onClose={() => setContratoOpen(null)} />
+      )}
     </div>
   )
 }
