@@ -33,7 +33,7 @@
 | 17   | T3.17 — Modelo de contrato no CRM (passo anterior ao ClickSign)                                                  | SPEC-3-017            | ✅ Concluída — 2026-09-14 00:00                               |
 | 18   | T3.18 — Painel por papel + metas editáveis (backlog Etapa 3, camada analítica p.1)                               | SPEC-3-018            | ✅ Concluída — 2026-09-14 23:58                               |
 | 19   | T3.19 — Relatórios agendados (backlog Etapa 3, §2.3)                                                             | SPEC-3-019            | ✅ Concluída — 2026-09-14 08:15 (teste aprovado — "prossiga") |
-| 20   | T3.20 — Causas comuns C-03 + C-01 + C-04 (Direcionamento de Correções v2, ordem 1-2)                             | SPEC-3-020            | 🕐 Aguardando teste humano da CEO (v0.0.575)                  |
+| 20   | T3.20 — Causas comuns C-03 + C-01 + C-04 (Direcionamento de Correções v2, ordem 1-2)                             | SPEC-3-020            | ✅ Concluída (v0.0.576, teste aprovado 09:15)                 |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign, demais itens do Direcionamento v2 | a definir SPEC a SPEC | Planejadas                                                    |
 
 ## Estado real preservado (base de dados)
