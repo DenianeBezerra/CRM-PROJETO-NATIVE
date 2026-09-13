@@ -2,7 +2,7 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 14/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma (T3.15 concluída)
+**Task ativa:** T3.16 — Implantação de cliente + RBAC (SPEC-3-016) — aguardando autorização
 **Última task concluída:** T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia (2026-09-13 13:43, teste humano aprovado pela CEO — "aprovado, conclua e siga"; v0.0.508)
 **Versão atual:** v0.0.519 (QA verde)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
@@ -11,25 +11,26 @@
 
 ## Composição da Fase 3 (em execução)
 
-| Leva | Tasks                                                                 | SPEC                  | Status                          |
-| ---- | --------------------------------------------------------------------- | --------------------- | ------------------------------- |
-| 1    | T3.01 + canais Comunidade/Spotify/Podcast                             | SPEC-3-000            | ✅ Concluída — 2026-09-12       |
-| 2    | T3.02 — formulários inteligentes                                      | SPEC-3-001            | ✅ Concluída — 2026-09-13       |
-| 2b   | T3.02b — ficha de preparação da proposta                              | SPEC-3-001b           | ✅ Concluída — 2026-09-13 00:16 |
-| 3    | T3.03 — WhatsApp P1                                                   | SPEC-3-002            | ✅ Concluída — 2026-09-13 08:10 |
-| 4    | T3.04 — Timeline 360º                                                 | SPEC-3-003            | ✅ Concluída — 2026-09-13 08:55 |
-| 5    | T3.05 — E-mail P1                                                     | SPEC-3-004            | ✅ Concluída — 2026-09-13 09:05 |
-| 6    | T3.06 — Automações Se/Então (§12)                                     | SPEC-3-005            | ✅ Concluída — 2026-09-13 09:25 |
-| 7    | T3.07 — Porta 1, formulário de entrada (+ D2/D5 implementadas)        | SPEC-3-006            | ✅ Concluída — 2026-09-13 10:06 |
-| 8    | T3.08 — Fila de trabalho pessoal + comentários/menções                | SPEC-3-007            | ✅ Concluída — 2026-09-13 11:25 |
-| 9    | T3.09 — Harmonização visual dos cards                                 | SPEC-3-008            | ✅ Concluída — 2026-09-13 11:39 |
-| 10   | T3.10 — Painel Direção (12 KPIs + metas + comparativo) + premissa MRR | SPEC-3-010            | ✅ Concluída — 2026-09-13 12:19 |
-| 11   | T3.11 — Ficha Operacional do Cliente (Leva A + UI)                    | SPEC-3-011            | ✅ Concluída — 2026-09-13 12:44 |
-| 12   | T3.12 — Motor de Rotinas + Exceções (Leva B)                          | SPEC-3-012            | ✅ Concluída — 2026-09-13 13:09 |
-| 13   | T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia      | SPEC-3-013            | ✅ Concluída — 2026-09-13 13:43 |
-| 14   | T3.14 — Exceções E1–E9 (gatilho por etapa; integração Omie p/ depois) | SPEC-3-014            | ✅ Concluída — 2026-09-13 22:08 |
-| 15   | T3.15 — Visão de coordenação + Visão comercial (Leva C p.1)           | SPEC-3-015            | ✅ Concluída — 2026-09-13 22:23 |
-| 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3               | a definir SPEC a SPEC | Planejadas                      |
+| Leva | Tasks                                                                 | SPEC                  | Status                           |
+| ---- | --------------------------------------------------------------------- | --------------------- | -------------------------------- |
+| 1    | T3.01 + canais Comunidade/Spotify/Podcast                             | SPEC-3-000            | ✅ Concluída — 2026-09-12        |
+| 2    | T3.02 — formulários inteligentes                                      | SPEC-3-001            | ✅ Concluída — 2026-09-13        |
+| 2b   | T3.02b — ficha de preparação da proposta                              | SPEC-3-001b           | ✅ Concluída — 2026-09-13 00:16  |
+| 3    | T3.03 — WhatsApp P1                                                   | SPEC-3-002            | ✅ Concluída — 2026-09-13 08:10  |
+| 4    | T3.04 — Timeline 360º                                                 | SPEC-3-003            | ✅ Concluída — 2026-09-13 08:55  |
+| 5    | T3.05 — E-mail P1                                                     | SPEC-3-004            | ✅ Concluída — 2026-09-13 09:05  |
+| 6    | T3.06 — Automações Se/Então (§12)                                     | SPEC-3-005            | ✅ Concluída — 2026-09-13 09:25  |
+| 7    | T3.07 — Porta 1, formulário de entrada (+ D2/D5 implementadas)        | SPEC-3-006            | ✅ Concluída — 2026-09-13 10:06  |
+| 8    | T3.08 — Fila de trabalho pessoal + comentários/menções                | SPEC-3-007            | ✅ Concluída — 2026-09-13 11:25  |
+| 9    | T3.09 — Harmonização visual dos cards                                 | SPEC-3-008            | ✅ Concluída — 2026-09-13 11:39  |
+| 10   | T3.10 — Painel Direção (12 KPIs + metas + comparativo) + premissa MRR | SPEC-3-010            | ✅ Concluída — 2026-09-13 12:19  |
+| 11   | T3.11 — Ficha Operacional do Cliente (Leva A + UI)                    | SPEC-3-011            | ✅ Concluída — 2026-09-13 12:44  |
+| 12   | T3.12 — Motor de Rotinas + Exceções (Leva B)                          | SPEC-3-012            | ✅ Concluída — 2026-09-13 13:09  |
+| 13   | T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia      | SPEC-3-013            | ✅ Concluída — 2026-09-13 13:43  |
+| 14   | T3.14 — Exceções E1–E9 (gatilho por etapa; integração Omie p/ depois) | SPEC-3-014            | ✅ Concluída — 2026-09-13 22:08  |
+| 15   | T3.15 — Visão de coordenação + Visão comercial (Leva C p.1)           | SPEC-3-015            | ✅ Concluída — 2026-09-13 22:23  |
+| 16   | T3.16 — Implantação de cliente (cap. 7) + RBAC (cap. 8/D12)           | SPEC-3-016            | 🕐 Aguardando autorização da CEO |
+| 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3               | a definir SPEC a SPEC | Planejadas                       |
 
 ## Estado real preservado (base de dados)
 
