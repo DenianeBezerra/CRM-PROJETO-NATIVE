@@ -16,7 +16,7 @@ routerAdd(
     try {
       var obrs = $app.findRecordsByFilter(
         'obrigacoes',
-        'concluida != true && data_prevista < {:hoje}',
+        "data_conclusao = '' && data_prevista < {:hoje}",
         '',
         500,
         0,
