@@ -631,33 +631,22 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
   }
   if (String(lote.get('status') || '') !== 'aplicado')
     return e.json(400, { error: 'Lote já desfeito.' })
-  // JSONField no JSVM pode voltar como string OU Map (acesso por propriedade falha
-  // silenciosamente no goja) — round-trip JSON normaliza para objeto plano (lição T3.21/T3.22).
-  var criados = lote.get('criados') || {}
+  // JSONField no JSVM: get() pode devolver Map sem chaves acessíveis por propriedade.
+  // getString() devolve a serialização JSON do campo — parse a partir dela (lição T3.22).
+  var criados = {}
   try {
-    criados = JSON.parse(JSON.stringify(criados))
-  } catch (_) {
-    criados = {}
-  }
-  if (typeof criados === 'string') {
+    criados = JSON.parse(lote.getString('criados') || '{}')
+  } catch (errParse) {
     try {
-      criados = JSON.parse(criados)
+      criados = JSON.parse(JSON.stringify(lote.get('criados') || {}))
     } catch (_) {
       criados = {}
     }
   }
   if (!criados || typeof criados !== 'object') criados = {}
-  $app
-    .logger()
-    .info(
-      'T322 desfazer criados normalizado',
-      'negocios',
-      String((criados.negocios || []).length),
-      'clientes',
-      String((criados.clientes || []).length),
-      'empresas',
-      String((criados.empresas || []).length),
-    )
+  if (!Array.isArray(criados.negocios)) criados.negocios = []
+  if (!Array.isArray(criados.clientes)) criados.clientes = []
+  if (!Array.isArray(criados.empresas)) criados.empresas = []
   var removidos = { negocios: 0, clientes: 0, empresas: 0 }
   var negs = criados.negocios || []
   for (var i = 0; i < negs.length; i++) {
