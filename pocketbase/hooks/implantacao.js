@@ -299,7 +299,7 @@ routerAdd(
     } catch (_) {}
     // nome do cliente sem sufixo para saudação (primeira palavra)
     var saudacao = nomeCliente.split(' ')[0] || nomeCliente
-    var texto = [
+    var corpo = [
       'Prezado(a) ' + saudacao + ',',
       '',
       'É um prazer tê-la conosco! Seja muito bem-vinda ao nosso BPO. Eu e meu time estamos empenhados em garantir que você tenha a melhor experiência possível durante toda a nossa jornada juntos.',
@@ -321,8 +321,13 @@ routerAdd(
       '',
       'Abraços,',
       'Deniane Bezerra',
-      'Vibratto BPO Financeiro',
+      'CEO & CFO as a Service — Vibratto BPO Financeiro',
     ].join('\n')
+    // A assinatura visual (logo + foto + contato + tagline + aviso LGPD) é aplicada
+    // automaticamente pelo Gmail ao enviar — o CRM entrega o CORPO + instrução.
+    var assinaturaNota =
+      'A assinatura visual oficial (logo Vibratto, contato e aviso de confidencialidade LGPD) é aplicada automaticamente pelo seu Gmail ao enviar este e-mail.'
+    var texto = corpo + '\n\n—\n' + assinaturaNota
     try {
       var audit = $app.findCollectionByNameOrId('auditoria')
       var evRec = new Record(audit)
@@ -339,7 +344,9 @@ routerAdd(
       ok: true,
       empresa: nomeCliente,
       assunto: 'Bem-vinda ao BPO Vibratto — direcionamentos de implantação',
+      corpo: corpo,
       texto: texto,
+      assinatura: 'assinatura_gmail_automatica',
     })
   },
   $apis.requireAuth(),
