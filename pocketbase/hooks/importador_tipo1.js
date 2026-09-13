@@ -631,8 +631,14 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
   }
   if (String(lote.get('status') || '') !== 'aplicado')
     return e.json(400, { error: 'Lote já desfeito.' })
-  // JSONField no JSVM pode voltar como string — parse defensivo (lição T3.21).
+  // JSONField no JSVM pode voltar como string OU Map (acesso por propriedade falha
+  // silenciosamente no goja) — round-trip JSON normaliza para objeto plano (lição T3.21/T3.22).
   var criados = lote.get('criados') || {}
+  try {
+    criados = JSON.parse(JSON.stringify(criados))
+  } catch (_) {
+    criados = {}
+  }
   if (typeof criados === 'string') {
     try {
       criados = JSON.parse(criados)
@@ -641,6 +647,17 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
     }
   }
   if (!criados || typeof criados !== 'object') criados = {}
+  $app
+    .logger()
+    .info(
+      'T322 desfazer criados normalizado',
+      'negocios',
+      String((criados.negocios || []).length),
+      'clientes',
+      String((criados.clientes || []).length),
+      'empresas',
+      String((criados.empresas || []).length),
+    )
   var removidos = { negocios: 0, clientes: 0, empresas: 0 }
   var negs = criados.negocios || []
   for (var i = 0; i < negs.length; i++) {
