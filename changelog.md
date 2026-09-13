@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.563] — 2026-09-14 — T3.18 implementada (aguardando teste humano)
+
+- 2026-09-14 · [Deni.Ai] · **T3.18 — Painel por papel + metas editáveis** implementada (CEO autorizou "sim, implemente" 00:47). Migration 0184 (auditoria.acao += meta_configurada); painel_papel_endpoint.js com 6 KPIs novos no painel de direção (negócios por etapa, taxa de conversão por etapa, ciclo médio de venda, origem dos ganhos, motivo de perda, negócios parados — completando os 10 indicadores do §2.2) + POST/PATCH /metas admin-only auditados; drill-down dos 4 blocos novos (padrão LGPD T2.40); UI PainelDirecao com seletor de papel para admin + bloco Metas (editar valor, criar meta). Provas RED 5/GREEN por API na base real (origem_ganhos julho = indicacao R$ 8.336,11; operator 403 em metas; duplicata/valor negativo 400; auditoria gravada). Limpeza: meta de prova desativada. QA verde v0.0.563. Evidência: evidencias/spec-3-018/.
+
 ## [0.0.562] — 2026-09-14 — T3.18 analisada, SPEC-3-018 publicada (aguardando autorização)
 
 - 2026-09-14 · [Deni.Ai] · Seleção da próxima leva após a conclusão da T3.17: **T3.18 — Painel por papel + metas editáveis** (backlog Etapa 3 — camada analítica p.1, §2.1/2.2/2.3 do doc da CEO). SPEC-3-018 publicada em `04-fase-atual/specs/`. Recorte: 6 KPIs novos no painel de direção (negócios por etapa, taxa de conversão por etapa, ciclo médio de venda, origem dos ganhos, motivo de perda, negócios parados — completando os 10 indicadores do §2.2), metas editáveis pela CEO (POST/PATCH /metas admin-only + UI de edição), painel por papel na UI (?papel= com seletor para admin), drill-down dos blocos novos (padrão LGPD T2.40). Critérios CA-3-077 a CA-3-082. Fora do recorte: relatórios agendados (T3.19), V.ia, perfis/backup (T3.20), catálogo de serviços. Nada implementado — estado `aguardando_autorizacao`.
