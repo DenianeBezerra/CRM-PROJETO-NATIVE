@@ -75,29 +75,38 @@ export default function ContratoNegocio({
     setError('')
     setGerando(true)
     try {
-      const r = await pb.send<{ versao: number; conteudo: string }>(
-        `/backend/v1/negocios/${negocio.id}/contrato/gerar`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            razao_social: form.razao_social?.trim(),
-            cnpj: form.cnpj?.trim(),
-            sede_contratante: form.sede_contratante?.trim(),
-            representante_contratante: form.representante_contratante?.trim(),
-            representante_prestador: form.representante_prestador?.trim() || 'Deniane Bezerra',
-            implantacao_total: form.implantacao_total ? Number(form.implantacao_total) : 0,
-            escopo_servicos: form.escopo_servicos?.trim(),
-            condicoes_financeiras: form.condicoes_financeiras?.trim(),
-            vigencia_inicio: form.vigencia_inicio?.trim(),
-            foro: form.foro?.trim() || 'São Paulo/SP',
-            reajuste_indice: form.reajuste_indice?.trim() || 'IPCA',
-          }),
-        },
-      )
-      setTexto(r.conteudo)
-      setVersaoAtual(r.versao)
-      toast({ title: `Contrato v${r.versao} gerado` })
+      await pb.send(`/backend/v1/negocios/${negocio.id}/contrato/gerar`, {
+        method: 'POST',
+        body: JSON.stringify({
+          razao_social: form.razao_social?.trim(),
+          cnpj: form.cnpj?.trim(),
+          sede_contratante: form.sede_contratante?.trim(),
+          representante_contratante: form.representante_contratante?.trim(),
+          representante_prestador: form.representante_prestador?.trim() || 'Deniane Bezerra',
+          implantacao_total: form.implantacao_total ? Number(form.implantacao_total) : 0,
+          escopo_servicos: form.escopo_servicos?.trim(),
+          condicoes_financeiras: form.condicoes_financeiras?.trim(),
+          vigencia_inicio: form.vigencia_inicio?.trim(),
+          foro: form.foro?.trim() || 'São Paulo/SP',
+          reajuste_indice: form.reajuste_indice?.trim() || 'IPCA',
+        }),
+      })
+      // Fallback resiliente: alguns runtimes devolvem 200 com corpo vazio no POST —
+      // a versão recém-gerada é sempre recuperável pela consolidação/GET versão.
       await load()
+      const r2 = await pb.send<Consol>(`/backend/v1/contratos/${negocio.id}`)
+      const ultima = (r2.versoes || []).reduce((max, v) => (v.versao > max ? v.versao : max), 0)
+      if (ultima > 0) {
+        const v = await pb.send<{ conteudo: string }>(
+          `/backend/v1/contratos/${negocio.id}/versao/${ultima}`,
+          {},
+        )
+        setTexto(v.conteudo)
+        setVersaoAtual(ultima)
+        toast({ title: `Contrato v${ultima} gerado` })
+      } else {
+        toast({ title: 'Contrato gerado' })
+      }
     } catch (err: unknown) {
       const e2 = err as {
         data?: { error?: string; faltando?: string[] }

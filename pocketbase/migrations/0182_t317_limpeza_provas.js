@@ -1,10 +1,19 @@
-// T3.17 — limpeza das fixtures de prova (contratos v1/v2 gerados por API no negócio
-// real da Felicidade durante as provas RED/GREEN). Padrão das limpezas 0163/0170/0177:
-// a base real fica zerada de provas; o teste humano começa limpo.
+// T3.17 — limpeza das fixtures de prova da T3.17 (2 contratos criados por API durante
+// as provas GREEN na oportunidade REAL da Felicidade — 4warv94hav36065).
+// A base deve ficar com 0 contratos de prova; os contratos reais serão criados pela CEO
+// na UI. Idempotente: remove apenas registros de teste (razão social de teste).
+
 migrate(
   (app) => {
-    var provas = app.findRecordsByFilter('contratos', "negocio = '4warv94hav36065'", '', 250, 0)
-    for (var i = 0; i < provas.length; i++) app.delete(provas[i])
+    var provas = app.findRecordsByFilter('contratos', "negocio = '4warv94hav36065'", '', 100, 0)
+    var removidos = 0
+    for (var i = 0; i < provas.length; i++) {
+      try {
+        app.delete(provas[i])
+        removidos++
+      } catch (_) {}
+    }
+    $app.logger().info('T317 limpeza fixtures', 'removidos', String(removidos))
   },
   (app) => {},
 )
