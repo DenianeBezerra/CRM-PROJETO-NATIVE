@@ -1,12 +1,9 @@
-// T3.17 — SPEC-3-017: Modelo de contrato no CRM (passo anterior à integração ClickSign).
-// Coleção `contratos` (append-only no ciclo; delete bloqueado):
-//   negocio (relation), versao (number), status (rascunho|gerado|enviado_assinatura|
-//   assinado|cancelado — os 2 últimos RESERVADOS à integração ClickSign futura),
-//   conteudo (texto integral), dados (json das variáveis), gerado_por, gerado_em.
-// auditoria.acao ganha 'contrato_gerado'.
-// Lições aplicadas: AP-2310 (autodate created/updated explícitos na criação da coleção);
-// AP-0200 (atribuição direta field.values = [...]; construtores tipados).
-// Campos de coleção nova são adicionados APÓS o save da coleção vazia (lição T3.16/0168).
+// T3.17 — SPEC-3-017: modelo de contrato no CRM (passo anterior à integração ClickSign).
+// Fluxo real da CEO (13/09 23:23): proposta aprovada → contrato → restante do fluxo.
+// Proposta não aprovada → identificar a objeção (motivo estruturado — T2.24).
+// Coleção `contratos` (0180, append-only, versionada; status enviado_assinatura/assinado
+// reservados ao ClickSign), template 9 cláusulas (contrato_modelo.js), endpoints
+// (contrato_endpoint.js), UI ContratoNegocio no Mais ⌄ da oportunidade ganha.
 
 migrate(
   (app) => {
@@ -28,6 +25,7 @@ migrate(
         updateRule: null,
         deleteRule: null,
         fields: [],
+        indexes: ['CREATE INDEX idx_contratos_negocio ON contratos (negocio, versao)'],
       })
       app.save(col)
       col.fields.add(
@@ -60,7 +58,6 @@ migrate(
       col.fields.add(new DateField({ name: 'gerado_em', required: false }))
       col.fields.add(new AutodateField({ name: 'created', onCreate: true, onUpdate: false }))
       col.fields.add(new AutodateField({ name: 'updated', onCreate: true, onUpdate: true }))
-      col.indexes.push('CREATE INDEX idx_contratos_negocio ON contratos (negocio, versao)')
       app.save(col)
     }
 
