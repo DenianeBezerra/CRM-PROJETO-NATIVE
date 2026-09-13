@@ -15,6 +15,7 @@ import {
   ClipboardList,
   CalendarCheck,
   BarChart3,
+  Rocket,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
@@ -264,6 +265,26 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                 </p>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
                   Abrir visão de coordenação →
+                </span>
+              </button>
+            )}
+
+            {/* Card: Implantações (T3.16 — admin) */}
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => navigate('/implantacoes')}
+                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
+                  <Rocket className="w-5 h-5" />
+                </div>
+                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Implantações</h3>
+                <p className="text-xs text-[#6B7280] mt-1">
+                  Projeto de entrada do cliente em 7 etapas — conclusão condicionada à ficha
+                  completa.
+                </p>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
+                  Abrir implantações →
                 </span>
               </button>
             )}

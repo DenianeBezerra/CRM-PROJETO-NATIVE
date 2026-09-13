@@ -15,8 +15,11 @@ routerAdd(
   (e) => {
     var actor = e.auth
     if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
-    if (String(actor.get('role') || '') !== 'admin') {
-      return e.json(403, { error: 'Visão de coordenação é exclusiva de administradores.' })
+    var papel = String(actor.get('role') || '')
+    if (papel !== 'admin' && papel !== 'coordenacao') {
+      return e.json(403, {
+        error: 'Visão de coordenação é exclusiva de administradores e coordenação.',
+      })
     }
 
     var parseData = function (s) {
@@ -38,7 +41,7 @@ routerAdd(
         0,
       )
       if (cfgs.length > 0) {
-        var v = Number(cfgs[0].get('valor') || 0)
+        var v = Number(cfgs[0].get('valor_numero') || 0)
         if (v > 0) nDias = v
       }
     } catch (_) {}

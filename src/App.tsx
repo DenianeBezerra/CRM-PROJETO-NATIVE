@@ -21,6 +21,7 @@ import OperacaoDia from './pages/OperacaoDia'
 import PainelDirecao from './pages/PainelDirecao'
 import FichaOperacional from './pages/FichaOperacional'
 import VisaoCoordenacao from './pages/VisaoCoordenacao'
+import Implantacoes from './pages/Implantacoes'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -176,6 +177,14 @@ const App = () => (
               element={
                 <AdminRoute>
                   <VisaoCoordenacao />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/implantacoes"
+              element={
+                <AdminRoute>
+                  <Implantacoes />
                 </AdminRoute>
               }
             />
