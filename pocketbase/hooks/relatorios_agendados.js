@@ -159,104 +159,6 @@ routerAdd(
   $apis.requireAuth(),
 )
 
-// Geração do HTML do relatório resumo_direcao (inline — AP-0200).
-// LGPD: somente KPIs agregados + link; nenhum e-mail/telefone/contato de cliente.
-function gerarResumoDirecaoHtml(
-  inicioMs,
-  fimMs,
-  mrrAtual,
-  contagemAtual,
-  contagemAnterior,
-  urlPreview,
-) {
-  var fmtBRL = function (v) {
-    var neg = v < 0
-    var s = Math.abs(Math.round(v * 100) / 100)
-      .toFixed(2)
-      .replace('.', ',')
-    var inteiro = s.split(',')[0]
-    var mil = ''
-    while (inteiro.length > 3) {
-      mil = '.' + inteiro.slice(inteiro.length - 3) + mil
-      inteiro = inteiro.slice(0, inteiro.length - 3)
-    }
-    return (neg ? '-' : '') + 'R$ ' + inteiro + mil + ',' + s.split(',')[1]
-  }
-  var pct = function (a, b) {
-    if (a == null || b == null || b === 0) return '—'
-    var p = ((a - b) / b) * 100
-    return (p >= 0 ? '▲ +' : '▼ ') + p.toFixed(0) + '%'
-  }
-  var linha = function (rotulo, valor, anterior, unidade) {
-    var v = valor == null ? '—' : unidade === 'moeda' ? fmtBRL(valor) : String(valor)
-    var va = anterior == null ? '—' : unidade === 'moeda' ? fmtBRL(anterior) : String(anterior)
-    return (
-      '<tr><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;font-weight:600;">' +
-      rotulo +
-      '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;">' +
-      v +
-      '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;color:#6B7280;">' +
-      va +
-      '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;color:#A8862B;">' +
-      pct(valor, anterior) +
-      '</td></tr>'
-    )
-  }
-  var dI = new Date(inicioMs).toISOString().slice(0, 10)
-  var dF = new Date(fimMs).toISOString().slice(0, 10)
-  var html =
-    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;color:#0A0A0A;">' +
-    '<div style="background:#0A0A0A;padding:20px 24px;border-radius:8px 8px 0 0;">' +
-    '<h1 style="color:#E8C766;margin:0;font-size:20px;">CRM Vibratto — Resumo da Direção</h1>' +
-    '<p style="color:#C9A227;margin:4px 0 0;font-size:12px;">Período: ' +
-    dI +
-    ' a ' +
-    dF +
-    '</p>' +
-    '</div>' +
-    '<table style="width:100%;border-collapse:collapse;font-size:13px;background:#FFFFFF;border:1px solid #E5E7EB;">' +
-    '<tr style="background:#F7F5F1;"><th style="text-align:left;padding:8px 12px;">Indicador</th><th style="text-align:right;padding:8px 12px;">Período</th><th style="text-align:right;padding:8px 12px;">Anterior</th><th style="text-align:right;padding:8px 12px;">Δ</th></tr>' +
-    linha('MRR contratado', mrrAtual, null, 'moeda') +
-    linha(
-      'Novos negócios',
-      contagemAtual.novos_negocios,
-      contagemAnterior.novos_negocios,
-      'numero',
-    ) +
-    linha('Receita nova', contagemAtual.receita_nova, contagemAnterior.receita_nova, 'moeda') +
-    linha(
-      'Propostas em aberto',
-      contagemAtual.propostas_abertas,
-      contagemAnterior.propostas_abertas,
-      'numero',
-    ) +
-    linha(
-      'Propostas paradas (&gt;10d)',
-      contagemAtual.propostas_paradas,
-      contagemAnterior.propostas_paradas,
-      'numero',
-    ) +
-    linha(
-      'Tarefas vencidas',
-      contagemAtual.tarefas_vencidas,
-      contagemAnterior.tarefas_vencidas,
-      'numero',
-    ) +
-    linha(
-      'Negócios parados',
-      contagemAtual.negocios_parados,
-      contagemAnterior.negocios_parados,
-      'numero',
-    ) +
-    '</table>' +
-    '<p style="font-size:12px;color:#6B7280;margin-top:12px;">Números agregados do CRM — sem dados pessoais. Abra o painel completo: <a href="' +
-    urlPreview +
-    '" style="color:#A8862B;">CRM Vibratto</a></p>' +
-    '<p style="font-size:11px;color:#9CA3AF;margin-top:4px;">E-mail automático do CRM Vibratto. Se você não deveria recebê-lo, avise a direção.</p>' +
-    '</div>'
-  return html
-}
-
 routerAdd(
   'POST',
   '/backend/v1/relatorios/{id}/enviar',
@@ -295,7 +197,6 @@ routerAdd(
       var novosNegocios = 0
       var ganhos = 0
       var receitaNova = 0
-      var mrr = 0
       var propostasAbertas = 0
       var propostasParadas = 0
       var tarefasVencidas = 0
@@ -322,14 +223,6 @@ routerAdd(
         if (status === 'ganho' && dentro(n.get('data_ganho') || n.get('updated'), i, f)) {
           ganhos++
           receitaNova += Number(n.get('valor') || 0)
-        }
-        if (status === 'ganho' && !arquivado) {
-          var servico = String(n.get('servico') || '')
-          var valor = Number(n.get('valor') || 0)
-          if (valor) {
-            if (SERV_REC.indexOf(servico) >= 0) mrr += valor
-            else if (String(n.get('recorrencia') || 'mensal') === 'mensal') mrr += valor
-          }
         }
         if (!arquivado && FINAL.indexOf(estagio) < 0) {
           var up = Date.parse(String(n.get('updated') || '').replace(' ', 'T'))
@@ -390,6 +283,103 @@ routerAdd(
       }
     } catch (_) {}
 
+    // Geração do HTML do relatório (inline — AP-0200: nada top-level; LGPD: só KPIs agregados).
+    var gerarResumoDirecaoHtml = function (
+      inicioMs,
+      fimMs,
+      mrrAtual,
+      contagemAtual,
+      contagemAnterior,
+      urlPreview,
+    ) {
+      var fmtBRL = function (v) {
+        var neg = v < 0
+        var s = Math.abs(Math.round(v * 100) / 100)
+          .toFixed(2)
+          .replace('.', ',')
+        var inteiro = s.split(',')[0]
+        var mil = ''
+        while (inteiro.length > 3) {
+          mil = '.' + inteiro.slice(inteiro.length - 3) + mil
+          inteiro = inteiro.slice(0, inteiro.length - 3)
+        }
+        return (neg ? '-' : '') + 'R$ ' + inteiro + mil + ',' + s.split(',')[1]
+      }
+      var pct = function (a, b) {
+        if (a == null || b == null || b === 0) return '—'
+        var p = ((a - b) / b) * 100
+        return (p >= 0 ? '▲ +' : '▼ ') + p.toFixed(0) + '%'
+      }
+      var linha = function (rotulo, valor, anterior, unidade) {
+        var v = valor == null ? '—' : unidade === 'moeda' ? fmtBRL(valor) : String(valor)
+        var va = anterior == null ? '—' : unidade === 'moeda' ? fmtBRL(anterior) : String(anterior)
+        return (
+          '<tr><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;font-weight:600;">' +
+          rotulo +
+          '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;">' +
+          v +
+          '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;color:#6B7280;">' +
+          va +
+          '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;color:#A8862B;">' +
+          pct(valor, anterior) +
+          '</td></tr>'
+        )
+      }
+      var dI = new Date(inicioMs).toISOString().slice(0, 10)
+      var dF = new Date(fimMs).toISOString().slice(0, 10)
+      var html =
+        '<div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;color:#0A0A0A;">' +
+        '<div style="background:#0A0A0A;padding:20px 24px;border-radius:8px 8px 0 0;">' +
+        '<h1 style="color:#E8C766;margin:0;font-size:20px;">CRM Vibratto — Resumo da Direção</h1>' +
+        '<p style="color:#C9A227;margin:4px 0 0;font-size:12px;">Período: ' +
+        dI +
+        ' a ' +
+        dF +
+        '</p>' +
+        '</div>' +
+        '<table style="width:100%;border-collapse:collapse;font-size:13px;background:#FFFFFF;border:1px solid #E5E7EB;">' +
+        '<tr style="background:#F7F5F1;"><th style="text-align:left;padding:8px 12px;">Indicador</th><th style="text-align:right;padding:8px 12px;">Período</th><th style="text-align:right;padding:8px 12px;">Anterior</th><th style="text-align:right;padding:8px 12px;">Δ</th></tr>' +
+        linha('MRR contratado', mrrAtual, null, 'moeda') +
+        linha(
+          'Novos negócios',
+          contagemAtual.novos_negocios,
+          contagemAnterior.novos_negocios,
+          'numero',
+        ) +
+        linha('Receita nova', contagemAtual.receita_nova, contagemAnterior.receita_nova, 'moeda') +
+        linha(
+          'Propostas em aberto',
+          contagemAtual.propostas_abertas,
+          contagemAnterior.propostas_abertas,
+          'numero',
+        ) +
+        linha(
+          'Propostas paradas (&gt;10d)',
+          contagemAtual.propostas_paradas,
+          contagemAnterior.propostas_paradas,
+          'numero',
+        ) +
+        linha(
+          'Tarefas vencidas',
+          contagemAtual.tarefas_vencidas,
+          contagemAnterior.tarefas_vencidas,
+          'numero',
+        ) +
+        linha(
+          'Negócios parados',
+          contagemAtual.negocios_parados,
+          contagemAnterior.negocios_parados,
+          'numero',
+        ) +
+        '</table>' +
+        '<p style="font-size:12px;color:#6B7280;margin-top:12px;">Números agregados do CRM — sem dados pessoais. Abra o painel completo: <a href="' +
+        urlPreview +
+        '" style="color:#A8862B;">CRM Vibratto</a></p>' +
+        '<p style="font-size:11px;color:#9CA3AF;margin-top:4px;">E-mail automático do CRM Vibratto. Se você não deveria recebê-lo, avise a direção.</p>' +
+        '</div>'
+      return html
+    }
+
     var html = gerarResumoDirecaoHtml(
       inicio,
       fim,
@@ -442,10 +432,9 @@ routerAdd(
       }).length
     }
 
-    var okEnvio = enviados > 0 && falhas === 0
     var parcial = enviados > 0 && falhas > 0
     rec.set('ultimo_envio_em', new Date().toISOString().replace('T', ' ').substring(0, 19))
-    rec.set('ultimo_status', okEnvio ? 'enviado' : parcial ? 'enviado' : 'falhou')
+    rec.set('ultimo_status', enviados > 0 ? 'enviado' : 'falhou')
     try {
       $app.save(rec)
     } catch (errS) {
@@ -591,6 +580,102 @@ cronAdd('relatorios_agendados', '15 * * * *', () => {
   } catch (_) {}
   var atual = calc(inicio, fim)
   var anterior = calc(antInicio, antFim)
+  // Geração do HTML do relatório (inline — AP-0200).
+  var gerarResumoDirecaoHtml = function (
+    inicioMs,
+    fimMs,
+    mrrAtual,
+    contagemAtual,
+    contagemAnterior,
+    urlPreview,
+  ) {
+    var fmtBRL = function (v) {
+      var neg = v < 0
+      var s = Math.abs(Math.round(v * 100) / 100)
+        .toFixed(2)
+        .replace('.', ',')
+      var inteiro = s.split(',')[0]
+      var mil = ''
+      while (inteiro.length > 3) {
+        mil = '.' + inteiro.slice(inteiro.length - 3) + mil
+        inteiro = inteiro.slice(0, inteiro.length - 3)
+      }
+      return (neg ? '-' : '') + 'R$ ' + inteiro + mil + ',' + s.split(',')[1]
+    }
+    var pct = function (a, b) {
+      if (a == null || b == null || b === 0) return '—'
+      var p = ((a - b) / b) * 100
+      return (p >= 0 ? '▲ +' : '▼ ') + p.toFixed(0) + '%'
+    }
+    var linha = function (rotulo, valor, anterior, unidade) {
+      var v = valor == null ? '—' : unidade === 'moeda' ? fmtBRL(valor) : String(valor)
+      var va = anterior == null ? '—' : unidade === 'moeda' ? fmtBRL(anterior) : String(anterior)
+      return (
+        '<tr><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;font-weight:600;">' +
+        rotulo +
+        '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;">' +
+        v +
+        '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;color:#6B7280;">' +
+        va +
+        '</td><td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;text-align:right;color:#A8862B;">' +
+        pct(valor, anterior) +
+        '</td></tr>'
+      )
+    }
+    var dI = new Date(inicioMs).toISOString().slice(0, 10)
+    var dF = new Date(fimMs).toISOString().slice(0, 10)
+    var html =
+      '<div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;color:#0A0A0A;">' +
+      '<div style="background:#0A0A0A;padding:20px 24px;border-radius:8px 8px 0 0;">' +
+      '<h1 style="color:#E8C766;margin:0;font-size:20px;">CRM Vibratto — Resumo da Direção</h1>' +
+      '<p style="color:#C9A227;margin:4px 0 0;font-size:12px;">Período: ' +
+      dI +
+      ' a ' +
+      dF +
+      '</p>' +
+      '</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:13px;background:#FFFFFF;border:1px solid #E5E7EB;">' +
+      '<tr style="background:#F7F5F1;"><th style="text-align:left;padding:8px 12px;">Indicador</th><th style="text-align:right;padding:8px 12px;">Período</th><th style="text-align:right;padding:8px 12px;">Anterior</th><th style="text-align:right;padding:8px 12px;">Δ</th></tr>' +
+      linha('MRR contratado', mrrAtual, null, 'moeda') +
+      linha(
+        'Novos negócios',
+        contagemAtual.novos_negocios,
+        contagemAnterior.novos_negocios,
+        'numero',
+      ) +
+      linha('Receita nova', contagemAtual.receita_nova, contagemAnterior.receita_nova, 'moeda') +
+      linha(
+        'Propostas em aberto',
+        contagemAtual.propostas_abertas,
+        contagemAnterior.propostas_abertas,
+        'numero',
+      ) +
+      linha(
+        'Propostas paradas (&gt;10d)',
+        contagemAtual.propostas_paradas,
+        contagemAnterior.propostas_paradas,
+        'numero',
+      ) +
+      linha(
+        'Tarefas vencidas',
+        contagemAtual.tarefas_vencidas,
+        contagemAnterior.tarefas_vencidas,
+        'numero',
+      ) +
+      linha(
+        'Negócios parados',
+        contagemAtual.negocios_parados,
+        contagemAnterior.negocios_parados,
+        'numero',
+      ) +
+      '</table>' +
+      '<p style="font-size:12px;color:#6B7280;margin-top:12px;">Números agregados do CRM — sem dados pessoais. Abra o painel completo: <a href="' +
+      urlPreview +
+      '" style="color:#A8862B;">CRM Vibratto</a></p>' +
+      '<p style="font-size:11px;color:#9CA3AF;margin-top:4px;">E-mail automático do CRM Vibratto. Se você não deveria recebê-lo, avise a direção.</p>' +
+      '</div>'
+    return html
+  }
   var html = gerarResumoDirecaoHtml(
     inicio,
     fim,
