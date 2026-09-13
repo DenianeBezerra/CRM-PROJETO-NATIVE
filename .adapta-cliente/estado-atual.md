@@ -11,4 +11,5 @@
 - aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-13-2350-jsvm-escopo-arquivo-template.md (da implementação; conclusão sem novo AP)
 - ultima_acao: T3.20 CONCLUÍDA (teste humano aprovado pela CEO 09:04). Nova task T3.21 — Módulo de Conteúdo: especificação da CEO (uploads/c30cda5b, 14 capítulos) analisada; recorte em 3 levás proposto; 6 decisões pendentes (D17–D22) enviadas à CEO para fechar a SPEC.
 - proxima_acao: aguardar decisões D17–D22 da CEO para publicar a SPEC-3-021
+- decisoes_pendentes: D17 nomenclatura campanha (proposto slug), D18 página destino links (proposto vibratto.com.br), D19 aprovadores (proposto só direção), D20 desempenho (proposto semanal), D21 retenção vídeo bruto (proposto 90 dias), D22 séries ativas migração (a levantar)
 - atualizado_em: 2026-09-14T09:25:00-03:00
