@@ -33,7 +33,7 @@ type Contadores = {
 
 export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
   const navigate = useNavigate()
-  const { user, isAdmin } = useAuth()
+  const { user, isValid, isLoading, logout, isAdmin } = useAuth()
   const { toast } = useToast()
   const [contadores, setContadores] = useState<Contadores>({ operacao: null, meuDia: null })
 
@@ -102,7 +102,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
     if (!isLoading && !isValid) {
       navigate('/', { replace: true })
     }
-  }, [navigate])
+  }, [isValid, isLoading, navigate])
 
   const handleLogout = () => {
     logout()
