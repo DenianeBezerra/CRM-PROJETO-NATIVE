@@ -3,159 +3,159 @@
 // Migração: entrada_origem='migracao' — fora de conversão/ciclo/origem; entra só no MRR (CA-3-115).
 // Múltiplos serviços: um negócio por serviço, valor próprio (CA-3-117).
 // RBAC: admin e coordenacao; operator/social_media 403 (CA-3-113).
-var SISTEMAS = ['omie', 'nibo', 'olist', 'profilm', 'controle']
-var SERVICOS = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
-
-function soDigitos(s) {
-  return String(s || '').replace(/\D/g, '')
-}
-function cnpjValido(c) {
-  var d = soDigitos(c)
-  if (d.length !== 14) return false
-  if (/^(\d)\1+$/.test(d)) return false
-  var calc = function (base) {
-    var soma = 0
-    var peso = base.length + 1
-    for (var i = 0; i < base.length; i++) {
-      soma += Number(base[i]) * peso
-      peso--
-      if (peso < 2) peso = 9
-    }
-    var r = soma % 11
-    return r < 2 ? 0 : 11 - r
-  }
-  var d1 = calc(d.substring(0, 12))
-  var d2 = calc(d.substring(0, 12) + String(d1))
-  return Number(d[12]) === d1 && Number(d[13]) === d2
-}
-function papelPermitido(actor) {
-  var role = String(actor.get('role') || '')
-  return role === 'admin' || role === 'coordenacao'
-}
-function auditar(ator, acao, registroId, detalhe) {
-  try {
-    var audit = $app.findCollectionByNameOrId('auditoria')
-    var ev = new Record(audit)
-    ev.set('entidade', 'importacoes_lotes')
-    ev.set('registro_id', registroId)
-    ev.set('acao', acao)
-    ev.set('ator_id', ator.id)
-    ev.set('ocorrido_em', new Date().toISOString())
-    ev.set('estado_posterior', JSON.stringify(detalhe || {}))
-    $app.save(ev)
-  } catch (err) {
-    $app.logger().error('Auditoria do importador falhou', 'error', String(err))
-  }
-}
-// valida e deduplica; retorna {validas, erros, plano} — plano por linha
-function processarLinhas(linhas, dedup) {
-  var validas = []
-  var erros = []
-  var dupEmpresa = 0
-  var dupContato = 0
-  var atualizaEmpresa = 0
-  var atualizaContato = 0
-  for (var i = 0; i < linhas.length; i++) {
-    var L = linhas[i] || {}
-    var err = []
-    var razao = String(L.razao_social || '').trim()
-    var cnpj = soDigitos(L.cnpj)
-    var cNome = String(L.contato_nome || '').trim()
-    var cEmail = String(L.contato_email || '')
-      .trim()
-      .toLowerCase()
-    var sistema = String(L.sistema || '')
-      .trim()
-      .toLowerCase()
-    var sistemaOutro = String(L.sistema_outro || '').trim()
-    var dataInicio = String(L.data_inicio || '').trim()
-    var vigencia = String(L.vigencia || '').trim()
-    var setor = String(L.setor || '').trim()
-    var telefone = String(L.telefone || '').trim()
-    var servicos = Array.isArray(L.servicos) ? L.servicos : []
-    if (!razao) err.push('razao_social obrigatória')
-    if (!cnpjValido(cnpj)) err.push('CNPJ inválido')
-    if (!cNome) err.push('contato_nome obrigatório')
-    if (!cEmail || cEmail.indexOf('@') < 1) err.push('contato_email obrigatório/inválido')
-    if (SISTEMAS.indexOf(sistema) < 0 && !sistemaOutro)
-      err.push('sistema obrigatório (lista ou sistema_outro)')
-    if (!dataInicio || isNaN(Date.parse(dataInicio.replace(' ', 'T'))))
-      err.push('data_inicio inválida (YYYY-MM-DD)')
-    var servOk = []
-    if (servicos.length === 0) err.push('pelo menos um serviço')
-    for (var s = 0; s < servicos.length; s++) {
-      var sv = servicos[s] || {}
-      var nome = String(sv.servico || '').trim()
-      var valor = Number(sv.valor_mensal)
-      if (SERVICOS.indexOf(nome) < 0) err.push('servico inválido: ' + nome)
-      else if (!Number.isFinite(valor) || valor <= 0) err.push('valor_mensal > 0 p/ ' + nome)
-      else servOk.push({ servico: nome, valor_mensal: valor })
-    }
-    if (err.length > 0) {
-      erros.push({ linha: i + 1, erros: err })
-      continue
-    }
-    // dedup
-    var empresaExistente = null
-    try {
-      var found = $app.findRecordsByFilter('empresas', 'cnpj = "' + cnpj + '"', '', 1, 0)
-      if (found.length > 0) empresaExistente = found[0]
-    } catch (_) {}
-    var contatoExistente = null
-    try {
-      var fc = $app.findRecordsByFilter(
-        'clientes',
-        'email = "' + cEmail.replace(/"/g, '') + '"',
-        '',
-        1,
-        0,
-      )
-      if (fc.length > 0) contatoExistente = fc[0]
-    } catch (_) {}
-    if (empresaExistente) dupEmpresa++
-    if (contatoExistente) dupContato++
-    var acaoEmpresa = empresaExistente
-      ? dedup && dedup.empresas === 'atualizar'
-        ? 'atualizar'
-        : 'ignorar'
-      : 'criar'
-    var acaoContato = contatoExistente
-      ? dedup && dedup.contatos === 'atualizar'
-        ? 'atualizar'
-        : 'ignorar'
-      : 'criar'
-    if (acaoEmpresa === 'atualizar') atualizaEmpresa++
-    if (acaoContato === 'atualizar') atualizaContato++
-    validas.push({
-      linha: i + 1,
-      razao_social: razao,
-      cnpj: cnpj,
-      contato_nome: cNome,
-      contato_email: cEmail,
-      telefone: telefone,
-      setor: setor,
-      sistema: SISTEMAS.indexOf(sistema) >= 0 ? sistema : 'outro',
-      sistema_outro: SISTEMAS.indexOf(sistema) >= 0 ? '' : sistemaOutro,
-      data_inicio: dataInicio,
-      vigencia: vigencia,
-      servicos: servOk,
-      empresa_existente_id: empresaExistente ? empresaExistente.id : '',
-      contato_existente_id: contatoExistente ? contatoExistente.id : '',
-      acao_empresa: acaoEmpresa,
-      acao_contato: acaoContato,
-    })
-  }
-  return {
-    validas: validas,
-    erros: erros,
-    dup_empresa: dupEmpresa,
-    dup_contato: dupContato,
-    atualiza_empresa: atualizaEmpresa,
-    atualiza_contato: atualizaContato,
-  }
-}
-
 routerAdd('POST', '/backend/v1/importador/preview', (e) => {
+  var SISTEMAS = ['omie', 'nibo', 'olist', 'profilm', 'controle']
+  var SERVICOS = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
+
+  function soDigitos(s) {
+    return String(s || '').replace(/\D/g, '')
+  }
+  function cnpjValido(c) {
+    var d = soDigitos(c)
+    if (d.length !== 14) return false
+    if (/^(\d)\1+$/.test(d)) return false
+    var calc = function (base) {
+      var soma = 0
+      var peso = base.length + 1
+      for (var i = 0; i < base.length; i++) {
+        soma += Number(base[i]) * peso
+        peso--
+        if (peso < 2) peso = 9
+      }
+      var r = soma % 11
+      return r < 2 ? 0 : 11 - r
+    }
+    var d1 = calc(d.substring(0, 12))
+    var d2 = calc(d.substring(0, 12) + String(d1))
+    return Number(d[12]) === d1 && Number(d[13]) === d2
+  }
+  function papelPermitido(actor) {
+    var role = String(actor.get('role') || '')
+    return role === 'admin' || role === 'coordenacao'
+  }
+  function auditar(ator, acao, registroId, detalhe) {
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var ev = new Record(audit)
+      ev.set('entidade', 'importacoes_lotes')
+      ev.set('registro_id', registroId)
+      ev.set('acao', acao)
+      ev.set('ator_id', ator.id)
+      ev.set('ocorrido_em', new Date().toISOString())
+      ev.set('estado_posterior', JSON.stringify(detalhe || {}))
+      $app.save(ev)
+    } catch (err) {
+      $app.logger().error('Auditoria do importador falhou', 'error', String(err))
+    }
+  }
+  // valida e deduplica; retorna {validas, erros, plano} — plano por linha
+  function processarLinhas(linhas, dedup) {
+    var validas = []
+    var erros = []
+    var dupEmpresa = 0
+    var dupContato = 0
+    var atualizaEmpresa = 0
+    var atualizaContato = 0
+    for (var i = 0; i < linhas.length; i++) {
+      var L = linhas[i] || {}
+      var err = []
+      var razao = String(L.razao_social || '').trim()
+      var cnpj = soDigitos(L.cnpj)
+      var cNome = String(L.contato_nome || '').trim()
+      var cEmail = String(L.contato_email || '')
+        .trim()
+        .toLowerCase()
+      var sistema = String(L.sistema || '')
+        .trim()
+        .toLowerCase()
+      var sistemaOutro = String(L.sistema_outro || '').trim()
+      var dataInicio = String(L.data_inicio || '').trim()
+      var vigencia = String(L.vigencia || '').trim()
+      var setor = String(L.setor || '').trim()
+      var telefone = String(L.telefone || '').trim()
+      var servicos = Array.isArray(L.servicos) ? L.servicos : []
+      if (!razao) err.push('razao_social obrigatória')
+      if (!cnpjValido(cnpj)) err.push('CNPJ inválido')
+      if (!cNome) err.push('contato_nome obrigatório')
+      if (!cEmail || cEmail.indexOf('@') < 1) err.push('contato_email obrigatório/inválido')
+      if (SISTEMAS.indexOf(sistema) < 0 && !sistemaOutro)
+        err.push('sistema obrigatório (lista ou sistema_outro)')
+      if (!dataInicio || isNaN(Date.parse(dataInicio.replace(' ', 'T'))))
+        err.push('data_inicio inválida (YYYY-MM-DD)')
+      var servOk = []
+      if (servicos.length === 0) err.push('pelo menos um serviço')
+      for (var s = 0; s < servicos.length; s++) {
+        var sv = servicos[s] || {}
+        var nome = String(sv.servico || '').trim()
+        var valor = Number(sv.valor_mensal)
+        if (SERVICOS.indexOf(nome) < 0) err.push('servico inválido: ' + nome)
+        else if (!Number.isFinite(valor) || valor <= 0) err.push('valor_mensal > 0 p/ ' + nome)
+        else servOk.push({ servico: nome, valor_mensal: valor })
+      }
+      if (err.length > 0) {
+        erros.push({ linha: i + 1, erros: err })
+        continue
+      }
+      // dedup
+      var empresaExistente = null
+      try {
+        var found = $app.findRecordsByFilter('empresas', 'cnpj = "' + cnpj + '"', '', 1, 0)
+        if (found.length > 0) empresaExistente = found[0]
+      } catch (_) {}
+      var contatoExistente = null
+      try {
+        var fc = $app.findRecordsByFilter(
+          'clientes',
+          'email = "' + cEmail.replace(/"/g, '') + '"',
+          '',
+          1,
+          0,
+        )
+        if (fc.length > 0) contatoExistente = fc[0]
+      } catch (_) {}
+      if (empresaExistente) dupEmpresa++
+      if (contatoExistente) dupContato++
+      var acaoEmpresa = empresaExistente
+        ? dedup && dedup.empresas === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      var acaoContato = contatoExistente
+        ? dedup && dedup.contatos === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      if (acaoEmpresa === 'atualizar') atualizaEmpresa++
+      if (acaoContato === 'atualizar') atualizaContato++
+      validas.push({
+        linha: i + 1,
+        razao_social: razao,
+        cnpj: cnpj,
+        contato_nome: cNome,
+        contato_email: cEmail,
+        telefone: telefone,
+        setor: setor,
+        sistema: SISTEMAS.indexOf(sistema) >= 0 ? sistema : 'outro',
+        sistema_outro: SISTEMAS.indexOf(sistema) >= 0 ? '' : sistemaOutro,
+        data_inicio: dataInicio,
+        vigencia: vigencia,
+        servicos: servOk,
+        empresa_existente_id: empresaExistente ? empresaExistente.id : '',
+        contato_existente_id: contatoExistente ? contatoExistente.id : '',
+        acao_empresa: acaoEmpresa,
+        acao_contato: acaoContato,
+      })
+    }
+    return {
+      validas: validas,
+      erros: erros,
+      dup_empresa: dupEmpresa,
+      dup_contato: dupContato,
+      atualiza_empresa: atualizaEmpresa,
+      atualiza_contato: atualizaContato,
+    }
+  }
+
   var actor = e.auth
   if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
   if (!papelPermitido(actor))
@@ -183,6 +183,158 @@ routerAdd('POST', '/backend/v1/importador/preview', (e) => {
 })
 
 routerAdd('POST', '/backend/v1/importador/tipo1', (e) => {
+  var SISTEMAS = ['omie', 'nibo', 'olist', 'profilm', 'controle']
+  var SERVICOS = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
+
+  function soDigitos(s) {
+    return String(s || '').replace(/\D/g, '')
+  }
+  function cnpjValido(c) {
+    var d = soDigitos(c)
+    if (d.length !== 14) return false
+    if (/^(\d)\1+$/.test(d)) return false
+    var calc = function (base) {
+      var soma = 0
+      var peso = base.length + 1
+      for (var i = 0; i < base.length; i++) {
+        soma += Number(base[i]) * peso
+        peso--
+        if (peso < 2) peso = 9
+      }
+      var r = soma % 11
+      return r < 2 ? 0 : 11 - r
+    }
+    var d1 = calc(d.substring(0, 12))
+    var d2 = calc(d.substring(0, 12) + String(d1))
+    return Number(d[12]) === d1 && Number(d[13]) === d2
+  }
+  function papelPermitido(actor) {
+    var role = String(actor.get('role') || '')
+    return role === 'admin' || role === 'coordenacao'
+  }
+  function auditar(ator, acao, registroId, detalhe) {
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var ev = new Record(audit)
+      ev.set('entidade', 'importacoes_lotes')
+      ev.set('registro_id', registroId)
+      ev.set('acao', acao)
+      ev.set('ator_id', ator.id)
+      ev.set('ocorrido_em', new Date().toISOString())
+      ev.set('estado_posterior', JSON.stringify(detalhe || {}))
+      $app.save(ev)
+    } catch (err) {
+      $app.logger().error('Auditoria do importador falhou', 'error', String(err))
+    }
+  }
+  // valida e deduplica; retorna {validas, erros, plano} — plano por linha
+  function processarLinhas(linhas, dedup) {
+    var validas = []
+    var erros = []
+    var dupEmpresa = 0
+    var dupContato = 0
+    var atualizaEmpresa = 0
+    var atualizaContato = 0
+    for (var i = 0; i < linhas.length; i++) {
+      var L = linhas[i] || {}
+      var err = []
+      var razao = String(L.razao_social || '').trim()
+      var cnpj = soDigitos(L.cnpj)
+      var cNome = String(L.contato_nome || '').trim()
+      var cEmail = String(L.contato_email || '')
+        .trim()
+        .toLowerCase()
+      var sistema = String(L.sistema || '')
+        .trim()
+        .toLowerCase()
+      var sistemaOutro = String(L.sistema_outro || '').trim()
+      var dataInicio = String(L.data_inicio || '').trim()
+      var vigencia = String(L.vigencia || '').trim()
+      var setor = String(L.setor || '').trim()
+      var telefone = String(L.telefone || '').trim()
+      var servicos = Array.isArray(L.servicos) ? L.servicos : []
+      if (!razao) err.push('razao_social obrigatória')
+      if (!cnpjValido(cnpj)) err.push('CNPJ inválido')
+      if (!cNome) err.push('contato_nome obrigatório')
+      if (!cEmail || cEmail.indexOf('@') < 1) err.push('contato_email obrigatório/inválido')
+      if (SISTEMAS.indexOf(sistema) < 0 && !sistemaOutro)
+        err.push('sistema obrigatório (lista ou sistema_outro)')
+      if (!dataInicio || isNaN(Date.parse(dataInicio.replace(' ', 'T'))))
+        err.push('data_inicio inválida (YYYY-MM-DD)')
+      var servOk = []
+      if (servicos.length === 0) err.push('pelo menos um serviço')
+      for (var s = 0; s < servicos.length; s++) {
+        var sv = servicos[s] || {}
+        var nome = String(sv.servico || '').trim()
+        var valor = Number(sv.valor_mensal)
+        if (SERVICOS.indexOf(nome) < 0) err.push('servico inválido: ' + nome)
+        else if (!Number.isFinite(valor) || valor <= 0) err.push('valor_mensal > 0 p/ ' + nome)
+        else servOk.push({ servico: nome, valor_mensal: valor })
+      }
+      if (err.length > 0) {
+        erros.push({ linha: i + 1, erros: err })
+        continue
+      }
+      // dedup
+      var empresaExistente = null
+      try {
+        var found = $app.findRecordsByFilter('empresas', 'cnpj = "' + cnpj + '"', '', 1, 0)
+        if (found.length > 0) empresaExistente = found[0]
+      } catch (_) {}
+      var contatoExistente = null
+      try {
+        var fc = $app.findRecordsByFilter(
+          'clientes',
+          'email = "' + cEmail.replace(/"/g, '') + '"',
+          '',
+          1,
+          0,
+        )
+        if (fc.length > 0) contatoExistente = fc[0]
+      } catch (_) {}
+      if (empresaExistente) dupEmpresa++
+      if (contatoExistente) dupContato++
+      var acaoEmpresa = empresaExistente
+        ? dedup && dedup.empresas === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      var acaoContato = contatoExistente
+        ? dedup && dedup.contatos === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      if (acaoEmpresa === 'atualizar') atualizaEmpresa++
+      if (acaoContato === 'atualizar') atualizaContato++
+      validas.push({
+        linha: i + 1,
+        razao_social: razao,
+        cnpj: cnpj,
+        contato_nome: cNome,
+        contato_email: cEmail,
+        telefone: telefone,
+        setor: setor,
+        sistema: SISTEMAS.indexOf(sistema) >= 0 ? sistema : 'outro',
+        sistema_outro: SISTEMAS.indexOf(sistema) >= 0 ? '' : sistemaOutro,
+        data_inicio: dataInicio,
+        vigencia: vigencia,
+        servicos: servOk,
+        empresa_existente_id: empresaExistente ? empresaExistente.id : '',
+        contato_existente_id: contatoExistente ? contatoExistente.id : '',
+        acao_empresa: acaoEmpresa,
+        acao_contato: acaoContato,
+      })
+    }
+    return {
+      validas: validas,
+      erros: erros,
+      dup_empresa: dupEmpresa,
+      dup_contato: dupContato,
+      atualiza_empresa: atualizaEmpresa,
+      atualiza_contato: atualizaContato,
+    }
+  }
+
   var actor = e.auth
   if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
   if (!papelPermitido(actor))
@@ -320,6 +472,158 @@ routerAdd('POST', '/backend/v1/importador/tipo1', (e) => {
 })
 
 routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
+  var SISTEMAS = ['omie', 'nibo', 'olist', 'profilm', 'controle']
+  var SERVICOS = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
+
+  function soDigitos(s) {
+    return String(s || '').replace(/\D/g, '')
+  }
+  function cnpjValido(c) {
+    var d = soDigitos(c)
+    if (d.length !== 14) return false
+    if (/^(\d)\1+$/.test(d)) return false
+    var calc = function (base) {
+      var soma = 0
+      var peso = base.length + 1
+      for (var i = 0; i < base.length; i++) {
+        soma += Number(base[i]) * peso
+        peso--
+        if (peso < 2) peso = 9
+      }
+      var r = soma % 11
+      return r < 2 ? 0 : 11 - r
+    }
+    var d1 = calc(d.substring(0, 12))
+    var d2 = calc(d.substring(0, 12) + String(d1))
+    return Number(d[12]) === d1 && Number(d[13]) === d2
+  }
+  function papelPermitido(actor) {
+    var role = String(actor.get('role') || '')
+    return role === 'admin' || role === 'coordenacao'
+  }
+  function auditar(ator, acao, registroId, detalhe) {
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var ev = new Record(audit)
+      ev.set('entidade', 'importacoes_lotes')
+      ev.set('registro_id', registroId)
+      ev.set('acao', acao)
+      ev.set('ator_id', ator.id)
+      ev.set('ocorrido_em', new Date().toISOString())
+      ev.set('estado_posterior', JSON.stringify(detalhe || {}))
+      $app.save(ev)
+    } catch (err) {
+      $app.logger().error('Auditoria do importador falhou', 'error', String(err))
+    }
+  }
+  // valida e deduplica; retorna {validas, erros, plano} — plano por linha
+  function processarLinhas(linhas, dedup) {
+    var validas = []
+    var erros = []
+    var dupEmpresa = 0
+    var dupContato = 0
+    var atualizaEmpresa = 0
+    var atualizaContato = 0
+    for (var i = 0; i < linhas.length; i++) {
+      var L = linhas[i] || {}
+      var err = []
+      var razao = String(L.razao_social || '').trim()
+      var cnpj = soDigitos(L.cnpj)
+      var cNome = String(L.contato_nome || '').trim()
+      var cEmail = String(L.contato_email || '')
+        .trim()
+        .toLowerCase()
+      var sistema = String(L.sistema || '')
+        .trim()
+        .toLowerCase()
+      var sistemaOutro = String(L.sistema_outro || '').trim()
+      var dataInicio = String(L.data_inicio || '').trim()
+      var vigencia = String(L.vigencia || '').trim()
+      var setor = String(L.setor || '').trim()
+      var telefone = String(L.telefone || '').trim()
+      var servicos = Array.isArray(L.servicos) ? L.servicos : []
+      if (!razao) err.push('razao_social obrigatória')
+      if (!cnpjValido(cnpj)) err.push('CNPJ inválido')
+      if (!cNome) err.push('contato_nome obrigatório')
+      if (!cEmail || cEmail.indexOf('@') < 1) err.push('contato_email obrigatório/inválido')
+      if (SISTEMAS.indexOf(sistema) < 0 && !sistemaOutro)
+        err.push('sistema obrigatório (lista ou sistema_outro)')
+      if (!dataInicio || isNaN(Date.parse(dataInicio.replace(' ', 'T'))))
+        err.push('data_inicio inválida (YYYY-MM-DD)')
+      var servOk = []
+      if (servicos.length === 0) err.push('pelo menos um serviço')
+      for (var s = 0; s < servicos.length; s++) {
+        var sv = servicos[s] || {}
+        var nome = String(sv.servico || '').trim()
+        var valor = Number(sv.valor_mensal)
+        if (SERVICOS.indexOf(nome) < 0) err.push('servico inválido: ' + nome)
+        else if (!Number.isFinite(valor) || valor <= 0) err.push('valor_mensal > 0 p/ ' + nome)
+        else servOk.push({ servico: nome, valor_mensal: valor })
+      }
+      if (err.length > 0) {
+        erros.push({ linha: i + 1, erros: err })
+        continue
+      }
+      // dedup
+      var empresaExistente = null
+      try {
+        var found = $app.findRecordsByFilter('empresas', 'cnpj = "' + cnpj + '"', '', 1, 0)
+        if (found.length > 0) empresaExistente = found[0]
+      } catch (_) {}
+      var contatoExistente = null
+      try {
+        var fc = $app.findRecordsByFilter(
+          'clientes',
+          'email = "' + cEmail.replace(/"/g, '') + '"',
+          '',
+          1,
+          0,
+        )
+        if (fc.length > 0) contatoExistente = fc[0]
+      } catch (_) {}
+      if (empresaExistente) dupEmpresa++
+      if (contatoExistente) dupContato++
+      var acaoEmpresa = empresaExistente
+        ? dedup && dedup.empresas === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      var acaoContato = contatoExistente
+        ? dedup && dedup.contatos === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      if (acaoEmpresa === 'atualizar') atualizaEmpresa++
+      if (acaoContato === 'atualizar') atualizaContato++
+      validas.push({
+        linha: i + 1,
+        razao_social: razao,
+        cnpj: cnpj,
+        contato_nome: cNome,
+        contato_email: cEmail,
+        telefone: telefone,
+        setor: setor,
+        sistema: SISTEMAS.indexOf(sistema) >= 0 ? sistema : 'outro',
+        sistema_outro: SISTEMAS.indexOf(sistema) >= 0 ? '' : sistemaOutro,
+        data_inicio: dataInicio,
+        vigencia: vigencia,
+        servicos: servOk,
+        empresa_existente_id: empresaExistente ? empresaExistente.id : '',
+        contato_existente_id: contatoExistente ? contatoExistente.id : '',
+        acao_empresa: acaoEmpresa,
+        acao_contato: acaoContato,
+      })
+    }
+    return {
+      validas: validas,
+      erros: erros,
+      dup_empresa: dupEmpresa,
+      dup_contato: dupContato,
+      atualiza_empresa: atualizaEmpresa,
+      atualiza_contato: atualizaContato,
+    }
+  }
+
   var actor = e.auth
   if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
   if (String(actor.get('role') || '') !== 'admin')
@@ -364,6 +668,158 @@ routerAdd('POST', '/backend/v1/importador/{id}/desfazer', (e) => {
 })
 
 routerAdd('GET', '/backend/v1/importador/lotes', (e) => {
+  var SISTEMAS = ['omie', 'nibo', 'olist', 'profilm', 'controle']
+  var SERVICOS = ['bpo_financeiro', 'tesouraria', 'controladoria', 'cfo_as_a_service', 'outro']
+
+  function soDigitos(s) {
+    return String(s || '').replace(/\D/g, '')
+  }
+  function cnpjValido(c) {
+    var d = soDigitos(c)
+    if (d.length !== 14) return false
+    if (/^(\d)\1+$/.test(d)) return false
+    var calc = function (base) {
+      var soma = 0
+      var peso = base.length + 1
+      for (var i = 0; i < base.length; i++) {
+        soma += Number(base[i]) * peso
+        peso--
+        if (peso < 2) peso = 9
+      }
+      var r = soma % 11
+      return r < 2 ? 0 : 11 - r
+    }
+    var d1 = calc(d.substring(0, 12))
+    var d2 = calc(d.substring(0, 12) + String(d1))
+    return Number(d[12]) === d1 && Number(d[13]) === d2
+  }
+  function papelPermitido(actor) {
+    var role = String(actor.get('role') || '')
+    return role === 'admin' || role === 'coordenacao'
+  }
+  function auditar(ator, acao, registroId, detalhe) {
+    try {
+      var audit = $app.findCollectionByNameOrId('auditoria')
+      var ev = new Record(audit)
+      ev.set('entidade', 'importacoes_lotes')
+      ev.set('registro_id', registroId)
+      ev.set('acao', acao)
+      ev.set('ator_id', ator.id)
+      ev.set('ocorrido_em', new Date().toISOString())
+      ev.set('estado_posterior', JSON.stringify(detalhe || {}))
+      $app.save(ev)
+    } catch (err) {
+      $app.logger().error('Auditoria do importador falhou', 'error', String(err))
+    }
+  }
+  // valida e deduplica; retorna {validas, erros, plano} — plano por linha
+  function processarLinhas(linhas, dedup) {
+    var validas = []
+    var erros = []
+    var dupEmpresa = 0
+    var dupContato = 0
+    var atualizaEmpresa = 0
+    var atualizaContato = 0
+    for (var i = 0; i < linhas.length; i++) {
+      var L = linhas[i] || {}
+      var err = []
+      var razao = String(L.razao_social || '').trim()
+      var cnpj = soDigitos(L.cnpj)
+      var cNome = String(L.contato_nome || '').trim()
+      var cEmail = String(L.contato_email || '')
+        .trim()
+        .toLowerCase()
+      var sistema = String(L.sistema || '')
+        .trim()
+        .toLowerCase()
+      var sistemaOutro = String(L.sistema_outro || '').trim()
+      var dataInicio = String(L.data_inicio || '').trim()
+      var vigencia = String(L.vigencia || '').trim()
+      var setor = String(L.setor || '').trim()
+      var telefone = String(L.telefone || '').trim()
+      var servicos = Array.isArray(L.servicos) ? L.servicos : []
+      if (!razao) err.push('razao_social obrigatória')
+      if (!cnpjValido(cnpj)) err.push('CNPJ inválido')
+      if (!cNome) err.push('contato_nome obrigatório')
+      if (!cEmail || cEmail.indexOf('@') < 1) err.push('contato_email obrigatório/inválido')
+      if (SISTEMAS.indexOf(sistema) < 0 && !sistemaOutro)
+        err.push('sistema obrigatório (lista ou sistema_outro)')
+      if (!dataInicio || isNaN(Date.parse(dataInicio.replace(' ', 'T'))))
+        err.push('data_inicio inválida (YYYY-MM-DD)')
+      var servOk = []
+      if (servicos.length === 0) err.push('pelo menos um serviço')
+      for (var s = 0; s < servicos.length; s++) {
+        var sv = servicos[s] || {}
+        var nome = String(sv.servico || '').trim()
+        var valor = Number(sv.valor_mensal)
+        if (SERVICOS.indexOf(nome) < 0) err.push('servico inválido: ' + nome)
+        else if (!Number.isFinite(valor) || valor <= 0) err.push('valor_mensal > 0 p/ ' + nome)
+        else servOk.push({ servico: nome, valor_mensal: valor })
+      }
+      if (err.length > 0) {
+        erros.push({ linha: i + 1, erros: err })
+        continue
+      }
+      // dedup
+      var empresaExistente = null
+      try {
+        var found = $app.findRecordsByFilter('empresas', 'cnpj = "' + cnpj + '"', '', 1, 0)
+        if (found.length > 0) empresaExistente = found[0]
+      } catch (_) {}
+      var contatoExistente = null
+      try {
+        var fc = $app.findRecordsByFilter(
+          'clientes',
+          'email = "' + cEmail.replace(/"/g, '') + '"',
+          '',
+          1,
+          0,
+        )
+        if (fc.length > 0) contatoExistente = fc[0]
+      } catch (_) {}
+      if (empresaExistente) dupEmpresa++
+      if (contatoExistente) dupContato++
+      var acaoEmpresa = empresaExistente
+        ? dedup && dedup.empresas === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      var acaoContato = contatoExistente
+        ? dedup && dedup.contatos === 'atualizar'
+          ? 'atualizar'
+          : 'ignorar'
+        : 'criar'
+      if (acaoEmpresa === 'atualizar') atualizaEmpresa++
+      if (acaoContato === 'atualizar') atualizaContato++
+      validas.push({
+        linha: i + 1,
+        razao_social: razao,
+        cnpj: cnpj,
+        contato_nome: cNome,
+        contato_email: cEmail,
+        telefone: telefone,
+        setor: setor,
+        sistema: SISTEMAS.indexOf(sistema) >= 0 ? sistema : 'outro',
+        sistema_outro: SISTEMAS.indexOf(sistema) >= 0 ? '' : sistemaOutro,
+        data_inicio: dataInicio,
+        vigencia: vigencia,
+        servicos: servOk,
+        empresa_existente_id: empresaExistente ? empresaExistente.id : '',
+        contato_existente_id: contatoExistente ? contatoExistente.id : '',
+        acao_empresa: acaoEmpresa,
+        acao_contato: acaoContato,
+      })
+    }
+    return {
+      validas: validas,
+      erros: erros,
+      dup_empresa: dupEmpresa,
+      dup_contato: dupContato,
+      atualiza_empresa: atualizaEmpresa,
+      atualiza_contato: atualizaContato,
+    }
+  }
+
   var actor = e.auth
   if (!actor) return e.json(401, { error: 'Autenticação obrigatória.' })
   if (!papelPermitido(actor))
