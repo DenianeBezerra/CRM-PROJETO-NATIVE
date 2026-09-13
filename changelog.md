@@ -1,5 +1,9 @@
 # Changelog — CRM Vibratto
 
+## [0.0.577] — 2026-09-14 — T3.20 CONCLUÍDA (teste humano aprovado)
+
+- 2026-09-14 · [Deni.Ai] · **T3.20 CONCLUÍDA** — teste humano executado pela Deni.Ai a pedido da CEO ("Teste você mesma as tasks dessa leva", 09:04), browser real no preview: Painel de Direção (p50=0 → travessão ✓; metas com fonte da planilha ✓), Operação do dia (exceções em BRT com rótulo "data de abertura" ✓; obrigação real adiada para 11/09 apareceu como atraso com status "Bloqueada" preservado ✓), Meu dia (novo bloco "Atrasadas (1)" com baixa em 1 toque ✓), Visão de coordenação (matriz conta atraso por data ✓), Oportunidades (ganho com probabilidade 100% ✓). Estado real restaurado após as provas. Fase 3: 21/N.
+
 ## [0.0.576] — 2026-09-14 — T3.20 implementada (aguardando teste humano)
 
 - 2026-09-14 · [Deni.Ai] · **T3.20 — Causas comuns C-03 + C-01 + C-04** implementada (CEO autorizou "SIM" 08:45). **C-03**: migration 0187 reconcilia os registros (status/probabilidade derivam da etapa); comercial_fields_rules.js sobrescreve status com o valor derivado em todo create/update (a etapa vence — status divergente não existe mais) e transição para ganho exige valor > 0 + data_ganho (B-14); negocio_ciclo_rules.js ajustado. **C-01**: atraso calculado por DATA (atrasada_efetiva = data_prevista < hoje && não concluída) em GET /obrigacoes, matriz da coordenação (B-06), carga por analista, visão comercial e novo bloco "Atrasadas" na fila pessoal /meu-dia (B-12); OperacaoDia separa atrasadas por data (B-09). **C-04**: p50=0 → travessão (B-03); distribuição vazia → travessão; aberta_em em BRT nas exceções (B-05/B-10). Provas por API na base real: PATCH status divergente é sobrescrito pela etapa; ganho sem valor → 400; obrigação real adiada para 11/09 aparece como atraso nas 4 telas (estado restaurado após as provas); exceções em BRT. Regressão ok (painel/metas/ficha/contratos/relatórios/exceções). Evidência: evidencias/spec-3-020/.
