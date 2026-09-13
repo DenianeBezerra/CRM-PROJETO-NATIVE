@@ -804,7 +804,7 @@ routerAdd('POST', '/backend/v1/importador/tipo1', (e) => {
     // bloco 9: contato principal na ficha (sem papel definido na planilha A — apenas_informado não é assumido)
     var jaTem = $app.findRecordsByFilter(
       'ficha_pessoas',
-      'ficha = "{:f}" && contato = "{:c}"',
+      'ficha = {:f} && contato = {:c}',
       '',
       1,
       0,
@@ -916,7 +916,7 @@ routerAdd('POST', '/backend/v1/importador/tipo1', (e) => {
     // bloco 9: papel operacional (somar se já existe — CA-3-125)
     var existentes = $app.findRecordsByFilter(
       'ficha_pessoas',
-      'ficha = "{:f}" && contato = "{:c}"',
+      'ficha = {:f} && contato = {:c}',
       '',
       1,
       0,
