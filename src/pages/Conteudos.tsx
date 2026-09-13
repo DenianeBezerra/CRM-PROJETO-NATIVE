@@ -17,8 +17,8 @@ import { useToast } from '@/hooks/use-toast'
 import { tagProva } from '@/lib/prova'
 import { msgErro } from '@/lib/erro'
 
-// T3.21 Leva B — criação de conteúdo pela UI
->>>>>>> (direcionamento da CEO 13/09).
+// T3.21 Leva B — criação de conteúdo pela UI (direcionamento da CEO 13/09).
+>>>>>>>
 // Formulário MÍNIMO: título, tema, formato, canais, data prevista, série, linha, objetivo.
 // Roteiro/legenda/capa/arquivo ficam para o avanço no ciclo de vida — criação não exige.
 // Criação em LOTE: várias peças de uma vez (agenda editorial), tudo-ou-nada no backend.
@@ -138,8 +138,8 @@ export default function Conteudos() {
   const { toast } = useToast()
   const [itens, setItens] = useState<Conteudo[]>([])
   const [series, setSeries] = useState<Serie[]>([])
->>>>>>>
   const [loading, setLoading] = useState(true)
+>>>>>>>
   const [gerando, setGerando] = useState<string>('')
   const [avancando, setAvancando] = useState<string>('')
 
