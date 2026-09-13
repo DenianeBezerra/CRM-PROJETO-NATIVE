@@ -37,7 +37,8 @@ import { ptBR } from 'date-fns/locale'
 // título, canal, formato, etapa, pacote, link rastreável com cópia e url de publicação.
 // Ajustes da CEO (13/09): rótulos por extenso; destaque de seleção só com conteúdo;
 // previsto × publicado distintos (publicado em verde com a data efetiva).
-// Botão "Novo conteúdo" leva à criação na tela /conteudos.
+// Criação a partir do dia: dia vazio oferece "Criar peça neste dia" (abre o
+// formulário em /conteudos com a data já preenchida via ?novo=1&data=).
 
 type ItemAgenda = {
   id: string
@@ -317,7 +318,6 @@ export default function AgendaEditorial() {
                   </div>
                 ) : (
                   <div className="space-y-3">
->>>>>>>
                     {itensDia.map((it) => (
                       <div key={it.id} className="border border-[#E5E7EB] rounded-lg p-3 sm:p-4">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
