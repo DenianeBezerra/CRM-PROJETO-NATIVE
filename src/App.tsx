@@ -25,6 +25,7 @@ import Implantacoes from './pages/Implantacoes'
 import Relatorios from './pages/Relatorios'
 import Conteudos from './pages/Conteudos'
 import AgendaEditorial from './pages/AgendaEditorial'
+import Importador from './pages/Importador'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -198,6 +199,14 @@ const App = () => (
                 element={
                   <AdminRoute>
                     <Relatorios />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/importador"
+                element={
+                  <AdminRoute>
+                    <Importador />
                   </AdminRoute>
                 }
               />

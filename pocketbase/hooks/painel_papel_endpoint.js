@@ -156,8 +156,12 @@ routerAdd(
         var status = String(n.get('status') || '')
         var estagio = String(n.get('estagio') || '')
         var arquivado = n.get('arquivado') === true
-        // Ganho no período → receita nova
-        if (status === 'ganho' && dentro(n.get('data_ganho') || n.get('updated'), i, f)) {
+        // Ganho no período → receita nova (T3.22/CA-3-115: migração FORA — entra só no MRR)
+        if (
+          status === 'ganho' &&
+          String(n.get('entrada_origem') || '') !== 'migracao' &&
+          dentro(n.get('data_ganho') || n.get('updated'), i, f)
+        ) {
           ganhos++
           receitaNova += Number(n.get('valor') || 0)
         }
@@ -251,14 +255,19 @@ routerAdd(
           String(n3.get('status') || '') === 'ganho' &&
           dentro(n3.get('data_ganho') || n3.get('updated'), i, f)
         ) {
-          var dG3 = String(n3.get('data_ganho') || '')
-          var dE3 = String(n3.get('data_entrada') || '')
-          if (dG3 && dG3.indexOf('0001-01-01') !== 0 && dE3 && dE3.indexOf('0001-01-01') !== 0) {
-            var msG3 = Date.parse(dG3.replace(' ', 'T'))
-            var msE3 = Date.parse(dE3.replace(' ', 'T'))
-            if (!isNaN(msG3) && !isNaN(msE3) && msG3 > msE3)
-              cicloDias.push((msG3 - msE3) / 86400000)
+          // T3.22/CA-3-115: migração FORA do ciclo de venda
+          if (String(n3.get('entrada_origem') || '') !== 'migracao') {
+            var dG3 = String(n3.get('data_ganho') || '')
+            var dE3 = String(n3.get('data_entrada') || '')
+            if (dG3 && dG3.indexOf('0001-01-01') !== 0 && dE3 && dE3.indexOf('0001-01-01') !== 0) {
+              var msG3 = Date.parse(dG3.replace(' ', 'T'))
+              var msE3 = Date.parse(dE3.replace(' ', 'T'))
+              if (!isNaN(msG3) && !isNaN(msE3) && msG3 > msE3)
+                cicloDias.push((msG3 - msE3) / 86400000)
+            }
           }
+          // T3.22/CA-3-115: migração FORA da origem dos ganhos
+          if (String(n3.get('entrada_origem') || '') === 'migracao') continue
           var canal3 =
             String(n3.get('canal') || '') || String(n3.get('origem') || '') || 'sem_origem'
           var og3 = origemGanhos[canal3] || { qtd: 0, valor: 0 }
