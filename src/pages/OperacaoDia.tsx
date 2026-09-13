@@ -11,6 +11,7 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
+import { msgErro } from '@/lib/erro'
 
 // T3.13 — SPEC-3-013: visão do analista (cap. 6.1 do doc da CEO).
 // Fonte única: endpoints da T3.12 (GET /obrigacoes?dia=HOJE[&meus=1] e GET /excecoes).
@@ -161,8 +162,12 @@ export default function OperacaoDia() {
       })
       toast({ title: `Baixa registrada — ${tipoLabel[o.tipo] || o.tipo}` })
       await load()
-    } catch {
-      toast({ title: 'Não foi possível baixar a obrigação', variant: 'destructive' })
+    } catch (e) {
+      toast({
+        title: 'Não foi possível baixar a obrigação',
+        description: msgErro(e),
+        variant: 'destructive',
+      })
     } finally {
       setBaixando((p) => ({ ...p, [o.id]: false }))
     }
@@ -178,8 +183,8 @@ export default function OperacaoDia() {
       })
       toast({ title: `Baixa em lote: ${ids.length} obrigação(ões)` })
       await load()
-    } catch {
-      toast({ title: 'Falha na baixa em lote', variant: 'destructive' })
+    } catch (e) {
+      toast({ title: 'Falha na baixa em lote', description: msgErro(e), variant: 'destructive' })
     }
   }
 
@@ -195,8 +200,12 @@ export default function OperacaoDia() {
       setEtapaSel('')
       setEtapaEvidencia('')
       await load()
-    } catch {
-      toast({ title: 'Não foi possível marcar a etapa', variant: 'destructive' })
+    } catch (e) {
+      toast({
+        title: 'Não foi possível marcar a etapa',
+        description: msgErro(e),
+        variant: 'destructive',
+      })
     }
   }
 
@@ -219,8 +228,8 @@ export default function OperacaoDia() {
       setBloqueioId(null)
       setMotivoBloqueio('')
       await load()
-    } catch {
-      toast({ title: 'Não foi possível bloquear', variant: 'destructive' })
+    } catch (e) {
+      toast({ title: 'Não foi possível bloquear', description: msgErro(e), variant: 'destructive' })
     }
   }
 
