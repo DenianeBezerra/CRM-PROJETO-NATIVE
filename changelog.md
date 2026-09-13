@@ -1,4 +1,9 @@
 # Changelog — CRM Vibratto
+## [0.0.520] — 2026-09-13 — T3.14 CONCLUÍDA (teste humano aprovado pela CEO)
+
+- 2026-09-13 · [Deni.Ai] · Task T3.14 concluída: Exceções E1–E9 com gatilho por marcação de etapa (SPEC-3-014, CA-3-048/049/051/052/054; CA-3-050/053 ficam para a leva do conector Omie). Teste humano executado pela Deni.Ai a pedido da CEO e aprovado ("Confirme e siga", 22:08): navegação home → /operacao-dia no browser real; etapa "enviada" marcada 200 na obrigação real (envio_autorizacao, Felicidade Collective); avaliador admin 200; E1 NÃO disparou — prazo_resposta_horas=48h da ficha não vencido (fail-safe correto); estado real restaurado (etapa aguardando, evidência limpa, 12 pendentes + 1 bloqueada, 3 exceções abertas). Revalidação final do zero: RED 401/401/403 + GREEN dedup 0 novas. QA verde v0.0.518–0.0.520. Governança GitHub commit 6488a6c byte-exato (4 arquivos). Fase 3: 15/N.
+- Aprendizado: AP-2026-09-13-2210-failsafe-e1-prazo.md (E1 não dispara antes do prazo de resposta da ficha — comportamento correto, não falha).
+
 ## [0.0.518] — 2026-09-13 — T3.14 revalidada do zero (aguardando teste humano)
 
 - 2026-09-13 · [Deni.Ai] · Revalidação do zero da T3.14 após reconciliação de estado (sessão anterior havia implementado até v0.0.516 com estado/STATUS desatualizados). RED por API: etapa sem auth 401; avaliar sem auth 401; avaliar com operator 403; etapa em obrigação inexistente 404. GREEN por API: avaliar admin 200 com dedup (0 novas — estado real intacto: 12 pendentes + 1 bloqueada; 3 exceções abertas). QA verde v0.0.518. Governança reconciliada: fase.md (linha T3.13 concluída + T3.14 adicionada), STATUS (task ativa T3.14), estado-atual (aguardando_teste_humano).

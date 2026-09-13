@@ -1,9 +1,9 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 14/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 15/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.14 — Exceções E1–E9 via marcação de etapa (aguardando teste humano da CEO)
-**Última task concluída:** T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia (2026-09-13 13:43, teste humano aprovado pela CEO — "aprovado, conclua e siga"; v0.0.508)
+**Task ativa:** nenhuma (T3.14 concluída)
+**Última task concluída:** T3.14 — Exceções E1–E9 (2026-09-13 22:08, teste humano aprovado pela CEO — "Confirme e siga"; v0.0.520)
 **Próxima leva (a definir com a CEO):** E1–E9 com conector OMIE → Leva C da ficha (visões + implantação + permissões) → fila do backlog Etapa 3 (painel por papel, relatórios agendados, perfis, V.ia, catálogo)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Versão atual:** v0.0.519 (QA verde)
@@ -28,7 +28,7 @@
 | 11   | T3.11 — Ficha Operacional do Cliente (Leva A + UI)                    | SPEC-3-011            | ✅ Concluída — 2026-09-13 12:44 |
 | 12   | T3.12 — Motor de Rotinas + Exceções (Leva B)                          | SPEC-3-012            | ✅ Concluída — 2026-09-13 13:09 |
 | 13   | T3.13 — Visão do analista: /operacao-dia + Obrigações no Meu dia      | SPEC-3-013            | ✅ Concluída — 2026-09-13 13:43 |
-| 14   | T3.14 — Exceções E1–E9 (gatilho por etapa; integração Omie p/ depois) | SPEC-3-014            | 🕐 Aguardando teste humano — v0.0.518 |
+| 14   | T3.14 — Exceções E1–E9 (gatilho por etapa; integração Omie p/ depois) | SPEC-3-014            | ✅ Concluída — 2026-09-13 22:08 |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3               | a definir SPEC a SPEC | Planejadas                      |
 
 ## Estado real preservado (base de dados)
