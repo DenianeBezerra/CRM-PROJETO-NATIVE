@@ -14,8 +14,10 @@ import { LOGO_WHITE } from '@/assets/logo'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 
-const IS_DEMO =
-  import.meta.env.VITE_DEMO_MODE === 'true' || window.location.hostname.includes('--preview.')
+// Demonstração SOMENTE quando habilitado explicitamente (VITE_DEMO_MODE=true).
+// O hostname de preview não é mais gatilho — era o motivo do menu/badge de
+// demonstração aparecer em todo o ambiente de preview.
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 const G4_APPROVED = import.meta.env.VITE_G4_APPROVED === 'true'
 
 export default function Index() {

@@ -102,47 +102,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   /**
    * Executa a renovação do token via PocketBase sem disparar refreshes concorrentes nem loops.
    */
-  const performRefresh = useCallback(
-    async (isManualTrigger = false): Promise<boolean> => {
-      // Se já houver um refresh em andamento, retorna a mesma promise (deduplicação)
-      if (refreshPromiseRef.current) {
-        return refreshPromiseRef.current
-      }
+  const performRefresh = useCallback(async (): Promise<boolean> => {
+    // Se já houver um refresh em andamento, retorna a mesma promise (deduplicação)
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current
+    }
 
-      if (!pb.authStore.isValid || !pb.authStore.token) {
-        if (isValid) setIsValid(false)
-        if (user) setUser(null)
-        return false
-      }
+    if (!pb.authStore.isValid || !pb.authStore.token) {
+      if (isValid) setIsValid(false)
+      if (user) setUser(null)
+      return false
+    }
 
-      // Throttle simples para evitar chamadas redundantes (< 30s de intervalo)
-      const now = Date.now()
-      if (!isManualTrigger && now - lastRefreshAtRef.current < 30_000) {
+    // Throttle para TODOS os gatilhos — inclusive validateSession das rotas.
+    // Antes, o gatilho das rotas bypassava o throttle e cada troca de rota
+    // fazia um auth-refresh real no servidor; a tempestade de chamadas
+    // estourava o rate limit do PocketBase (429) e, com o tratamento antigo
+    // de erro, derrubava a sessão do usuário.
+    const now = Date.now()
+    if (now - lastRefreshAtRef.current < 30_000) {
+      return true
+    }
+
+    const p = (async () => {
+      try {
+        const refreshed = await pb.collection('users').authRefresh()
+        lastRefreshAtRef.current = Date.now()
+        const mapped = mapAuthRecord(refreshed.record)
+        setUser(mapped)
+        setToken(refreshed.token)
+        setIsValid(true)
         return true
-      }
-
-      const p = (async () => {
-        try {
-          const refreshed = await pb.collection('users').authRefresh()
-          lastRefreshAtRef.current = Date.now()
-          const mapped = mapAuthRecord(refreshed.record)
-          setUser(mapped)
-          setToken(refreshed.token)
-          setIsValid(true)
-          return true
-        } catch {
+      } catch (err) {
+        // Só encerra a sessão em rejeição REAL do servidor: 401 token
+        // inválido/expirado, 400 conta inativa (auth_active_guard), 403.
+        // 429 (rate limit) e falha de rede são TRANSITÓRIOS — a sessão
+        // permanece e o próximo refresh agendado tenta novamente.
+        const status = (err as { status?: number } | null)?.status
+        if (status === 400 || status === 401 || status === 403) {
           handleSessionExpired()
           return false
-        } finally {
-          refreshPromiseRef.current = null
         }
-      })()
+        return true
+      } finally {
+        refreshPromiseRef.current = null
+      }
+    })()
 
-      refreshPromiseRef.current = p
-      return p
-    },
-    [isValid, user, handleSessionExpired],
-  )
+    refreshPromiseRef.current = p
+    return p
+  }, [isValid, user, handleSessionExpired])
 
   /**
    * Agenda a próxima renovação periódica:
@@ -176,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const safeDelay = Math.max(5000, delayMs)
 
     refreshTimeoutRef.current = window.setTimeout(() => {
-      void performRefresh(false).then((ok) => {
+      void performRefresh().then((ok) => {
         if (ok) {
           scheduleNextRefresh()
         }
@@ -208,7 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Tenta refresh / validação rápida se já constar autenticado localmente
     if (pb.authStore.isValid && pb.authStore.token) {
-      void performRefresh(false).then((ok) => {
+      void performRefresh().then((ok) => {
         if (ok) scheduleNextRefresh()
       })
     }
@@ -222,7 +231,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const timeSinceLast = now - lastRefreshAtRef.current
         const timeUntilExp = expMs ? expMs - now : Infinity
         if (timeSinceLast > 5 * 60 * 1000 || timeUntilExp < 5 * 60 * 1000) {
-          void performRefresh(false).then((ok) => {
+          void performRefresh().then((ok) => {
             if (ok) scheduleNextRefresh()
           })
         }
@@ -247,7 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [performRefresh, scheduleNextRefresh])
 
   const validateSession = async (): Promise<boolean> => {
-    return performRefresh(true)
+    return performRefresh()
   }
 
   const login = async (email: string, pass: string) => {
