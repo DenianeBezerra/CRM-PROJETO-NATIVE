@@ -24,6 +24,7 @@ type AcaoItem = {
   id: string
   titulo: string
   estagio: string
+  negocio: string
   proxima_acao_em: string
   proxima_acao_descricao: string
   dias_atraso: number
@@ -272,7 +273,7 @@ export default function MeuDia() {
                         <span className="text-red-700 font-semibold">{a.dias_atraso}d</span>
                       </p>
                       <button
-                        onClick={() => navigate(`/oportunidades?abrir=${a.id}`)}
+                        onClick={() => a.negocio && navigate(`/oportunidades?abrir=${a.negocio}`)}
                         className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-2"
                       >
                         Abrir oportunidade →
