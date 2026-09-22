@@ -102,7 +102,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 const App = () => (
-  <BrowserRouter>
+  <BrowserRouter useTransitions={false}>
     <ErrorBoundary>
       <AuthProvider>
         <TooltipProvider>
