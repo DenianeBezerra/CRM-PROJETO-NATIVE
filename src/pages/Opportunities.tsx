@@ -240,6 +240,12 @@ export default function Opportunities() {
     // limpa o parâmetro para não reabrir em navegações futuras
     setSearchParams({}, { replace: true })
   }, [searchParams, loading, setSearchParams])
+  // Rola até o card destacado — sem isso o deep-link deixa o alvo fora da tela.
+  useEffect(() => {
+    if (!destaqueId || loading) return
+    const el = document.getElementById(`op-${destaqueId}`)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [destaqueId, loading])
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
     return items.filter(
