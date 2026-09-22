@@ -4,7 +4,6 @@ import {
   LogOut,
   Sparkles,
   Users,
-  Building2,
   TrendingUp,
   ShieldCheck,
   CheckCircle2,
@@ -12,17 +11,10 @@ import {
   Briefcase,
   ListTodo,
   Crown,
-  Target,
   Award,
   Layers,
   ArrowRight,
-  ClipboardList,
   CalendarCheck,
-  BarChart3,
-  Rocket,
-  Mail,
-  PenTool,
-  Upload,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
@@ -552,120 +544,10 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
             </p>
           </div>
 
-          {/* Highlights & Modules Preview */}
+          {/* Atalhos da home — decisão CEO 22/09: apenas 4, seguindo o manual
+              (seção 5). O restante dos módulos permanece na barra lateral. */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-10 pt-8 border-t border-[#E5E7EB]">
-            {/* Card 0: Painel de Direção — camada CEO (T3.10, admin) */}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/painel-direcao')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                  <Crown className="w-5 h-5" />
-                </div>
-                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                  Painel de Direção
-                </h3>
-                <p className="text-xs text-[#6B7280] mt-1">
-                  KPIs do negócio com meta e variação vs. período anterior.
-                </p>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                  Abrir painel de direção →
-                </span>
-              </button>
-            )}
-
-            {/* Card: Visão de coordenação (T3.15 — admin) */}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/visao-coordenacao')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                  <BarChart3 className="w-5 h-5" />
-                </div>
-                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                  Visão de coordenação{badge(opExcecoes)}
-                </h3>
-                <p className="text-xs text-[#6B7280] mt-1">
-                  Matriz de clientes por obrigação, exceções por analista e carga do time.
-                </p>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                  Abrir visão de coordenação →
-                </span>
-              </button>
-            )}
-
-            {/* Card: Relatórios agendados (T3.19 — admin) com status e último envio */}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/relatorios')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#C9A227]/40 hover:border-[#C9A227] hover:shadow-md transition-all cursor-pointer relative overflow-hidden"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766]">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Ativa semanalmente
-                  </span>
-                </div>
-                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                  Relatórios Periódicos
-                </h3>
-                <p className="text-xs text-[#6B7280] mt-1">
-                  Resumo executivo do CRM enviado às segundas-feiras para a direção.
-                </p>
-                <div className="mt-3 pt-2 border-t border-[#E5E7EB] flex items-center justify-between text-[11px] text-[#A8862B] font-semibold">
-                  <span>Abrir relatórios →</span>
-                  <span className="text-neutral-500 font-normal">deniane@vibratto.com.br</span>
-                </div>
-              </button>
-            )}
-
-            {/* Card: Importador (T3.22 — admin/coordenação) */}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/importador')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                  <Upload className="w-5 h-5" />
-                </div>
-                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Importador</h3>
-                <p className="text-xs text-[#6B7280] mt-1">
-                  Carga de clientes ativos por planilha — migração entra no MRR, fora dos
-                  indicadores de funil.
-                </p>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                  Abrir importador →
-                </span>
-              </button>
-            )}
-
-            {/* Card: Implantações (T3.16 — admin) */}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/implantacoes')}
-                className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                  <Rocket className="w-5 h-5" />
-                </div>
-                <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Implantações</h3>
-                <p className="text-xs text-[#6B7280] mt-1">
-                  Projeto de entrada do cliente em 7 etapas — conclusão condicionada à ficha
-                  completa.
-                </p>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                  Abrir implantações →
-                </span>
-              </button>
-            )}
-
-            {/* M-21: telas de trabalho diário primeiro — Meu dia e Operação do dia. */}
-            {/* Card: Meu dia — fila pessoal (T3.08) */}
+            {/* Atalho 1: Fila do dia — Meu dia */}
             <button
               onClick={() => navigate('/meu-dia')}
               className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -674,7 +556,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                 <ListTodo className="w-5 h-5" />
               </div>
               <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                Meu dia{badge(mdPend)}
+                Fila do dia{badge(mdPend)}
               </h3>
               <p className="text-xs text-[#6B7280] mt-1">
                 Tarefas, ações vencidas e menções atribuídas a você.
@@ -684,7 +566,7 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               </span>
             </button>
 
-            {/* Card: Operação do dia (T3.13) */}
+            {/* Atalho 2: Risco da operação — Operação do dia */}
             <button
               onClick={() => navigate('/operacao-dia')}
               className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -693,18 +575,17 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
                 <CalendarCheck className="w-5 h-5" />
               </div>
               <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                Operação do dia{badge(opAtrasadas + opExcecoes)}
+                Risco da operação{badge(opAtrasadas + opExcecoes)}
               </h3>
               <p className="text-xs text-[#6B7280] mt-1">
-                Rotinas do dia geradas pela ficha operacional — atrasos, exceções e baixa em 1
-                toque.
+                Rotinas atrasadas e exceções abertas — baixa em 1 toque.
               </p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
                 Abrir operação do dia →
               </span>
             </button>
 
-            {/* Card: Pipeline de Negócios (Kanban) */}
+            {/* Atalho 3: Comercial — Pipeline */}
             <button
               onClick={() => navigate('/pipeline')}
               className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -712,19 +593,16 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                Pipeline de Negócios
-              </h3>
+              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Comercial</h3>
               <p className="text-xs text-[#6B7280] mt-1">
-                Visão Kanban dos estágios de negociação, métricas de funil e transições em tempo
-                real.
+                Negócios em aberto, estágios e transições em tempo real.
               </p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
                 Abrir pipeline →
               </span>
             </button>
 
-            {/* Card 2: Clientes — clicável, leva para Contatos */}
+            {/* Atalho 4: Carteira — Base de Contatos */}
             <button
               onClick={() => navigate('/contatos')}
               className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
@@ -732,48 +610,12 @@ export default function Home({ adminOnly = false }: { adminOnly?: boolean }) {
               <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
                 <Users className="w-5 h-5" />
               </div>
-              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Base de Contatos</h3>
+              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Carteira</h3>
               <p className="text-xs text-[#6B7280] mt-1">
-                Histórico unificado de interações, propostas e contratos.
+                Clientes ativos, contatos e histórico unificado de interações.
               </p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
                 Abrir contatos →
-              </span>
-            </button>
-
-            {/* Card: Ficha Operacional (T3.11) */}
-            <button
-              onClick={() => navigate('/ficha-operacional')}
-              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                <ClipboardList className="w-5 h-5" />
-              </div>
-              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">
-                Ficha Operacional
-              </h3>
-              <p className="text-xs text-[#6B7280] mt-1">
-                Rotina padronizada por cliente — gera o procedimento operacional do time.
-              </p>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                Abrir ficha operacional →
-              </span>
-            </button>
-
-            {/* Card: Módulo de Conteúdo (T3.21) */}
-            <button
-              onClick={() => navigate('/conteudos')}
-              className="text-left p-4 sm:p-5 rounded-xl bg-[#F7F5F1] border border-[#E5E7EB] hover:border-[#C9A227]/60 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-[#E8C766] mb-3">
-                <PenTool className="w-5 h-5" />
-              </div>
-              <h3 className="font-playfair font-bold text-base text-[#0A0A0A]">Conteúdo</h3>
-              <p className="text-xs text-[#6B7280] mt-1">
-                Agenda editorial, aprovação e pacote de publicação — do tema ao link rastreável.
-              </p>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A8862B] mt-3">
-                Abrir conteúdo →
               </span>
             </button>
 
