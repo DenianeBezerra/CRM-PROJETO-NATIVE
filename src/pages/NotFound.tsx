@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 
@@ -22,13 +22,13 @@ const NotFound = () => {
           O endereço <span className="font-mono text-[#E8C766]/80">{location.pathname}</span> não
           existe ou foi movido.
         </p>
-        <a
-          href="/home"
+        <Link
+          to="/home"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-inter font-semibold text-sm text-[#0A0A0A] bg-gradient-to-r from-[#E8C766] via-[#C9A227] to-[#B8860B] hover:from-[#F0D57F] hover:via-[#D8AF33] hover:to-[#B8860B] transition-all shadow-[0_4px_14px_0_rgba(201,162,39,0.38)]"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar ao início
-        </a>
+        </Link>
       </div>
     </div>
   )

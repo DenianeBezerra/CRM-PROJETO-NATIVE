@@ -179,7 +179,7 @@ export default function BuscaGlobal() {
               {res.clientes.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => ir('/contatos')}
+                  onClick={() => ir(`/contatos/${c.id}`)}
                   className="w-full text-left px-2 py-2 rounded-lg hover:bg-[#F7F5F1] flex items-start gap-2"
                 >
                   <User className="w-4 h-4 text-[#A8862B] mt-0.5" />
