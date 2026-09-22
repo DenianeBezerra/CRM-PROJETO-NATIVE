@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
@@ -36,6 +36,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isValid, isLoading, validateSession } = useAuth()
   const [checking, setChecking] = useState(true)
   const [sessionValid, setSessionValid] = useState(isValid)
+  const validateSessionRef = useRef(validateSession)
+  validateSessionRef.current = validateSession
 
   useEffect(() => {
     let mounted = true
@@ -48,7 +50,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
 
     // Se no client consta como válido, valida ativamente contra o servidor
-    void validateSession().then((ok) => {
+    void validateSessionRef.current().then((ok) => {
       if (mounted) {
         setSessionValid(ok)
         setChecking(false)
@@ -58,7 +60,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return () => {
       mounted = false
     }
-  }, [isValid, isLoading, validateSession])
+  }, [isValid, isLoading])
 
   if (isLoading || checking)
     return (
@@ -73,6 +75,8 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isValid, isLoading, validateSession } = useAuth()
   const [checking, setChecking] = useState(true)
   const [sessionValid, setSessionValid] = useState(isValid)
+  const validateSessionRef = useRef(validateSession)
+  validateSessionRef.current = validateSession
 
   useEffect(() => {
     let mounted = true
@@ -84,7 +88,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    void validateSession().then((ok) => {
+    void validateSessionRef.current().then((ok) => {
       if (mounted) {
         setSessionValid(ok)
         setChecking(false)
@@ -94,7 +98,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     return () => {
       mounted = false
     }
-  }, [isValid, isLoading, validateSession])
+  }, [isValid, isLoading])
 
   if (isLoading || checking) return null
   if (!sessionValid) return <Navigate to="/?sessao=expirada" replace />

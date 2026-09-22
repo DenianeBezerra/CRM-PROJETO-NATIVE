@@ -109,8 +109,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!pb.authStore.isValid || !pb.authStore.token) {
-      if (isValid) setIsValid(false)
-      if (user) setUser(null)
+      setIsValid((prev) => {
+        if (prev) return false
+        return prev
+      })
+      setUser((prev) => {
+        if (prev) return null
+        return prev
+      })
       return false
     }
 
@@ -151,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     refreshPromiseRef.current = p
     return p
-  }, [isValid, user, handleSessionExpired])
+  }, [handleSessionExpired])
 
   /**
    * Agenda a próxima renovação periódica:
@@ -255,9 +261,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [performRefresh, scheduleNextRefresh])
 
-  const validateSession = async (): Promise<boolean> => {
+  const validateSession = useCallback(async (): Promise<boolean> => {
     return performRefresh()
-  }
+  }, [performRefresh])
 
   const login = async (email: string, pass: string) => {
     const trimmedEmail = email.trim()
