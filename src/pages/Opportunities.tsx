@@ -11,7 +11,7 @@ import {
   X,
   CircleDot,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { useToast } from '@/hooks/use-toast'
 import QualificacaoNegocio from '@/components/QualificacaoNegocio'
@@ -185,6 +185,10 @@ export default function Opportunities() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [menuAberto, setMenuAberto] = useState<string | null>(null)
+  // Deep-links: ?destaque=<id> (Operacional) e ?abrir=<id> (Meu dia)
+  // destacam/abrem o card correspondente ao chegar na página.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [destaqueId, setDestaqueId] = useState<string | null>(null)
   const load = async () => {
     setLoading(true)
     try {
@@ -226,6 +230,16 @@ export default function Opportunities() {
   useEffect(() => {
     void load()
   }, [])
+  useEffect(() => {
+    const destaque = searchParams.get('destaque')
+    const abrir = searchParams.get('abrir')
+    const alvo = destaque || abrir
+    if (!alvo || loading) return
+    setDestaqueId(alvo)
+    if (abrir) setMenuAberto(abrir)
+    // limpa o parâmetro para não reabrir em navegações futuras
+    setSearchParams({}, { replace: true })
+  }, [searchParams, loading, setSearchParams])
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
     return items.filter(
@@ -469,7 +483,12 @@ export default function Opportunities() {
             {visible.map((item) => (
               <article
                 key={item.id}
-                className="bg-white border border-[#E5E7EB] rounded-xl p-5 hover:border-[#C9A227]/60 hover:shadow-md transition-all"
+                id={`op-${item.id}`}
+                className={`bg-white border rounded-xl p-5 hover:border-[#C9A227]/60 hover:shadow-md transition-all ${
+                  destaqueId === item.id
+                    ? 'border-[#C9A227] ring-2 ring-[#C9A227]/40 shadow-md'
+                    : 'border-[#E5E7EB]'
+                }`}
               >
                 <div className="flex justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
