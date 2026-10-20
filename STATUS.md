@@ -1,13 +1,13 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 21/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 22/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.23 — RBAC completo (5 perfis + gestão de usuários) — implementada e provada, AGUARDANDO TESTE HUMANO da CEO
-**Última task concluída:** T3.22/tipo 1 v4 — Importador de clientes ativos (2026-10-19, teste executado pela Deni.Ai a pedido da CEO; v0.0.689)
-**Versão atual:** v0.0.700 (QA verde — 19/10: T3.23 implementada v0.0.694 + provas restantes + debug do reset-senha RED→GREEN v0.0.697–0.0.700)
+**Task ativa:** nenhuma — T3.23 concluída em 2026-10-20 (teste humano executado pela Deni.Ai a pedido da CEO)
+**Última task concluída:** T3.23 — RBAC completo (2026-10-20, teste humano executado pela Deni.Ai a pedido da CEO; v0.0.694–0.0.703)
+**Versão atual:** v0.0.701 (QA verde — 20/10: fechamento T3.23 — governança aplicada)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** sincronizada 19/10 (sync programático byte-exato — STATUS, fase, changelog, estado)
+**Governança GitHub:** sincronizada 20/10 (fechamento T3.23 — sync programático byte-exato — STATUS, fase, changelog, estado)
 
 ## Composição da Fase 3 (em execução)
 
@@ -36,7 +36,7 @@
 | 20   | T3.20 — Causas comuns C-03 + C-01 + C-04 (Direcionamento de Correções v2, ordem 1-2)                                             | SPEC-3-020            | ✅ Concluída (v0.0.576, teste aprovado 09:15)                                                                                                                  |
 | 21   | T3.21 — Módulo de Conteúdo (Leva A concluída; Leva B autorizada — calendário → busca → anual)                                    | SPEC-3-021/021B       | ◐ Em execução — Leva A concluída 13/09; Leva B item 1 (calendário) concluído 13/09; restam Visão 3 e quadro anual                                              |
 | 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v4 (tipo 1 completo: planilha B, natureza, cargo, analista, ficha auto bloco 9) | SPEC-3-022            | ◐ Tipo 1 v4 CONCLUÍDO 19/10 (ciclo provado por API + UI completa; resíduo limpo via 0212; base limpa) — tipos 2/3 em sequência                                 |
-| 23   | T3.23 — RBAC completo: 5 perfis, matriz fail-closed, gestão de usuários + revogação de sessão                                    | SPEC-3-023            | ◐ Implementada 19/10 (v0.0.694–0.0.700) — provas essenciais por API + render UI confirmado + debug do reset-senha (RED→GREEN) — AGUARDANDO TESTE HUMANO da CEO |
+| 23   | T3.23 — RBAC completo: 5 perfis, matriz fail-closed, gestão de usuários + revogação de sessão                                    | SPEC-3-023            | ✅ Concluída — 2026-10-20 (v0.0.694–0.0.703; teste humano executado pela Deni.Ai a pedido da CEO — ciclo completo na UI /config/usuarios: criar usuário → senha 1x → desativar → login BLOQUEADO → reativar → login OK → menu comercial restrito → acesso direto bloqueado; usuário de teste INATIVO na base) — evidência: artifacts/T323_teste_ceo_2010.png|
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign, demais itens do Direcionamento v2                 | a definir SPEC a SPEC | Planejadas                                                                                                                                                     |
 
 ## Estado real preservado (base de dados)
