@@ -4,10 +4,10 @@
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
 **Task ativa:** nenhuma — T3.23 concluída em 2026-10-20 (teste humano executado pela Deni.Ai a pedido da CEO)
 **Última task concluída:** T3.23 — RBAC completo (2026-10-20, teste humano executado pela Deni.Ai a pedido da CEO; v0.0.694–0.0.703)
-**Versão atual:** v0.0.701 (QA verde — 20/10: fechamento T3.23 — governança aplicada)
+**Versão atual:** v0.0.705 (governança — 20/10: pendências resolvidas — SPEC-3-023 publicada, modo lote verificado, análise tipos 2/3)
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** sincronizada 20/10 (fechamento T3.23 — sync programático byte-exato — STATUS, fase, changelog, estado)
+**Governança GitHub:** sincronizada 20/10 2× (fechamento T3.23 + pendências — SPEC-3-023 publicada no GitHub; sync programático byte-exato)
 
 ## Composição da Fase 3 (em execução)
 
@@ -34,8 +34,8 @@
 | 18   | T3.18 — Painel por papel + metas editáveis (backlog Etapa 3, camada analítica p.1)                                               | SPEC-3-018            | ✅ Concluída — 2026-09-14 23:58                                                                                                                                |
 | 19   | T3.19 — Relatórios agendados (backlog Etapa 3, §2.3)                                                                             | SPEC-3-019            | ✅ Concluída — 2026-09-14 08:15 (teste aprovado — "prossiga")                                                                                                  |
 | 20   | T3.20 — Causas comuns C-03 + C-01 + C-04 (Direcionamento de Correções v2, ordem 1-2)                                             | SPEC-3-020            | ✅ Concluída (v0.0.576, teste aprovado 09:15)                                                                                                                  |
-| 21   | T3.21 — Módulo de Conteúdo (Leva A concluída; Leva B autorizada — calendário → busca → anual)                                    | SPEC-3-021/021B       | ◐ Em execução — Leva A concluída 13/09; Leva B item 1 (calendário) concluído 13/09; restam Visão 3 e quadro anual                                              |
-| 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v4 (tipo 1 completo: planilha B, natureza, cargo, analista, ficha auto bloco 9) | SPEC-3-022            | ◐ Tipo 1 v4 CONCLUÍDO 19/10 (ciclo provado por API + UI completa; resíduo limpo via 0212; base limpa) — tipos 2/3 em sequência                                 |
+| 21   | T3.21 — Módulo de Conteúdo (Leva A concluída; Leva B autorizada — calendário → busca → anual)                                    | SPEC-3-021/021B       | ◐ Em execução — Leva A concluída 13/09; Leva B: calendário 13/09 + modo lote VERIFICADO 20/10 (UI, pela Deni.Ai a pedido da CEO — 2 peças [PROVA T3.21]); restam Visão 3 e quadro anual                                              |
+| 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v4 (tipo 1 completo: planilha B, natureza, cargo, analista, ficha auto bloco 9) | SPEC-3-022            | ◐ Tipo 1 v4 CONCLUÍDO 19/10 (ciclo provado por API + UI completa; resíduo limpo via 0212; base limpa) — tipos 2/3: ANÁLISE apresentada 20/10 — aguardando autorização + decisões da CEO (retenção LGPD, sequência das cadências)                                 |
 | 23   | T3.23 — RBAC completo: 5 perfis, matriz fail-closed, gestão de usuários + revogação de sessão                                    | SPEC-3-023            | ✅ Concluída — 2026-10-20 (v0.0.694–0.0.703; teste humano executado pela Deni.Ai a pedido da CEO — ciclo completo na UI /config/usuarios: criar usuário → senha 1x → desativar → login BLOQUEADO → reativar → login OK → menu comercial restrito → acesso direto bloqueado; usuário de teste INATIVO na base) — evidência: artifacts/T323_teste_ceo_2010.png|
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign, demais itens do Direcionamento v2                 | a definir SPEC a SPEC | Planejadas                                                                                                                                                     |
 
