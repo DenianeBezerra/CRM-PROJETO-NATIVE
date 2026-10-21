@@ -2,9 +2,9 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 23/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** Governança de dados (visibilidade + backup + exportação) — EM CORREÇÃO (prova do backup pendente; rodada interrompida por orçamento 21/10 19:20)
+**Task ativa:** Governança de dados (visibilidade + backup + exportação) — AGUARDANDO TESTE HUMANO (implementação 100% provada: visibilidade + exportação + backup com restauração; debug do 404 do backup resolvido 21/10 19:40)
 **Última task concluída:** Página própria de Empresa (2026-10-21, teste humano executado pela Deni.Ai a pedido da CEO; v0.0.721–0.0.723)
-**Versão atual:** v0.0.735 (QA verde — 21/10: visibilidade por responsável PROVADA + exportação integral PROVADA (5 entidades novas) + backup implementado com prova parcial)
+**Versão atual:** v0.0.739 (QA verde — 21/10: visibilidade PROVADA + exportação integral PROVADA + backup PROVADO — migration 0219 backups_gov, snapshot on-demand 200, restauração de faltante 200, guardas 400/403)
 **Fase 3:** 23/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
