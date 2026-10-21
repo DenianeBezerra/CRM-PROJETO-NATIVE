@@ -119,3 +119,12 @@ Atribuição capturada nos 4 níveis; motivo de ganho obrigatório e estruturado
 ## Backlog complementar (aditivo — 12/09)
 
 Documento "Requisitos Complementares Etapa 3" da CEO (uploads/fe42b9d3): camada analítica (painéis por papel, 10 indicadores, metas, relatórios agendados por e-mail), colaboração (comentários/menções/notificações/fila de trabalho pessoal/anexos), V.ia (IA em 3 estágios sequenciais com restrições rígidas), administração (perfis, visibilidade, backup, retenção LGPD), módulos avaliados (catálogo construir; propostas etapa 4 — DIVERGÊNCIA: já existem; faturamento não construir). Backlog registrado em `04-fase-atual/backlog-etapa3-requisitos-complementares.md` (commit 2d4ff92). Sequência acordada: Porta 1 → fila de trabalho + comentários → painel por papel + metas → relatórios agendados → perfis/visibilidade/backup → V.ia estágio 1 → catálogo de serviços.
+
+## Governança de dados (administração — CONCLUÍDA 21/10)
+
+- Visibilidade por responsável: `empresas.visibilidade_restrita` (migration 0218) + regra server-side na ficha + toggle só diretoria + auditoria com estado anterior/posterior.
+- Exportação integral: `/backend/v1/export/{entidade}` ampliado para 7 entidades com aceite de uso único.
+- Backup: coleção `backups_gov` (migration 0219) + cron diário 03h com retenção 30 dias + snapshot on-demand (diretoria) + restauração de registros faltantes com confirm "RESTAURAR".
+- Debug do 404 resolvido (21/10): `migrate()` em hook servido não carrega — causa raiz, correção e provas em `06_notas/debug/debug-2026-10-21-gov-backup-404.md`.
+- Teste humano executado pela Deni.Ai na UI real a pedido da CEO ("teste e ajuste se tiver erros"): login, ficha da empresa, toggle de visibilidade ida-e-volta com toast + auditoria, exportação CSV (200 nos logs do pod). Nenhum erro encontrado — nada a ajustar.
+- Evidência: artifacts/governanca_evidencia_2110.md.
