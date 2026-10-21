@@ -2,9 +2,9 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 23/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** Página própria de Empresa implementada em 2026-10-21 — AGUARDANDO TESTE HUMANO da CEO
-**Última task concluída:** T3.21 — Visão 1 Quadro Ano (2026-10-21, teste humano executado pela Deni.Ai a pedido da CEO; v0.0.718–0.0.719)
-**Versão atual:** v0.0.722 (QA verde — 21/10: Página de Empresa — endpoint /empresas/{id}/ficha + EmpresaDetalhe + navegação da busca global e do contato)
+**Task ativa:** nenhuma — Página própria de Empresa concluída em 2026-10-21 (teste humano executado pela Deni.Ai a pedido da CEO)
+**Última task concluída:** Página própria de Empresa (2026-10-21, teste humano executado pela Deni.Ai a pedido da CEO; v0.0.721–0.0.723)
+**Versão atual:** v0.0.723 (QA verde — 21/10: Página de Empresa concluída — ficha consolidada + navegação integrada)
 **Fase 3:** 23/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
@@ -63,7 +63,7 @@
 - **D23 — ordenação por desempenho**: entra quando houver dado medido (D20); até lá, por data.
 - **D24 — destino da lista plana**: substituída pela VISÃO 3 (busca e histórico), não pelo painel do dia; lista permanece até a Visão 3 existir.
 - **M-19 ampliado**: busca global com 4 tipos (empresas, contatos, oportunidades, conteúdos).
-- **Página própria de Empresa**: IMPLEMENTADA 21/10 (v0.0.721–0.0.722 — endpoint /empresas/{id}/ficha + página /empresas/:id + navegação da busca global e do contato) — AGUARDANDO TESTE HUMANO da CEO; edição de cadastro fica para task futura.
+- **Página própria de Empresa**: CONCLUÍDA 21/10 (v0.0.721–0.0.723 — endpoint /empresas/{id}/ficha + página /empresas/:id + navegação da busca global e do contato; revalidação do zero 5 provas por API + ciclo UI pela Deni.Ai a pedido da CEO); edição de cadastro fica para task futura.
 - **Roteiro da peça publicada**: redigido por IA na validação — se for publicar de verdade, a CEO reescreve antes; como registro de validação, mantém sem marcação de prova.
 - **Combinado de processo (AP-2026-09-13-1130)**: entrega não é concluída sem renderização confirmada no navegador; automação inconclusiva = sinalizar "verificação não possível", nunca QA verde só com build.
 - **Retorno CEO 13/09 (criação de conteúdo e calendário)**: entrega aceita; 3 ajustes do calendário corretos; modo lote será testado pela CEO com a agenda real até 30/09 — item permanece NÃO VERIFICADO até a confirmação; importador por planilha permanece requisito para clientes ativos, prospecção e base LinkedIn (8k+ contatos), prioridade ACIMA da Visão 3 e do quadro anual; regra de arquivo: 2 falhas pontuais no mesmo arquivo → reescrita completa, sem novas tentativas; sequência: sync desta rodada → importador (3 tipos) → Visão 3 → quadro anual; site institucional com blocos de modelo não substituídos (latim + tabela em dólar) precisa ser saneado ANTES de o tráfego do D18 ser direcionado (fora do CRM).
