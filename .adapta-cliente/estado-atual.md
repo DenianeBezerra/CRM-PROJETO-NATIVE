@@ -1,14 +1,14 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (T3.22 — Importador por planilha — CONCLUÍDA 20/10)
+- task_id: T3.21 Leva B item 2 — Visão 3 (Busca e histórico) da agenda editorial
 - champion: Deni.Ai
-- spec: 04-fase-atual/specs/SPEC-3-022-importador-planilha-3-tipos.md
-- etapa: concluida
-- autorizacao_implementacao: confirmada — CEO 20/10 14:34 "autorizado, prepare você mesmo a cadencia"
-- teste_humano: aprovado — CEO 20/10 15:43 "pode testar e seguir para a proxima" (teste de UI executado pela Deni.Ai conforme regra da leva, ordem da CEO 14/09)
-- verificacao_automatica: passou — RED 7 / GREEN 14 por API (artifacts/T322_tipos23_provas_evidencia_2010.md); QA verde v0.0.712
-- aprendizado: capturado — bundle stale do preview após apply_changes de sessão interrompida (reconstruir antes de testar UI); STATUS.md pode carregar atualização de sessão interrompida (ler arquivo real antes da âncora); senha de usuário real trocada em prova de 403 (resetar quando necessário)
-- ultima_acao: 20/10 — T3.22 (3 tipos do importador) CONCLUÍDA; governança Skip (changelog 0.0.713, fase, STATUS, estado) + sync GitHub byte-exato
-- pendencias: (1) bug −1 dia na lista de conteúdos (correção sob autorização); (2) Visão 3 + quadro anual na fila (sequência da CEO)
-- proxima_acao: aguardar decisão da CEO sobre a próxima task (Visão 3 / quadro anual / bug de fuso)
-- atualizado_em: 2026-10-20T15:50:00-03:00
+- spec: 04-fase-atual/specs/SPEC-3-021B (Leva B — 3 visões; Visão 3 substitui a lista plana)
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada 21/10 04:32 — "Autorizado — implemente a T3.21 Visão 3 conforme o plano"
+- teste_humano: pendente — roteiro apresentado à CEO na conclusão da rodada
+- verificacao_automatica: passou — QA verde v0.0.713/0.0.714 (setup/static/build/integrations); provas RED 2/GREEN 8 por API; teste de UI pela Deni.Ai (busca "split" filtrou 2 peças)
+- aprendizado: pendente
+- ultima_acao: 21/10 — Visão 3 implementada e provada (hook conteudo_busca.js + Conteudos.tsx search-first); evidência artifacts/T321_visao3_evidencia_2110.md
+- pendencias: (1) teste humano da CEO; (2) quadro anual (Visão 1) na fila; (3) página própria de Empresa (fila futura)
+- proxima_acao: aguardar teste humano da CEO na Visão 3
+- atualizado_em: 2026-10-21T05:10:00-03:00
