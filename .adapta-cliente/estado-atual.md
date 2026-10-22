@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: Catálogo de serviços (Fase 3, backlog Etapa 3 §6 — "Construir na etapa 3") — nova task, sem número
+- task_id: T3.24 — Catálogo de serviços (Fase 3, backlog Etapa 3 §6 — “Construir na etapa 3”)
 - champion: Deni.Ai
-- spec: a publicar como SPEC-3-024 (base: doc Requisitos Complementares Etapa 3 §6 tabela módulos + §7 priorização; uploads/fe42b9d3) — análise 21/10 21:25
-- etapa: aguardando_teste_humano
+- spec: 04-fase-atual/specs/SPEC-3-024-catalogo-servicos.md (publicada no fechamento; baseada no doc Requisitos Complementares Etapa 3 §6–§7)
+- etapa: concluida
 - autorizacao_implementacao: confirmada 21/10 21:26 — "sim, implemente"
-- teste_humano: pendente (pré-teste da Deni.Ai na UI APROVADO: página /config/servicos renderiza 5 serviços do seed + toggles + faixa de ticket; fixture de prova inativa e renomeada "[PROVA] REMOVIDA")
-- verificacao_automatica: passou — provas por API: 401 sem auth; GET lista 200 (5 seed); POST 200 criação; 400 slug duplicado; 400 pmin>pmax; PATCH 200; GET ?ativos=1 filtra inativos; comercial 403 no POST e PATCH (leitura 200 liberada ao time); QA verde v0.0.745–0.0.747 (fix TSX generic + hook inline no callback AP-2026-09-12-0200)
-- aprendizado: pendente
-- ultima_acao: 22/10 00:45 — implementação provada por API (RED 5/GREEN 4) + pré-teste UI aprovado; QA verde v0.0.747
-- proxima_acao: governança (STATUS/changelog/fase) + apply + sync GitHub byte-exato → teste humano da CEO
-- atualizado_em: 2026-10-22T00:45:00-03:00
+- teste_humano: aprovado 2026-10-21 22:59 — CEO: “eu gostei, teste você também, aprove e prossiga”; Deni.Ai revalidou no preview: 5 serviços ativos, [PROVA] REMOVIDA inativa e mesmas 5 opções no seletor de Oportunidades; formulário cancelado sem salvar.
+- verificacao_automatica: passou — API/RBAC (401, GET 200, POST/PATCH, slug duplicado e faixa inválida rejeitados, filtro ativos, comercial 403) conforme evidência; migration 0223 aplicada; QA verde v0.0.748; UI integrada validada.
+- aprendizado: sem_sinal: fluxo CRUD/RBAC já conhecido; revalidação confirmou integração UI sem novo padrão reutilizável
+- ultima_acao: 2026-10-21 22:59 — revalidação integrada UI PASSOU; migration 0223 aplicada; QA verde v0.0.748; evidência atualizada.
+- proxima_acao: selecionar e analisar uma única próxima task da Fase 3 em nova rodada.
+- atualizado_em: 2026-10-21T22:59:00-03:00

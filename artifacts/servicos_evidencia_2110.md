@@ -46,3 +46,12 @@ Página /config/servicos renderiza: 5 serviços do seed com toggles ON, faixa "-
 - Escrita (POST/PATCH) só diretoria — provado com comercial real (403).
 - Faixa de ticket é orientação INTERNA de proposta — página marcada "Uso interno".
 - Nenhum dado pessoal no catálogo.
+
+
+## Revalidação integrada final — T3.24 (Deni.Ai, sob delegação explícita da CEO — 21/10/2026)
+- Pedido recebido: “eu gostei, teste você também, aprove e prossiga”. Revalidação executada no preview, sem publicar produção.
+- Login no preview concluído; menu Diretoria → Catálogo de serviços abriu `/config/servicos`.
+- Catálogo renderizou cinco serviços ativos: BPO Financeiro, Tesouraria, Controladoria, CFO as a Service e Outro. A fixture `[PROVA] REMOVIDA` permaneceu inativa (switch desligado); não alterei switches nem faixas.
+- Oportunidades → Nova oportunidade: o campo Serviço apresentou exatamente as cinco opções ativas do catálogo. Cancelei o formulário sem salvar; nenhum negócio ou serviço foi criado/alterado pela validação.
+- Verificações externas complementares: migration `0223_servicos_catalogo` consta como aplicada; coleção `servicos` existe com campos e regras de leitura autenticada/escrita via endpoint; preview em v0.0.748 conforme status do Skip. QA e provas de API/RBAC estão descritos acima.
+- **Resultado:** PASSOU — fluxo visual catálogo → opções de serviço em Oportunidades; base mantida sem mutações de teste. Evidência obtida por snapshots/DOM do navegador e inspeção da coleção/migration no Skip.

@@ -9,3 +9,4 @@
 - 2026-09-13T23:12:00-03:00 · task T3.16 · capturado · AP-2026-09-13-2312-drift-fase-md-status.md — drift entre fase.md e STATUS.md (linhas T3.08–T3.12 ausentes da tabela da Fase 3); regra: atualizar fase.md e STATUS.md na mesma edição e conferir contagem de linhas vs cabeçalho
 - 2026-09-13T23:55:00-03:00 · task T3.17 · capturado · AP-2026-09-13-2350-jsvm-escopo-arquivo-template.md — var top-level de OUTRO arquivo de hook não é visível no goja (escopo entre arquivos); template inline no callback resolveu o 400 do POST gerar
 - 2026-10-21T21:55:00-03:00 · task V.ia estágio 1 · sem sinal reutilizável · padrões já conhecidos aplicados (guard role+perfil T3.23, migrate() em hook servido evitado, fixtures invalidadas) sem causa raiz nova
+- 2026-10-21T22:59:00-03:00 · task T3.24 (Catálogo de serviços) · sem sinal reutilizável · CRUD/RBAC e integração de opções seguiram padrões conhecidos; revalidação não revelou restrição nova
