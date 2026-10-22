@@ -120,6 +120,13 @@ Atribuição capturada nos 4 níveis; motivo de ganho obrigatório e estruturado
 
 Documento "Requisitos Complementares Etapa 3" da CEO (uploads/fe42b9d3): camada analítica (painéis por papel, 10 indicadores, metas, relatórios agendados por e-mail), colaboração (comentários/menções/notificações/fila de trabalho pessoal/anexos), V.ia (IA em 3 estágios sequenciais com restrições rígidas), administração (perfis, visibilidade, backup, retenção LGPD), módulos avaliados (catálogo construir; propostas etapa 4 — DIVERGÊNCIA: já existem; faturamento não construir). Backlog registrado em `04-fase-atual/backlog-etapa3-requisitos-complementares.md` (commit 2d4ff92). Sequência acordada: Porta 1 → fila de trabalho + comentários → painel por papel + metas → relatórios agendados → perfis/visibilidade/backup → V.ia estágio 1 → catálogo de serviços.
 
+## Catálogo de serviços (backlog Etapa 3 §6 — implementado 21/10, AGUARDANDO TESTE HUMANO)
+
+- **O que é**: escopo e faixa de preço padronizados das linhas de solução (doc Requisitos Complementares Etapa 3 §6 — "Construir na etapa 3"), base para proposta consistente.
+- **Entregas**: coleção `servicos` (migration 0223 + seed das 5 linhas) + hook `servicos_endpoint.js` (GET p/ o time; POST/PATCH só diretoria; slug único; pmin<=pmax) + página `/config/servicos` (criar/editar inline, toggle ativo) + selects de Oportunidades lendo da coleção com fallback estático.
+- **Provas por API**: 401 sem auth; GET 200 (5 seed); POST 200; 400 slug duplicado; 400 pmin>pmax; PATCH 200; ?ativos=1 filtra inativos; comercial: leitura 200, POST/PATCH 403.
+- **Pré-teste UI pela Deni.Ai**: página renderiza os 5 serviços com toggles e faixa de ticket. Evidência: artifacts/servicos_evidencia_2110.md. Versões v0.0.745–0.0.747.
+
 ## V.ia — Estágio 1 (IA de apoio ao time interno — CONCLUÍDA 21/10)
 
 - **O que é**: resumos e sugestões de IA SÓ para o time interno (doc Requisitos Complementares Etapa 3 §4), sobre os dados DESTE registro, na Consulta 360º.

@@ -2,9 +2,9 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 24/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma (V.ia estágio 1 concluída; próxima task a selecionar)
-**Última task concluída:** V.ia — Estágio 1 (2026-10-21 — teste humano executado pela Deni.Ai por ordem da CEO "teste e siga"; revalidação do zero 6/6 por API; v0.0.741–0.0.743)
-**Versão atual:** v0.0.743 (QA verde — fechamento V.ia estágio 1)
+**Task ativa:** Catálogo de serviços (backlog Etapa 3 §6) — AGUARDANDO TESTE HUMANO (implementada e provada por API + pré-teste UI; v0.0.745–0.0.747)
+**Última task concluída:** V.ia — Estágio 1 (2026-10-21 — teste humano executado pela Deni.Ai por ordem da CEO "teste e siga"; revalidação do zero 6/6 por API; v0.0.741–0.0.744)
+**Versão atual:** v0.0.747 (QA verde — Catálogo de serviços: coleção + CRUD diretoria + UI /config/servicos + selects dinâmicos)
 **Fase 3:** 24/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
