@@ -8,7 +8,7 @@
 **Fase 3:** 25/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** correção documental T3.24 em validação (2026-10-22)
+**Governança GitHub:** commit c6159837229eae0c87f0cfd6eafd5ae65203d068 — leitura remota 7/7 byte a byte (2026-10-22)
 
 ## Composição da Fase 3 (em execução)
 

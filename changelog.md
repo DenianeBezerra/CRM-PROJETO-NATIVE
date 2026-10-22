@@ -2,7 +2,7 @@
 
 - 2026-10-21 · [Deni.Ai] · **Conclusão autorizada pela CEO:** “eu gostei, teste você também, aprove e prossiga”. Revalidação integrada no preview v0.0.748: login; `/config/servicos` com cinco serviços ativos (BPO Financeiro, Tesouraria, Controladoria, CFO as a Service e Outro), fixture `[PROVA] REMOVIDA` inativa; em Oportunidades → Nova oportunidade, o campo Serviço mostrou as mesmas cinco opções. Formulário cancelado sem salvar; nenhuma mutação de teste. Migration `0223_servicos_catalogo` aplicada e schema/regras de acesso da coleção inspecionados; provas API/RBAC anteriores e QA verde preservados. **Resultado: PASSOU.** Fase 3: 25/N. Evidência: `artifacts/servicos_evidencia_2110.md`. SPEC: `04-fase-atual/specs/SPEC-3-024-catalogo-servicos.md`.
 
-- 2026-10-22 · [Deni.Ai] · Correção documental T3.24: células de status extras em T3.21/T3.22 e linha T3.24 duplicada removidas de `fase.md`/`STATUS.md`; causa: células de status foram concatenadas em vez de substituir a coluna canônica. Nenhuma alteração no CRM ou em produção.
+- 2026-10-22 · [Deni.Ai] · Correção documental T3.24: células de status extras em T3.21/T3.22 e linha T3.24 duplicada removidas de `fase.md`/`STATUS.md`; causa: células de status foram concatenadas em vez de substituir a coluna canônica. Nenhuma alteração no CRM ou em produção. Commit corretivo c6159837229eae0c87f0cfd6eafd5ae65203d068 verificado por leitura remota byte a byte (7/7).
 
 
 ## [0.0.747] — 2026-10-22 — Catálogo de serviços implementado e provado — AGUARDANDO TESTE HUMANO da CEO
