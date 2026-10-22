@@ -1,3 +1,9 @@
+## Nota de governança — 2026-10-22 — T3.25 A-03 formalizada; aguardando autorização
+
+- 2026-10-22 10:52 -03:00 · [Deni.Ai] · Decisão da CEO: A-03 será a próxima task; meta ativa exige valor numérico estritamente maior que zero. Zero digitado e campo vazio são inválidos; campo vazio não pode ser convertido implicitamente em 0.
+- Criada SPEC-3-025 a partir do Direcionamento de Correções CRM v2 (§5 A-03 e §9), incluindo critérios, TDD, segurança, acessibilidade, tratamento legado e preservação de dados.
+- Esta atualização é exclusivamente documental (SPEC, fase, status e estado); nenhum código, migration, dado, build, versão Skip ou publicação de produção foi alterado. Fase 3 permanece em 25/N tarefas concluídas; T3.25 aguarda autorização explícita para implementar.
+
 ## [0.0.748] — 2026-10-21 — T3.24 Catálogo de serviços CONCLUÍDO
 
 - 2026-10-21 · [Deni.Ai] · **Conclusão autorizada pela CEO:** “eu gostei, teste você também, aprove e prossiga”. Revalidação integrada no preview v0.0.748: login; `/config/servicos` com cinco serviços ativos (BPO Financeiro, Tesouraria, Controladoria, CFO as a Service e Outro), fixture `[PROVA] REMOVIDA` inativa; em Oportunidades → Nova oportunidade, o campo Serviço mostrou as mesmas cinco opções. Formulário cancelado sem salvar; nenhuma mutação de teste. Migration `0223_servicos_catalogo` aplicada e schema/regras de acesso da coleção inspecionados; provas API/RBAC anteriores e QA verde preservados. **Resultado: PASSOU.** Fase 3: 25/N. Evidência: `artifacts/servicos_evidencia_2110.md`. SPEC: `04-fase-atual/specs/SPEC-3-024-catalogo-servicos.md`.

@@ -2,13 +2,13 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 25/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma — T3.24 Catálogo de serviços concluída (v0.0.748)
+**Task ativa:** T3.25 — A-03 metas ativas > 0 — aguardando autorização de implementação (SPEC-3-025)
 **Última task concluída:** T3.24 — Catálogo de serviços (2026-10-21 — revalidação integrada UI pela Deni.Ai sob delegação explícita da CEO; migration 0223 aplicada; v0.0.748)
 **Versão atual:** v0.0.748 (QA verde — Catálogo de serviços; /config/servicos e opções ativas em Oportunidades validadas)
 **Fase 3:** 25/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** commit c6159837229eae0c87f0cfd6eafd5ae65203d068 — leitura remota 7/7 byte a byte (2026-10-22)
+**Governança GitHub:** T3.25 formalizada em documentação; sem alteração de aplicação/produção.
 
 ## Composição da Fase 3 (em execução)
 
@@ -39,6 +39,7 @@
 | 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v4 (tipo 1 completo: planilha B, natureza, cargo, analista, ficha auto bloco 9) | SPEC-3-022            | ✅ Concluída — 2026-10-20 (tipos 1–3; testes UI/API aprovados, v0.0.707–v0.0.713) |
 | 23   | T3.23 — RBAC completo: 5 perfis, matriz fail-closed, gestão de usuários + revogação de sessão                                    | SPEC-3-023            | ✅ Concluída — 2026-10-20 (v0.0.694–0.0.703; teste humano executado pela Deni.Ai a pedido da CEO — ciclo completo na UI /config/usuarios: criar usuário → senha 1x → desativar → login BLOQUEADO → reativar → login OK → menu comercial restrito → acesso direto bloqueado; usuário de teste INATIVO na base) — evidência: artifacts/T323_teste_ceo_2010.png                                                                                                                                                                                                                                 |
 | 24 | T3.24 — Catálogo de serviços (backlog Etapa 3 §6) | SPEC-3-024 | ✅ Concluída — 2026-10-21; teste integrado no preview; v0.0.748 |
+| 25 | T3.25 — A-03: metas ativas precisam de valor > 0 | SPEC-3-025 | ⏳ Aguardando autorização de implementação (decisão CEO 2026-10-22; formalização apenas) |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign, demais itens do Direcionamento v2                 | a definir SPEC a SPEC | Planejadas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Estado real preservado (base de dados)
