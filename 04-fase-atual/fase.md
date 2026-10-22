@@ -120,6 +120,14 @@ Atribuição capturada nos 4 níveis; motivo de ganho obrigatório e estruturado
 
 Documento "Requisitos Complementares Etapa 3" da CEO (uploads/fe42b9d3): camada analítica (painéis por papel, 10 indicadores, metas, relatórios agendados por e-mail), colaboração (comentários/menções/notificações/fila de trabalho pessoal/anexos), V.ia (IA em 3 estágios sequenciais com restrições rígidas), administração (perfis, visibilidade, backup, retenção LGPD), módulos avaliados (catálogo construir; propostas etapa 4 — DIVERGÊNCIA: já existem; faturamento não construir). Backlog registrado em `04-fase-atual/backlog-etapa3-requisitos-complementares.md` (commit 2d4ff92). Sequência acordada: Porta 1 → fila de trabalho + comentários → painel por papel + metas → relatórios agendados → perfis/visibilidade/backup → V.ia estágio 1 → catálogo de serviços.
 
+## V.ia — Estágio 1 (IA de apoio ao time interno — CONCLUÍDA 21/10)
+
+- **O que é**: resumos e sugestões de IA SÓ para o time interno (doc Requisitos Complementares Etapa 3 §4), sobre os dados DESTE registro, na Consulta 360º.
+- **Entregas**: hook `via_estagio1.js` (4 rotas: resumo-lead, resumo-negocio, pendencias, proximo-passo — requireAuth, 403 comercial/social_media por role E perfil, prompt com as 6 restrições §4.3, $ai.chat fast) + coleção `via_interacoes` (migration 0222, trilha integral) + `ViaIA.tsx` (3 botões + aviso).
+- **Teste humano**: executado pela Deni.Ai na UI (ordem da CEO "teste e siga" 21/10 21:06) — 3 botões aprovados com caso real Felicidade; restrições visíveis e respeitadas.
+- **Revalidação do zero por API**: 6/6 PASSOU (401 sem auth; 200 nos 3 tipos; 404 inexistente; trilha via_interacoes registrando tudo).
+- **Evidência**: artifacts/via_estagio1_evidencia_2110.md. Versões v0.0.741–0.0.743.
+
 ## Governança de dados (administração — CONCLUÍDA 21/10)
 
 - Visibilidade por responsável: `empresas.visibilidade_restrita` (migration 0218) + regra server-side na ficha + toggle só diretoria + auditoria com estado anterior/posterior.
