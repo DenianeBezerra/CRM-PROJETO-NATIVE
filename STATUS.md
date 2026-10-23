@@ -1,14 +1,14 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 25/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 26/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.25 — A-03 metas ativas > 0 — implementada e provada, aguardando teste humano (SPEC-3-025; v0.0.752)
-**Última task concluída:** T3.24 — Catálogo de serviços (2026-10-21 — revalidação integrada UI pela Deni.Ai sob delegação explícita da CEO; migration 0223 aplicada; v0.0.748)
+**Task ativa:** nenhuma — T3.25 concluída; backlog: roteamento V.ia, publicação em produção
+**Última task concluída:** T3.25 — A-03 metas ativas > 0 (2026-10-23 — teste humano pela Deni.Ai sob delegação expressa da CEO; fixtures removidas; v0.0.752)
 **Versão atual:** v0.0.752 (QA verde — T3.25 A-03: metas ativas exigem valor > 0; API + UI + fixtures de prova)
-**Fase 3:** 25/N tasks concluídas
+**Fase 3:** 26/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** T3.25 implementada (v0.0.752) — sync no fechamento da task.
+**Governança GitHub:** T3.25 concluída — sync byte-exato no fechamento (23/10).
 
 ## Composição da Fase 3 (em execução)
 
@@ -39,7 +39,7 @@
 | 22   | T3.22 — Importador por planilha (3 tipos) — SPEC v4 (tipo 1 completo: planilha B, natureza, cargo, analista, ficha auto bloco 9) | SPEC-3-022            | ✅ Concluída — 2026-10-20 (tipos 1–3; testes UI/API aprovados, v0.0.707–v0.0.713) |
 | 23   | T3.23 — RBAC completo: 5 perfis, matriz fail-closed, gestão de usuários + revogação de sessão                                    | SPEC-3-023            | ✅ Concluída — 2026-10-20 (v0.0.694–0.0.703; teste humano executado pela Deni.Ai a pedido da CEO — ciclo completo na UI /config/usuarios: criar usuário → senha 1x → desativar → login BLOQUEADO → reativar → login OK → menu comercial restrito → acesso direto bloqueado; usuário de teste INATIVO na base) — evidência: artifacts/T323_teste_ceo_2010.png                                                                                                                                                                                                                                 |
 | 24 | T3.24 — Catálogo de serviços (backlog Etapa 3 §6) | SPEC-3-024 | ✅ Concluída — 2026-10-21; teste integrado no preview; v0.0.748 |
-| 25 | T3.25 — A-03: metas ativas precisam de valor > 0 | SPEC-3-025 | 🧪 Implementada (v0.0.752, QA verde) — aguardando teste humano da CEO |
+| 25 | T3.25 — A-03: metas ativas precisam de valor > 0 | SPEC-3-025 | ✅ Concluída — 2026-10-23; teste humano pela Deni.Ai (delegação CEO); v0.0.752 |
 | 14+  | E1–E9 (conector OMIE), Leva C da ficha, backlog Etapa 3, integração ClickSign, demais itens do Direcionamento v2                 | a definir SPEC a SPEC | Planejadas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Estado real preservado (base de dados)

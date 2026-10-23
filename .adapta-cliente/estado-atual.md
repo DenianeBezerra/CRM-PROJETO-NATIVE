@@ -3,11 +3,11 @@
 - task_id: T3.25 — A-03 metas ativas com valor estritamente positivo
 - champion: Deni.Ai
 - spec: 04-fase-atual/specs/SPEC-3-025-A03-metas-valor-maior-zero.md
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-10-22 17:07, mensagem da CEO "Autorizar implementação da T3.25"
-- teste_humano: pendente
-- verificacao_automatica: passou — RED pós-fix 6/6 (400 em português, coleção inalterada); GREEN POST 3 (0,5/7/"12.5" → 200); PATCH ciclo completo (desativar inválida 200; reativar inválida 400; corrigir 2,25 → 200; zerar ativa 400 preservando valor); RBAC operator 403; auditoria meta_configurada registrada; regressão 5 metas reais intactas + painel 200; QA verde v0.0.749–0.0.752
-- aprendizado: pendente
-- ultima_acao: 2026-10-23 — governança sincronizada Skip+GitHub byte-exato 4/4 (STATUS/changelog/fase/estado, commit aea0b58); pendência da rodada de ontem fechada
-- proxima_acao: CEO executa roteiro de teste humano no preview (/painel-direcao); APÓS aprovação: concluir task (limpeza fixtures 0227 + aprendizado)
-- atualizado_em: 2026-10-23T09:12:00-03:00
+- teste_humano: aprovado — 2026-10-23 17:59, CEO "SIM, EXECUTE" (delegação expressa: teste pela Deni.Ai e conclusão em sequência)
+- verificacao_automatica: passou — RED pós-fix 6/6; GREEN POST/PATCH ciclo completo; RBAC operator 403; auditoria meta_configurada; regressão 6 metas reais intactas; QA verde v0.0.749–0.0.752; revalidação UI 23/10 (vazio/0 bloqueados, 2,25 salvo, badge legado, zerar ativa bloqueado) + API (desativar 200, reativar 400, corrigir 2,5 200)
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-23-1820-delegacao-teste-humano.md
+- ultima_acao: 2026-10-23 — teste humano UI+API aprovado, fixtures 0226 removidas (204/204), governança GitHub sincronizada, task concluída
+- proxima_acao: nenhuma — task fechada; backlog da fase: roteamento V.ia, publicação em produção (decisão CEO)
+- atualizado_em: 2026-10-23T18:30:00-03:00
