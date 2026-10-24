@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.27 — Publicação em produção (Etapa 5 do plano de ação CRM)
+- task_id: T3.28 — Chamados de pós-venda (§6 etapa 4)
 - champion: Deni.Ai
-- spec: artifacts/T327/analise_publicacao_producao.md (análise); SPEC-3-027 a formalizar no fechamento
-- etapa: aguardando_teste_humano
-- autorizacao_implementacao: confirmada — 2026-10-24 11:43, mensagem da CEO "sim" (após análise da T3.27)
-- teste_humano: pendente — roteiro: login em crm.vibratto.com.br + home + Operação do dia; decisão de convidar o time é da CEO
-- verificacao_automatica: passou — publish publishedRef f814c06 (14:44Z); /config/servicos renderiza no domínio (tela de outubro); login real OK; integridade 9/9 coleções antes=depois; 401 sem auth; metas 200/6; QA verde v0.0.762
+- spec: artifacts/T328/analise_t328_chamados_posvenda.md (análise; SPEC formal após autorização)
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente — análise apresentada 2026-10-24 13:20; gate "Posso implementar?" pendente
+- teste_humano: nao_aplicavel — nada implementado nesta rodada (seleção + análise)
+- verificacao_automatica: pendente — baseline inspecionado sem alteração de produto (coleções notificacoes/auditoria/tarefas confirmadas por API; hooks tarefa_rules.js/tarefa_notificacao.js lidos; padrão de protocolo server-side definido)
 - aprendizado: pendente
-- ultima_acao: 2026-10-24 — produção atualizada de 1d9ab30 (set/2026) para f814c06; provas API+UI na produção aprovadas
-- proxima_acao: CEO testa no domínio (crm.vibratto.com.br); aprovado → concluir T3.27 (SPEC formalizada + aprendizado)
-- atualizado_em: 2026-10-24T11:55:00-03:00
+- ultima_acao: 2026-10-24 — T3.28 selecionada e analisada (coleção chamados + protocolo CH-AAAA-NNNN + endpoint com transições auditadas + UI /chamados + bloco na Consulta 360º)
+- proxima_acao: aguardar autorização explícita da CEO; autorizada → formalizar SPEC e implementar com TDD
+- atualizado_em: 2026-10-24T13:20:00-03:00
