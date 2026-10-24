@@ -11,3 +11,4 @@
 - 2026-10-21T21:55:00-03:00 · task V.ia estágio 1 · sem sinal reutilizável · padrões já conhecidos aplicados (guard role+perfil T3.23, migrate() em hook servido evitado, fixtures invalidadas) sem causa raiz nova
 - 2026-10-21T22:59:00-03:00 · task T3.24 (Catálogo de serviços) · sem sinal reutilizável · CRUD/RBAC e integração de opções seguiram padrões conhecidos; revalidação não revelou restrição nova
 - 2026-10-23T18:30:00-03:00 · task T3.25 · capturado · AP-2026-10-23-1820-delegacao-teste-humano.md — delegação expressa de teste humano + conclusão em sequência funciona quando o roteiro é objetivo e as provas são reexecutadas por API antes de fechar
+- 2026-10-24T09:00:00-03:00 · task T3.26 · capturado · AP-2026-10-24-0900-via-roteamento-sob-demanda.md — requisito "automático" para IA de apoio interno: gatilho sob demanda no estágio 1, automático só quando a resposta vai ao cliente
