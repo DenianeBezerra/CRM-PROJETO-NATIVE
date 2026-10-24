@@ -2,7 +2,7 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 26/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma — T3.25 concluída; backlog: roteamento V.ia, publicação em produção
+**Task ativa:** T3.26 — Roteamento V.ia (classificação do assunto §4.2) — implementada e provada, aguardando teste humano (v0.0.754)
 **Última task concluída:** T3.25 — A-03 metas ativas > 0 (2026-10-23 — teste humano pela Deni.Ai sob delegação expressa da CEO; fixtures removidas; v0.0.752)
 **Versão atual:** v0.0.752 (QA verde — T3.25 A-03: metas ativas exigem valor > 0; API + UI + fixtures de prova)
 **Fase 3:** 26/N tasks concluídas
