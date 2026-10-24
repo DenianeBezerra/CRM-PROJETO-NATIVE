@@ -2,9 +2,9 @@
 
 **Status:** Fase 3 EM EXECUÇÃO — 28/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.30 — A-19/A-20/A-21 da ficha operacional — implementada e provada, aguardando teste humano (v0.0.781)
+**Task ativa:** nenhuma — T3.30 concluída; backlog: integrações ClickSign/OMIE (credenciais pendentes), C-02+média (tradução de identificadores), A-04..A-13; V.ia estágio 3 (etapa 5, condicionado a operação estável)
 **Última task concluída:** T3.27 — V.ia Estágio 2 (2026-10-24 — teste humano aprovado pela CEO; v0.0.759)
-**Versão atual:** v0.0.781 (QA verde; T3.30 — multi-selects na ficha + completude server-side + trava de ativação)
+**Versão atual:** v0.0.782 (QA verde; T3.30 concluída — ficha operacional com multi-selects, completude e trava)
 **Fase 3:** 28/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
