@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.29 — Busca global em todas as telas (M-19)
+- task_id: T3.28 — Chamados de pós-venda (§6 etapa 4)
 - champion: Deni.Ai
-- spec: análise apresentada no chat 24/10 17:30
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-24 17:34, CEO "sim"
-- teste_humano: aprovado — CEO "teste e estando ok, conclua" 17:48; UI provada pela Deni.Ai em 3 telas (Pipeline, ficha da empresa, Operação do dia)
-- verificacao_automatica: passou — QA verde v0.0.776–0.0.777; Home sem busca duplicada
-- aprendizado: registrado — topbar no Layout é o padrão para recursos globais de UI
-- ultima_acao: 2026-10-24 — T3.29 CONCLUÍDA; governança sincronizada GitHub+Skip
-- proxima_acao: nenhuma — task concluída; backlog: ClickSign/OMIE (credenciais da CEO), A-19/A-20/A-21 da ficha
-- atualizado_em: 2026-10-24T17:55:00-03:00
+- spec: artifacts/T328/analise_t328_chamados_posvenda.md (análise; SPEC formal após autorização)
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente — análise apresentada 2026-10-24 13:20; gate "Posso implementar?" pendente
+- teste_humano: nao_aplicavel — nada implementado nesta rodada (seleção + análise)
+- verificacao_automatica: pendente — baseline inspecionado sem alteração de produto (coleções notificacoes/auditoria/tarefas confirmadas por API; hooks tarefa_rules.js/tarefa_notificacao.js lidos; padrão de protocolo server-side definido)
+- aprendizado: pendente
+- ultima_acao: 2026-10-24 — T3.28 selecionada e analisada (coleção chamados + protocolo CH-AAAA-NNNN + endpoint com transições auditadas + UI /chamados + bloco na Consulta 360º)
+- proxima_acao: aguardar autorização explícita da CEO; autorizada → formalizar SPEC e implementar com TDD
+- atualizado_em: 2026-10-24T13:20:00-03:00
