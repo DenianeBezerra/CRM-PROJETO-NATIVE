@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.28 — Chamados de pós-venda (§6 etapa 4)
+- task_id: T3.29 — Busca global em todas as telas (M-19)
 - champion: Deni.Ai
-- spec: artifacts/T328/analise_t328_chamados_posvenda.md
+- spec: análise apresentada no chat 24/10 17:30
 - etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-24 16:41, CEO "sim"
-- teste_humano: aprovado — delegado pela CEO e executado pela Deni.Ai (CH-2026-0005 criado pela UI, resolvido com resolução obrigatória, fechado); CEO confirmou "ok" 2026-10-24 17:17
-- verificacao_automatica: passou — RED 7/7; GREEN ciclo completo (CH-2026-0001..0004); auditoria create/update com ocorrido_em; notificação tarefa_atribuida com origem; GET lista + filtro; UI renderizada; regressão via/metas/tarefas 200; QA verde v0.0.765–0.0.774
-- aprendizado: registrado — coleção nova sem campo created (sort -created falha silenciosamente em catch; usar autodate próprio); auditoria exige ocorrido_em e acao do select fixo; notificações usam tipo/origem
-- ultima_acao: 2026-10-24 — T3.28 CONCLUÍDA; governança sincronizada GitHub+Skip
-- proxima_acao: nenhuma — task concluída; backlog: ClickSign/OMIE (credenciais da CEO), V.ia estágio 3 (etapa 5, condicionado)
-- atualizado_em: 2026-10-24T17:20:00-03:00
+- autorizacao_implementacao: confirmada — 2026-10-24 17:34, CEO "sim"
+- teste_humano: aprovado — CEO "teste e estando ok, conclua" 17:48; UI provada pela Deni.Ai em 3 telas (Pipeline, ficha da empresa, Operação do dia)
+- verificacao_automatica: passou — QA verde v0.0.776–0.0.777; Home sem busca duplicada
+- aprendizado: registrado — topbar no Layout é o padrão para recursos globais de UI
+- ultima_acao: 2026-10-24 — T3.29 CONCLUÍDA; governança sincronizada GitHub+Skip
+- proxima_acao: nenhuma — task concluída; backlog: ClickSign/OMIE (credenciais da CEO), A-19/A-20/A-21 da ficha
+- atualizado_em: 2026-10-24T17:55:00-03:00

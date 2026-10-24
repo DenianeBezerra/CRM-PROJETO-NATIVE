@@ -1,3 +1,7 @@
+## [0.0.777] — 2026-10-24 — T3.29 Busca global em todas as telas CONCLUÍDA (fase 30/N)
+
+- 2026-10-24 · [Deni.Ai] · **T3.29 — Busca global em todas as telas (M-19) CONCLUÍDA.** Topbar fixa no Layout com BuscaGlobal + SinoNotificacoes em todas as telas autenticadas; busca removida do header interno do Home. Autorização CEO "sim" 17:34; teste humano CEO "teste e estando ok, conclua" 17:48 (UI provada pela Deni.Ai em Pipeline, ficha da empresa e Operação do dia: busca "Felicidade" retornou empresa+contato+oportunidade e navegou para o destino). QA verde v0.0.776–0.0.777. Fase 3: 30/N.
+
 ## [0.0.774] — 2026-10-24 — T3.28 Chamados de pós-venda CONCLUÍDA (fase 29/N)
 
 - 2026-10-24 · [Deni.Ai] · **T3.28 — Chamados de pós-venda (§6 etapa 4) CONCLUÍDA.** Teste humano delegado pela CEO e executado pela Deni.Ai (criação de CH-2026-0005 pela UI; transição resolvido com resolução obrigatória; fechamento; provas por API; screenshot artifacts/679a1f70) + confirmação da CEO ("ok" 17:17). Revalidação do zero: 401, reabrir fechado 400, delete 403, GET 5 chamados. Estado concluida nos 3 lados. Fase 3: 29/N.
