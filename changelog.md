@@ -1,3 +1,7 @@
+## [0.0.785] — 2026-10-24 — T3.31 C-02 camada global de tradução CONCLUÍDA (fase 32/N)
+
+- 2026-10-24 · [Deni.Ai] · **T3.31 — C-02 (M-01) camada global de tradução de identificadores CONCLUÍDA.** src/lib/rotulos.ts central (todos os dicionários + helper rotulo() com fallback seguro); aplicado na busca global (estágio do negócio traduzido — provado na UI: "Felicidade Collective · Fechado (ganho) · R$ 8.336,11", antes "fechado_ganho" cru), ficha da empresa (status empresa/implantação) e ficha operacional (Origem da informação e Rotas de emissão viraram multi-selects — A-19 completo). Zero migration, zero mudança de dados. Autorização CEO "sim" 18:48; teste humano CEO "ok" 19:39. QA verde v0.0.784–0.0.785. Fase 3: 32/N.
+
 ## [0.0.782] — 2026-10-24 — T3.30 A-19/A-20/A-21 da ficha operacional CONCLUÍDA (fase 31/N)
 
 - 2026-10-24 · [Deni.Ai] · **T3.30 — A-19/A-20/A-21 da ficha operacional CONCLUÍDA.** Teste humano delegado pela CEO e executado pela Deni.Ai ("teste você mesmo"): badge "Ficha 100% completa" visível na UI, checkbox Tesouraria marcado+salvo (persistiu) e desmarcado+salvo (restaurou), ciclo em_implantação→ativo pela UI OK; trava de ativação provada por API (400 com pendências; pela UI o salvar() reenvia valores em cache — lição registrada). Dados reais da Felicidade preservados. CEO confirmou "ok, conclua e siga" 18:36. Estado concluida nos 3 lados. Fase 3: 31/N.
