@@ -1,14 +1,14 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 28/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 33/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** nenhuma — T3.31 concluída; backlog: integrações ClickSign/OMIE (piloto OMIE definido pela CEO; aguarda cliente piloto + credenciais no cofre), A-04..A-13; V.ia estágio 3 (etapa 5, condicionado a operação estável)
-**Última task concluída:** T3.27 — V.ia Estágio 2 (2026-10-24 — teste humano aprovado pela CEO; v0.0.759)
-**Versão atual:** v0.0.785 (QA verde; T3.31 concluída — camada global de tradução de identificadores)
-**Fase 3:** 28/N tasks concluídas
+**Task ativa:** T3.32 — cofre de credenciais + conector OMIE (implementada v0.0.787–0.0.789; aguarda credencial real do cliente piloto cadastrada em /integracoes + teste de conexão para fechar); backlog: credencial OMIE do piloto, A-04..A-13, V.ia estágio 3 (etapa 5, condicionado a operação estável)
+**Última task concluída:** T3.33 — Consulta OMIE (2026-10-26 — teste humano delegado e executado pela Deni.Ai, confirmado pela CEO; v0.0.793)
+**Versão atual:** v0.0.793 (QA verde; T3.33 concluída — Consulta OMIE + fix global msgErro)
+**Fase 3:** 33/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** T3.27 concluída — sync byte-exato no fechamento (24/10).
+**Governança GitHub:** T3.33 concluída — sync byte-exato no fechamento (26/10).
 
 ## Composição da Fase 3 (em execução)
 
