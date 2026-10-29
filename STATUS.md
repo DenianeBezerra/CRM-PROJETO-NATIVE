@@ -1,14 +1,14 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 34/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 36/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.32 — cofre de credenciais + conector OMIE (implementada v0.0.787–0.0.789; aguarda credencial real do cliente piloto cadastrada em /integracoes + teste de conexão para fechar); backlog: credencial OMIE do piloto, T3.35 (template de demandas na aprovação da proposta), A-04..A-13, V.ia estágio 3 (etapa 5, condicionado a operação estável)
-**Última task concluída:** T3.34 — Kanban operacional (2026-10-26 — teste humano delegado e executado pela Deni.Ai, confirmado pela CEO; v0.0.797)
-**Versão atual:** v0.0.797 (QA verde; T3.34 concluída — Kanban operacional)
-**Fase 3:** 34/N tasks concluídas
+**Task ativa:** T3.35 — template de demandas na aprovação da proposta (implementada v0.0.801–0.0.802; aguarda teste humano); backlog: credencial OMIE do piloto (T3.32), A-04..A-13, V.ia estágio 3 (etapa 5, condicionado a operação estável)
+**Última task concluída:** T3.36 — Biblioteca de escopo por linha de serviço + responsável por área (2026-10-27 — validada pela CEO e revalidada pela Deni.Ai 9/9; v0.0.807)
+**Versão atual:** v0.0.807 (QA verde; T3.36 concluída — biblioteca de escopo + responsável por área)
+**Fase 3:** 36/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
-**Governança GitHub:** T3.34 concluída — sync byte-exato no fechamento (26/10).
+**Governança GitHub:** T3.36 concluída — sync byte-exato no fechamento (27/10).
 
 ## Composição da Fase 3 (em execução)
 

@@ -16,3 +16,4 @@
 - 2026-10-24T11:00:00-03:00 · task T3.27 · capturado · AP-2026-10-24-1100-via-estagio2-rascunho-envio-manual.md — fronteira de estágio de IA materializada na UI: rascunho marcado, sem botão de envio, aviso de que a assistente não envia
 - 2026-10-26T07:50:00-03:00 · task T3.33 · AP-2026-10-26-0750-msgerro-sdk-pocketbase · capturado — padrão do SDK PocketBase (corpo do erro em err.data) afeta todas as telas
 - 2026-10-26T20:15:00-03:00 · task T3.34 · AP-2026-10-26-2015-rbac-users-self-only · capturado — gestão de usuários só pelos endpoints /backend/v1/usuarios* (PATCH direto em users dá 404 mesmo para admin)
+- 2026-10-29T08:10:00-03:00 · task T3.36 · AP-2026-10-29-rbac-hook-app · capturado — endpoints custom com $app IGNORAM as regras da coleção; restrição de perfil precisa estar no hook (kanban estava aberto ao comercial desde a T3.34)
