@@ -1,10 +1,10 @@
 # Status
 
-**Status:** Fase 3 EM EXECUÇÃO — 36/N tasks concluídas
+**Status:** Fase 3 EM EXECUÇÃO — 37/N tasks concluídas
 **Cliente:** Vibratto Assessoria Empresarial Ltda.
-**Task ativa:** T3.35 — template de demandas na aprovação da proposta (implementada v0.0.801–0.0.802; aguarda teste humano); backlog: credencial OMIE do piloto (T3.32), A-04..A-13, V.ia estágio 3 (etapa 5, condicionado a operação estável)
-**Última task concluída:** T3.36 — Biblioteca de escopo por linha de serviço + responsável por área (2026-10-27 — validada pela CEO e revalidada pela Deni.Ai 9/9; v0.0.807) + correção T3.36b — arquivamento de demandas, dedup e portão de confirmação no aplicar escopo (2026-10-29 — defeito reportado pela CEO no uso real; v0.0.818)
-**Versão atual:** v0.0.818 (QA verde; T3.36b — arquivamento com auditoria + portão de confirmação contra duplicação de demandas)
+**Task ativa:** nenhuma — T3.36d concluída; aguardando próxima autorização. Aberto: teste humano da T3.35 (implementada v0.0.801–0.0.802); backlog: credencial OMIE do piloto (T3.32), A-04..A-13, V.ia estágio 3 (etapa 5, condicionado a operação estável)
+**Última task concluída:** T3.36d — limpeza das oportunidades de teste (2026-10-30 — arquivados 5 negócios de teste com migration 0236 e filtro de arquivados em Oportunidades/Pipeline/Kanban; mantidos Felicidade, Inside/Bruno Filleti e Pedra Bosso/Fernanda Bosso; v0.0.820) + T3.36 — Biblioteca de escopo por linha de serviço + responsável por área (2026-10-27 — validada pela CEO e revalidada pela Deni.Ai 9/9; v0.0.807) + correção T3.36b — arquivamento de demandas, dedup e portão de confirmação no aplicar escopo (2026-10-29 — defeito reportado pela CEO no uso real; v0.0.818)
+**Versão atual:** v0.0.820 (QA verde; T3.36b — arquivamento com auditoria + portão de confirmação contra duplicação de demandas)
 **Fase 3:** 36/N tasks concluídas
 **Preview:** https://tela-de-login-crm-a400a--preview.goskip.app — operação do dia em /operacao-dia
 **Produção:** publicada (isPublished=true no Skip desde set/2026; produção em tela-de-login-crm-a400a.goskip.app)
