@@ -1,13 +1,13 @@
 # Estado atual — Adapta Cliente
 
-- task_id: T3.36 — Biblioteca de escopo por linha de serviço + responsável por área + aplicação em 1 clique
+- task_id: T3.36b — Correção do escopo por cliente (arquivamento de demanda, dedup e portão de confirmação)
 - champion: Deni.Ai
-- spec: decidido no chat 27/10 — CEO escolheu "Construir a biblioteca + responsável por serviço" e determinou acesso restrito ao time de operação
+- spec: defeito reportado pela CEO no uso real (29/10) — "não localizei aonde mudar do meu nome para o nome do analista"; correção autorizada com "sim"
 - etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-27, CEO "Construir a biblioteca + responsável por serviço"
-- teste_humano: aprovado — CEO "validado, valide você também" (28/10)
-- verificacao_automatica: revalidado do zero em 2026-10-28 — 9/9 PASSOU (401 sem auth em 4 endpoints; biblioteca 20 itens BPO 11/Controladoria 3/CFO 3/Tesouraria 3; 6 áreas com responsável e 3 analistas distintos no AG; aplicar BPO idempotente 0 criadas/11 puladas; 400 sem empresa/sem linhas/área inválida; 404 empresa inexistente; 403 comercial nos 5 endpoints; UI /escopo-cliente HTTP 200; auditoria aplicar_escopo)
-- aprendizado: capturado — AP-2026-10-29 endpoints custom com $app ignoram regras da coleção (RBAC precisa no hook)
-- ultima_acao: 2026-10-28 — validação independente e fechamento com governança
-- proxima_acao: nenhuma — task concluída; pendências vivas: T3.35 aguarda teste humano; T3.32 aguarda credencial OMIE; atribuição das 13 demandas da Felicidade (ação da CEO na tela)
-- atualizado_em: 2026-10-28T08:10:00-03:00
+- autorizacao_implementacao: confirmada — 2026-10-29, CEO "sim" (após relatório do defeito e do plano de correção)
+- teste_humano: pendente — quadro da Felicidade provado por mim (12 demandas, 0 atrasadas, Karine 6 / Deniane 5 / Leandro 1); a CEO ainda não conferiu a tela /escopo-cliente após a correção
+- verificacao_automatica: provado em 2026-10-29 — motivo <5 caracteres → 400; comercial → 403; arquivar 10 duplicatas → quadro 22→12; aplicar sem confirmar → criadas 0 / puladas 12 / exige_confirmacao true; duas chamadas seguidas → quadro estável em 12; 12/12 atribuições persistidas no banco; auditoria com 10 arquivamentos e motivo; UI: 12 selects na tabela "Demandas já no quadro", atribuição "Conciliação bancária diária" → Renato Bravo persistiu; quadro filtrado pela Felicidade = 12 cards
+- aprendizado: capturado — AP-2026-10-29b dedup por semelhança de texto é frágil quando o dado nasce de duas redações (contrato × biblioteca); a criação precisa de confirmação humana, não de heurística
+- ultima_acao: 2026-10-29 — reparo determinístico dos 12 cards da Felicidade (migration 0234) + portão de confirmação + governança sincronizada
+- proxima_acao: teste humano da CEO na tela /escopo-cliente e no quadro; pendências vivas: T3.35 aguarda teste humano; T3.32 aguarda credencial OMIE
+- atualizado_em: 2026-10-29T22:20:00-03:00
